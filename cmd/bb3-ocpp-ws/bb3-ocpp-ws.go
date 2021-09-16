@@ -2,19 +2,23 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/Beep-Technologies/beepbeep3-iam/pkg/logger"
-	"github.com/Beep-Technologies/beepbeep3-ocpp/internal/handlers"
+	"github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_api"
 	"github.com/gorilla/mux"
 )
 
 func main() {
 	logger.LogInit()
+	l := log.New(os.Stdout, "", (log.Ltime | log.Lmicroseconds))
+	o := ocpp_api.NewOCPPWebSocketApp(l)
 
 	r := mux.NewRouter()
-	r.HandleFunc("/{chargePointIdentifier}", handlers.HttpUpgradeHandler)
+	r.HandleFunc("/{chargePointIdentifier}", o.HttpUpgradeHandler)
 
 	host := "0.0.0.0"
 	port := 8060
@@ -27,9 +31,9 @@ func main() {
 		WriteTimeout: 60 * time.Second,
 	}
 
-	fmt.Printf("starting server at %s ...\n", addr)
+	l.Printf("starting server at %s ...\n", addr)
 
 	if err := s.ListenAndServe(); err != nil {
-		fmt.Printf("%v\n", err)
+		l.Printf("%v\n", err)
 	}
 }

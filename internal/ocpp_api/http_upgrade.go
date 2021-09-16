@@ -1,13 +1,14 @@
-package handlers
+package ocpp_api
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
+
+	"github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_api/connection"
 )
 
 var upgrader = websocket.Upgrader{
@@ -20,7 +21,7 @@ var upgrader = websocket.Upgrader{
 // HttpUpgradeHandler handles the WebSocket opening handshake,
 // along with the OCPP-J specific constraints
 // after which, it passes the WebSocket connection to the protocol's corresponding handler
-func HttpUpgradeHandler(w http.ResponseWriter, r *http.Request) {
+func (o *OCPPWebSocketApp) HttpUpgradeHandler(w http.ResponseWriter, r *http.Request) {
 	// get the charge point identifier and decode it
 	// charge point identifiers are percent-encoded, mux decodes it by default
 	vars := mux.Vars(r)
@@ -69,20 +70,23 @@ func HttpUpgradeHandler(w http.ResponseWriter, r *http.Request) {
 		h = nil
 	}
 
-	fmt.Printf("Client connecting with identifier \"%+v\" and protocol \"%+v\"\n",
+	o.logger.Printf("Client connecting with identifier \"%+v\" and protocol \"%+v\"\n",
 		cpId,
 		selectedProtocol,
 	)
 
 	conn, err := upgrader.Upgrade(w, r, h)
 	if err != nil {
-		fmt.Printf("%+v\n", err.Error())
+		o.logger.Printf("[ERROR] %+v\n", err.Error())
 		return
 	}
 
 	switch selectedProtocol {
 	case "ocpp1.6":
-		handleOCPP16(conn)
+		c := connection.NewConnection(cpId, conn, o.logger)
+		if err := c.ServeOCPP16(); err != nil {
+			o.logger.Printf("[ERROR] %s\n", err.Error())
+		}
 	case "":
 		conn.Close()
 	}
