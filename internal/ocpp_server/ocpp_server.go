@@ -1,14 +1,15 @@
-package ocpp_api
+package ocppserver
 
 import (
+	"log"
 	"net/http"
 	"strings"
 	"time"
 
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 
-	"github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_api/connection"
+	ocpp16cs "github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_16_cs"
 )
 
 var upgrader = websocket.Upgrader{
@@ -18,14 +19,27 @@ var upgrader = websocket.Upgrader{
 	EnableCompression: false,
 }
 
+type OCPPWebSocketServer struct {
+	logger              *log.Logger
+	ocpp16centralSystem *ocpp16cs.OCPP16CentralSystem
+}
+
+func NewOCPPWebSocketServer(l *log.Logger, o16cs *ocpp16cs.OCPP16CentralSystem) (s *OCPPWebSocketServer) {
+	return &OCPPWebSocketServer{
+		logger:              l,
+		ocpp16centralSystem: o16cs,
+	}
+}
+
 // HttpUpgradeHandler handles the WebSocket opening handshake,
 // along with the OCPP-J specific constraints
 // after which, it passes the WebSocket connection to the protocol's corresponding handler
-func (o *OCPPWebSocketApp) HttpUpgradeHandler(w http.ResponseWriter, r *http.Request) {
+func (s *OCPPWebSocketServer) HttpUpgradeHandler(c *gin.Context) {
+	w, r := c.Writer, c.Request
+
 	// get the charge point identifier and decode it
-	// charge point identifiers are percent-encoded, mux decodes it by default
-	vars := mux.Vars(r)
-	cpId := vars["chargePointIdentifier"]
+	// charge point identifiers are percent-encoded
+	cpId := c.Param("chargePointIdentifier")
 
 	if cpId == "" {
 		http.Error(w, "Invalid Charge Point Identifier", http.StatusNotFound)
@@ -70,23 +84,20 @@ func (o *OCPPWebSocketApp) HttpUpgradeHandler(w http.ResponseWriter, r *http.Req
 		h = nil
 	}
 
-	o.logger.Printf("Client connecting with identifier \"%+v\" and protocol \"%+v\"\n",
+	s.logger.Printf("Client connecting with identifier \"%+v\" and protocol \"%+v\"\n",
 		cpId,
 		selectedProtocol,
 	)
 
 	conn, err := upgrader.Upgrade(w, r, h)
 	if err != nil {
-		o.logger.Printf("[ERROR] %+v\n", err.Error())
+		s.logger.Printf("[ERROR] %+v\n", err.Error())
 		return
 	}
 
 	switch selectedProtocol {
 	case "ocpp1.6":
-		c := connection.NewConnection(cpId, conn, o.logger)
-		if err := c.ServeOCPP16(); err != nil {
-			o.logger.Printf("[ERROR] %s\n", err.Error())
-		}
+		s.ocpp16centralSystem.ConnectChargePoint(cpId, conn)
 	case "":
 		conn.Close()
 	}

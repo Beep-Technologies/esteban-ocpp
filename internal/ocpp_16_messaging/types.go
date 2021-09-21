@@ -8,6 +8,16 @@ const (
 	CALLERROR  OCPP16MessageType = 4
 )
 
+func IsOCPP16MessageType(s OCPP16MessageType) bool {
+	if s == CALL ||
+		s == CALLRESULT ||
+		s == CALLERROR {
+		return true
+	}
+
+	return false
+}
+
 type OCPP16CallMessage struct {
 	MessageTypeID OCPP16MessageType
 	UniqueID      string
@@ -36,6 +46,23 @@ const (
 	GenericError                 OCPP16CallErrorCode = "GenericError"
 )
 
+func IsOCPP16CallErrorCode(s OCPP16CallErrorCode) bool {
+	if s == NotImplemented ||
+		s == NotSupported ||
+		s == InternalError ||
+		s == ProtocolError ||
+		s == SecurityError ||
+		s == FormationViolation ||
+		s == PropertyConstraintViolation ||
+		s == OccurenceConstraintViolation ||
+		s == TypeConstraintViolation ||
+		s == GenericError {
+		return true
+	}
+
+	return false
+}
+
 type OCPP16CallError struct {
 	MessageTypeID    OCPP16MessageType
 	UniqueID         string
@@ -43,3 +70,17 @@ type OCPP16CallError struct {
 	ErrorDescription string
 	ErrorDetails     interface{}
 }
+
+type OCPP16Status string
+
+const (
+	Available     OCPP16Status = "Available"
+	Preparing     OCPP16Status = "Preparing"
+	Charging      OCPP16Status = "Charging"
+	SuspendedEV   OCPP16Status = "SuspendedEV"
+	SuspendedEVSE OCPP16Status = "SuspendedEVSE"
+	Finishing     OCPP16Status = "Finishing"
+	Reserved      OCPP16Status = "Reserved"
+	Unavailable   OCPP16Status = "Unavailable"
+	Faulted       OCPP16Status = "Faulted"
+)

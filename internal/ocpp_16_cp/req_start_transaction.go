@@ -1,18 +1,15 @@
-package handlers
+package ocpp16cp
 
 import (
 	"encoding/json"
-	"time"
 
-	msg "github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_api/messaging"
+	msg "github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_16_messaging"
 	ocpp16 "github.com/Beep-Technologies/beepbeep3-ocpp/internal/schemas/ocpp_16"
 )
 
-const RFC3339Milli = "2006-01-02T15:04:05.000Z07:00"
-
-// BootNotification handles the Boot Notification operation, initiated by the charge point
-func BootNotification(req *msg.OCPP16CallMessage) (*msg.OCPP16CallResult, *msg.OCPP16CallError) {
-	b := &ocpp16.BootNotificationRequest{}
+// startTransaction handles the Start Transaction operation, initiated by the charge point
+func (c *OCPP16ChargePoint) startTransaction(req *msg.OCPP16CallMessage) (*msg.OCPP16CallResult, *msg.OCPP16CallError) {
+	b := &ocpp16.StartTransactionRequest{}
 
 	p, err := json.Marshal(req.Payload)
 	if err != nil {
@@ -36,12 +33,15 @@ func BootNotification(req *msg.OCPP16CallMessage) (*msg.OCPP16CallResult, *msg.O
 		}
 	}
 
-	currentTime := time.Now().UTC().Format(RFC3339Milli)
+	rb := &ocpp16.StartTransactionResponse{
+		TransactionId: 21,
+		IdTagInfo: &ocpp16.IdTagInfo{
+			Status: "Accepted",
+		},
+	}
 
-	rb := &ocpp16.BootNotificationResponse{
-		Status:      "Accepted",
-		CurrentTime: currentTime,
-		Interval:    300,
+	c.currentTransaction = &currentTransaction{
+		transactionId: 21,
 	}
 
 	return &msg.OCPP16CallResult{

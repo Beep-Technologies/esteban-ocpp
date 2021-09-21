@@ -7,18 +7,35 @@ import (
 	"os"
 	"time"
 
-	"github.com/Beep-Technologies/beepbeep3-iam/pkg/logger"
-	"github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_api"
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
+
+	"github.com/Beep-Technologies/beepbeep3-ocpp/api/rest/controller"
+	"github.com/Beep-Technologies/beepbeep3-ocpp/api/rest/router"
+	ocpp16cs "github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_16_cs"
+	ocppserver "github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_server"
 )
 
-func main() {
-	logger.LogInit()
-	l := log.New(os.Stdout, "", (log.Ltime | log.Lmicroseconds))
-	o := ocpp_api.NewOCPPWebSocketApp(l)
+// @title BB3 OCPP API
+// @version 2.0
+// @description Service to interface with OCPP-compliant charge points
 
-	r := mux.NewRouter()
-	r.HandleFunc("/{chargePointIdentifier}", o.HttpUpgradeHandler)
+// @contact.name Lowen
+// @contact.email lowen@beepbeep.tech
+
+// @host dev.beepbeep.tech
+// @BasePath /v2
+// @Schemes https
+func main() {
+	l := log.New(os.Stdout, "", 0)
+
+	o16cs := ocpp16cs.NewOCPP16CentralSystem(l)      // ocpp 1.6 central system
+	o := ocppserver.NewOCPPWebSocketServer(l, o16cs) // ocpp websocket server
+	oa := controller.NewOperationsAPI(o16cs)         // operations api controller
+	rt := router.NewRouter(o, oa)                    // api router
+
+	r := gin.Default()
+	r.Use(gin.LoggerWithWriter(l.Writer()))
+	rt.Apply(r)
 
 	host := "0.0.0.0"
 	port := 8060

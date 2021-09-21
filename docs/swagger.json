@@ -1,0 +1,115 @@
+{
+    "schemes": [
+        "https"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "description": "Service to interface with OCPP-compliant charge points",
+        "title": "BB3 OCPP API",
+        "contact": {
+            "name": "Lowen",
+            "email": "lowen@beepbeep.tech"
+        },
+        "version": "2.0"
+    },
+    "host": "dev.beepbeep.tech",
+    "basePath": "/v2",
+    "paths": {
+        "/ocpp/operations/remote-start-transaction": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Operations"
+                ],
+                "summary": "Request Charge Point to Start a Transaction",
+                "parameters": [
+                    {
+                        "description": "Post RemoteStartTransactionReq body",
+                        "name": "Body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/rpc.RemoteStartTransactionReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/rpc.RemoteStartTransactionResp"
+                        }
+                    }
+                }
+            }
+        },
+        "/ocpp/operations/remote-stop-transaction": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Operations"
+                ],
+                "summary": "Request Charge Point to Stop a Transaction",
+                "parameters": [
+                    {
+                        "description": "Post RemoteStopTransactionReq body",
+                        "name": "Body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/rpc.RemoteStopTransactionReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/rpc.RemoteStopTransactionResp"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "rpc.RemoteStartTransactionReq": {
+            "type": "object",
+            "properties": {
+                "connector_id": {
+                    "type": "integer"
+                },
+                "cp_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "rpc.RemoteStartTransactionResp": {
+            "type": "object"
+        },
+        "rpc.RemoteStopTransactionReq": {
+            "type": "object",
+            "properties": {
+                "cp_id": {
+                    "type": "string"
+                },
+                "transaction_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "rpc.RemoteStopTransactionResp": {
+            "type": "object"
+        }
+    }
+}

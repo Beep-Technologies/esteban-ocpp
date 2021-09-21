@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package ocpp;
+
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+
+option go_package = "rpc";
+option (gogoproto.marshaler_all) = true;
+option (gogoproto.sizer_all) = true;
+option (gogoproto.unmarshaler_all) = true;
+option (gogoproto.goproto_getters_all) = false;
+option (gogoproto.face_all) = true;
+
+
+message RemoteStartTransactionReq {
+    string cp_id = 1;
+    uint32 connector_id = 2;
+}
+
+message RemoteStartTransactionResp {
+}
+
+message RemoteStopTransactionReq {
+    string cp_id = 1;
+    uint64 transaction_id = 2;
+}
+
+message RemoteStopTransactionResp {
+}
