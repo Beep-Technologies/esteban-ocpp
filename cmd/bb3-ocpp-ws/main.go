@@ -8,6 +8,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+
+	"github.com/Beep-Technologies/beepbeep3-iam/pkg/db"
 
 	"github.com/Beep-Technologies/beepbeep3-ocpp/api/rest/controller"
 	"github.com/Beep-Technologies/beepbeep3-ocpp/api/rest/router"
@@ -26,6 +29,11 @@ import (
 // @BasePath /v2
 // @Schemes https
 func main() {
+	// load from .env file. doesn't matter if an error is returned
+	godotenv.Load()
+
+	db.ConnectDataBase()
+
 	l := log.New(os.Stdout, "", 0)
 
 	o16cs := ocpp16cs.NewOCPP16CentralSystem(l)      // ocpp 1.6 central system

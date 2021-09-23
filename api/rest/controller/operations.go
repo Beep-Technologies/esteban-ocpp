@@ -1,12 +1,16 @@
 package controller
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/Beep-Technologies/beepbeep3-iam/pkg/constants"
+	"github.com/Beep-Technologies/beepbeep3-iam/pkg/db"
 	"github.com/Beep-Technologies/beepbeep3-ocpp/api/rpc"
 	ocpp16cs "github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_16_cs"
+	"github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/operations"
 )
 
 type OperationsAPI struct {
@@ -40,7 +44,11 @@ func (api *OperationsAPI) RemoteStartTransaction(c *gin.Context) {
 		return
 	}
 
-	cp, err := api.ocpp16CentralSystem.GetChargePoint(req.CpId)
+	srv := operations.NewService(db.ORM, api.ocpp16CentralSystem)
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, constants.CtxKey("gin"), c)
+	res, err := srv.RemoteStartTransaction(ctx, req)
+
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"status":  http.StatusBadRequest,
@@ -50,12 +58,10 @@ func (api *OperationsAPI) RemoteStartTransaction(c *gin.Context) {
 		return
 	}
 
-	cp.RemoteStartTransaction(int(req.GetConnectorId()))
-
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
 		"message": "Success",
-		"data":    &rpc.RemoteStartTransactionResp{},
+		"data":    res,
 	})
 }
 
@@ -80,17 +86,11 @@ func (api *OperationsAPI) RemoteStopTransaction(c *gin.Context) {
 		return
 	}
 
-	cp, err := api.ocpp16CentralSystem.GetChargePoint(req.CpId)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": err.Error(),
-			"data":    nil,
-		})
-		return
-	}
+	srv := operations.NewService(db.ORM, api.ocpp16CentralSystem)
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, constants.CtxKey("gin"), c)
+	res, err := srv.RemoteStopTransaction(ctx, req)
 
-	err = cp.RemoteStopTransaction(int(req.TransactionId))
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"status":  http.StatusBadRequest,
@@ -103,6 +103,6 @@ func (api *OperationsAPI) RemoteStopTransaction(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
 		"message": "Success",
-		"data":    &rpc.RemoteStopTransactionResp{},
+		"data":    res,
 	})
 }

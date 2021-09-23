@@ -106,7 +106,12 @@ var doc = `{
             }
         },
         "rpc.RemoteStartTransactionResp": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+                "transaction_id": {
+                    "type": "integer"
+                }
+            }
         },
         "rpc.RemoteStopTransactionReq": {
             "type": "object",

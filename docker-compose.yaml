@@ -1,19 +1,37 @@
 version: "3"
 services:
-  bb3-ocpp-ws:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - 8060:8060
+  # bb3-ocpp-ws:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.bb3-ocpp-ws
+  #   ports:
+  #     - 8060:8060
+  #   environment:
+  #     - DB_HOST=tsdb
+  #     - DB_NAME=beepbeep3
+  #     - DB_USER=postgres
+  #     - DB_PASSWORD=beep
+  #     - DB_SSLMODE=disable
+  #   depends_on:
+  #     - tsdb
 
   tsdb:
     image: timescale/timescaledb:latest-pg13
     ports:
       - 5432:5432
     environment:
-      - POSTGRES_PASSWORD=pass
+      - POSTGRES_USER=beep
+      - POSTGRES_PASSWORD=beep
       - POSTGRES_DB=beepbeep3
       - TIMESCALEDB_TELEMETRY=off
     volumes:
       - ./create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql:ro
+
+  pgweb:
+    image: sosedoff/pgweb
+    ports: 
+      - 8062:8081
+    environment:
+      - DATABASE_URL=postgres://beep:beep@tsdb:5432/beepbeep3?sslmode=disable
+    depends_on:
+      - tsdb

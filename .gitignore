@@ -1,5 +1,8 @@
 # .env files
 .env
 
+# sqlboiler toml files
+*.toml
+
 # scratch files and example data
 scratch

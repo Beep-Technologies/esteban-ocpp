@@ -14,15 +14,16 @@ option (gogoproto.face_all) = true;
 
 message RemoteStartTransactionReq {
     string cp_id = 1;
-    uint32 connector_id = 2;
+    int32 connector_id = 2;
 }
 
 message RemoteStartTransactionResp {
+    int32 transaction_id = 1;
 }
 
 message RemoteStopTransactionReq {
     string cp_id = 1;
-    uint64 transaction_id = 2;
+    int32 transaction_id = 2;
 }
 
 message RemoteStopTransactionResp {

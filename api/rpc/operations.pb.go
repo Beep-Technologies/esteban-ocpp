@@ -26,7 +26,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type RemoteStartTransactionReq struct {
 	CpId                 string   `protobuf:"bytes,1,opt,name=cp_id,json=cpId,proto3" json:"cp_id,omitempty"`
-	ConnectorId          uint32   `protobuf:"varint,2,opt,name=connector_id,json=connectorId,proto3" json:"connector_id,omitempty"`
+	ConnectorId          int32    `protobuf:"varint,2,opt,name=connector_id,json=connectorId,proto3" json:"connector_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -66,6 +66,7 @@ func (m *RemoteStartTransactionReq) XXX_DiscardUnknown() {
 var xxx_messageInfo_RemoteStartTransactionReq proto.InternalMessageInfo
 
 type RemoteStartTransactionResp struct {
+	TransactionId        int32    `protobuf:"varint,1,opt,name=transaction_id,json=transactionId,proto3" json:"transaction_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -106,7 +107,7 @@ var xxx_messageInfo_RemoteStartTransactionResp proto.InternalMessageInfo
 
 type RemoteStopTransactionReq struct {
 	CpId                 string   `protobuf:"bytes,1,opt,name=cp_id,json=cpId,proto3" json:"cp_id,omitempty"`
-	TransactionId        uint64   `protobuf:"varint,2,opt,name=transaction_id,json=transactionId,proto3" json:"transaction_id,omitempty"`
+	TransactionId        int32    `protobuf:"varint,2,opt,name=transaction_id,json=transactionId,proto3" json:"transaction_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -194,7 +195,7 @@ func init() {
 func init() { proto.RegisterFile("operations.proto", fileDescriptor_1b4a5877375e491e) }
 
 var fileDescriptor_1b4a5877375e491e = []byte{
-	// 228 bytes of a gzipped FileDescriptorProto
+	// 234 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x12, 0xc8, 0x2f, 0x48, 0x2d,
 	0x4a, 0x2c, 0xc9, 0xcc, 0xcf, 0x2b, 0xd6, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0xc9, 0x4f,
 	0x2e, 0x28, 0x90, 0xd2, 0x4d, 0xcf, 0x2c, 0xc9, 0x28, 0x4d, 0xd2, 0x4b, 0xce, 0xcf, 0xd5, 0x4f,
@@ -203,19 +204,19 @@ var fileDescriptor_1b4a5877375e491e = []byte{
 	0x52, 0x94, 0x98, 0x57, 0x9c, 0x98, 0x0c, 0x32, 0x35, 0x28, 0xb5, 0x50, 0x48, 0x98, 0x8b, 0x35,
 	0xb9, 0x20, 0x3e, 0x33, 0x45, 0x82, 0x51, 0x81, 0x51, 0x83, 0x33, 0x88, 0x25, 0xb9, 0xc0, 0x33,
 	0x45, 0x48, 0x91, 0x8b, 0x27, 0x39, 0x3f, 0x2f, 0x2f, 0x35, 0xb9, 0x24, 0xbf, 0x08, 0x24, 0xc7,
-	0xa4, 0xc0, 0xa8, 0xc1, 0x1b, 0xc4, 0x0d, 0x17, 0xf3, 0x4c, 0x51, 0x92, 0xe1, 0x92, 0xc2, 0x65,
-	0x68, 0x71, 0x81, 0x52, 0x18, 0x97, 0x04, 0x4c, 0x36, 0xbf, 0x80, 0x18, 0x1b, 0x55, 0xb9, 0xf8,
-	0x4a, 0x10, 0xca, 0x60, 0x76, 0xb2, 0x04, 0xf1, 0x22, 0x89, 0x7a, 0xa6, 0x28, 0x49, 0x23, 0xbc,
-	0x82, 0x66, 0x6e, 0x71, 0x81, 0x93, 0xe4, 0x89, 0x87, 0x72, 0x0c, 0x2f, 0x1e, 0xca, 0x31, 0x9e,
-	0x78, 0x24, 0xc7, 0x78, 0xe1, 0x91, 0x1c, 0xe3, 0x83, 0x47, 0x72, 0x8c, 0x51, 0xcc, 0x45, 0x05,
-	0xc9, 0x49, 0x6c, 0xe0, 0x90, 0x30, 0x06, 0x04, 0x00, 0x00, 0xff, 0xff, 0x57, 0xbf, 0x26, 0x7e,
-	0x52, 0x01, 0x00, 0x00,
+	0xa4, 0xc0, 0xa8, 0xc1, 0x1a, 0xc4, 0x0d, 0x17, 0xf3, 0x4c, 0x51, 0x72, 0xe6, 0x92, 0xc2, 0x65,
+	0x68, 0x71, 0x81, 0x90, 0x2a, 0x17, 0x5f, 0x09, 0x42, 0x08, 0x66, 0x3c, 0x6b, 0x10, 0x2f, 0x92,
+	0xa8, 0x67, 0x8a, 0x52, 0x18, 0x97, 0x04, 0xcc, 0x90, 0xfc, 0x02, 0x62, 0x1c, 0x86, 0x69, 0x2e,
+	0x13, 0x36, 0x73, 0xa5, 0x11, 0x3e, 0x46, 0x33, 0xb7, 0xb8, 0xc0, 0x49, 0xf2, 0xc4, 0x43, 0x39,
+	0x86, 0x17, 0x0f, 0xe5, 0x18, 0x4f, 0x3c, 0x92, 0x63, 0xbc, 0xf0, 0x48, 0x8e, 0xf1, 0xc1, 0x23,
+	0x39, 0xc6, 0x28, 0xe6, 0xa2, 0x82, 0xe4, 0x24, 0x36, 0x70, 0x80, 0x19, 0x03, 0x02, 0x00, 0x00,
+	0xff, 0xff, 0x31, 0x78, 0x95, 0x39, 0x79, 0x01, 0x00, 0x00,
 }
 
 type RemoteStartTransactionReqFace interface {
 	Proto() github_com_gogo_protobuf_proto.Message
 	GetCpId() string
-	GetConnectorId() uint32
+	GetConnectorId() int32
 }
 
 func (this *RemoteStartTransactionReq) Proto() github_com_gogo_protobuf_proto.Message {
@@ -230,7 +231,7 @@ func (this *RemoteStartTransactionReq) GetCpId() string {
 	return this.CpId
 }
 
-func (this *RemoteStartTransactionReq) GetConnectorId() uint32 {
+func (this *RemoteStartTransactionReq) GetConnectorId() int32 {
 	return this.ConnectorId
 }
 
@@ -243,6 +244,7 @@ func NewRemoteStartTransactionReqFromFace(that RemoteStartTransactionReqFace) *R
 
 type RemoteStartTransactionRespFace interface {
 	Proto() github_com_gogo_protobuf_proto.Message
+	GetTransactionId() int32
 }
 
 func (this *RemoteStartTransactionResp) Proto() github_com_gogo_protobuf_proto.Message {
@@ -253,15 +255,20 @@ func (this *RemoteStartTransactionResp) TestProto() github_com_gogo_protobuf_pro
 	return NewRemoteStartTransactionRespFromFace(this)
 }
 
+func (this *RemoteStartTransactionResp) GetTransactionId() int32 {
+	return this.TransactionId
+}
+
 func NewRemoteStartTransactionRespFromFace(that RemoteStartTransactionRespFace) *RemoteStartTransactionResp {
 	this := &RemoteStartTransactionResp{}
+	this.TransactionId = that.GetTransactionId()
 	return this
 }
 
 type RemoteStopTransactionReqFace interface {
 	Proto() github_com_gogo_protobuf_proto.Message
 	GetCpId() string
-	GetTransactionId() uint64
+	GetTransactionId() int32
 }
 
 func (this *RemoteStopTransactionReq) Proto() github_com_gogo_protobuf_proto.Message {
@@ -276,7 +283,7 @@ func (this *RemoteStopTransactionReq) GetCpId() string {
 	return this.CpId
 }
 
-func (this *RemoteStopTransactionReq) GetTransactionId() uint64 {
+func (this *RemoteStopTransactionReq) GetTransactionId() int32 {
 	return this.TransactionId
 }
 
@@ -366,6 +373,11 @@ func (m *RemoteStartTransactionResp) MarshalToSizedBuffer(dAtA []byte) (int, err
 	if m.XXX_unrecognized != nil {
 		i -= len(m.XXX_unrecognized)
 		copy(dAtA[i:], m.XXX_unrecognized)
+	}
+	if m.TransactionId != 0 {
+		i = encodeVarintOperations(dAtA, i, uint64(m.TransactionId))
+		i--
+		dAtA[i] = 0x8
 	}
 	return len(dAtA) - i, nil
 }
@@ -472,6 +484,9 @@ func (m *RemoteStartTransactionResp) Size() (n int) {
 	}
 	var l int
 	_ = l
+	if m.TransactionId != 0 {
+		n += 1 + sovOperations(uint64(m.TransactionId))
+	}
 	if m.XXX_unrecognized != nil {
 		n += len(m.XXX_unrecognized)
 	}
@@ -590,7 +605,7 @@ func (m *RemoteStartTransactionReq) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ConnectorId |= uint32(b&0x7F) << shift
+				m.ConnectorId |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -646,6 +661,25 @@ func (m *RemoteStartTransactionResp) Unmarshal(dAtA []byte) error {
 			return fmt.Errorf("proto: RemoteStartTransactionResp: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TransactionId", wireType)
+			}
+			m.TransactionId = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowOperations
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.TransactionId |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipOperations(dAtA[iNdEx:])
@@ -743,7 +777,7 @@ func (m *RemoteStopTransactionReq) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.TransactionId |= uint64(b&0x7F) << shift
+				m.TransactionId |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}

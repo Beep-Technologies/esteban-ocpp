@@ -42,6 +42,14 @@ RUN cp /build/main .
 # Build a small image
 FROM alpine:3.12
 
+# for dockerize
+RUN apk add --no-cache openssl
+
+ENV DOCKERIZE_VERSION v0.5.0
+RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+    && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+    && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+
 RUN apk update && apk add ca-certificates \
     && apk add --update bash gzip \
     && update-ca-certificates \
@@ -50,6 +58,6 @@ RUN apk update && apk add ca-certificates \
 ENV LANG=C.UTF-8
 
 COPY --from=builder /dist/main /
- 
+
 # Command to run
-ENTRYPOINT ["/main"]
+CMD dockerize -wait tcp://${DB_HOST}:5432 -timeout 60s && /main

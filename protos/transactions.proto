@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package ocpp;
+
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+
+option go_package = "rpc";
+option (gogoproto.marshaler_all) = true;
+option (gogoproto.sizer_all) = true;
+option (gogoproto.unmarshaler_all) = true;
+option (gogoproto.goproto_getters_all) = false;
+option (gogoproto.face_all) = true;
+
+
+message GetTransactionByIdReq {
+    uint32 transaction_id = 1;
+}
+
+message GetTransactionByIdRes {
+    int32 id = 1;
+    int32 chargePoint_id = 2;
+    int32 connector_id = 3;
+    string id_tag = 4;
+    bool started = 5;
+    bool stopped = 6;
+    string start_timestamp = 7;
+    string stop_timestamp = 8;
+    int32 start_meter_value = 9;
+    int32 stop_meter_value = 10;
+    string stop_reason = 11;
+}
+
+

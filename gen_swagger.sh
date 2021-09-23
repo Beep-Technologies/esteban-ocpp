@@ -5,4 +5,4 @@ then
     exit 1
 fi
 
-swag init -d cmd/bb3-ocpp-ws,api/rpc,api/rest/controller -g bb3-ocpp-ws.go
+swag init -d cmd/bb3-ocpp-ws,api/rpc,api/rest/controller -g main.go

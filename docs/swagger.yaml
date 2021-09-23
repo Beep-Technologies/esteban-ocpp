@@ -8,6 +8,9 @@ definitions:
         type: string
     type: object
   rpc.RemoteStartTransactionResp:
+    properties:
+      transaction_id:
+        type: integer
     type: object
   rpc.RemoteStopTransactionReq:
     properties:

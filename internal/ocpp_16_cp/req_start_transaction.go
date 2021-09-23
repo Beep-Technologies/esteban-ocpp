@@ -33,6 +33,8 @@ func (c *OCPP16ChargePoint) startTransaction(req *msg.OCPP16CallMessage) (*msg.O
 		}
 	}
 
+	// TODO: refactor into a service
+
 	rb := &ocpp16.StartTransactionResponse{
 		TransactionId: 21,
 		IdTagInfo: &ocpp16.IdTagInfo{
