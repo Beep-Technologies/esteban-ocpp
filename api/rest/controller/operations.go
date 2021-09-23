@@ -32,7 +32,11 @@ func (api *OperationsAPI) RemoteStartTransaction(c *gin.Context) {
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		c.Error(err).SetType(gin.ErrorTypeBind)
-		c.AbortWithError(http.StatusUnprocessableEntity, err)
+		c.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{
+			"status":  http.StatusUnprocessableEntity,
+			"message": err.Error(),
+			"data":    nil,
+		})
 		return
 	}
 
@@ -68,7 +72,11 @@ func (api *OperationsAPI) RemoteStopTransaction(c *gin.Context) {
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		c.Error(err).SetType(gin.ErrorTypeBind)
-		c.AbortWithError(http.StatusUnprocessableEntity, err)
+		c.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{
+			"status":  http.StatusUnprocessableEntity,
+			"message": err.Error(),
+			"data":    nil,
+		})
 		return
 	}
 
