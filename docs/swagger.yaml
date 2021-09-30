@@ -2,10 +2,10 @@ basePath: /v2
 definitions:
   rpc.RemoteStartTransactionReq:
     properties:
+      charge_point_id:
+        type: integer
       connector_id:
         type: integer
-      cp_id:
-        type: string
     type: object
   rpc.RemoteStartTransactionResp:
     properties:
@@ -14,8 +14,8 @@ definitions:
     type: object
   rpc.RemoteStopTransactionReq:
     properties:
-      cp_id:
-        type: string
+      charge_point_id:
+        type: integer
       transaction_id:
         type: integer
     type: object

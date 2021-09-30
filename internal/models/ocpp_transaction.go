@@ -10,14 +10,14 @@ import (
 	"github.com/Beep-Technologies/beepbeep3-iam/pkg/constants"
 )
 
-// Transaction is an object representing the database table.
-type Transaction struct {
+// OcppTransaction is an object representing the database table.
+type OcppTransaction struct {
 	ID              int32     `gorm:"column:id"`
 	ChargePointID   int32     `gorm:"column:charge_point_id"`
 	ConnectorID     int32     `gorm:"column:connector_id"`
 	IDTag           string    `gorm:"column:id_tag"`
-	Started         bool      `gorm:"column:started"`
-	Stopped         bool      `gorm:"column:stopped"`
+	Ongoing         bool      `gorm:"column:ongoing"`
+	State           string    `gorm:"column:state"`
 	StartTimestamp  time.Time `gorm:"column:start_timestamp"`
 	StopTimestamp   time.Time `gorm:"column:stop_timestamp"`
 	StartMeterValue int32     `gorm:"column:start_meter_value"`
@@ -25,7 +25,7 @@ type Transaction struct {
 	StopReason      string    `gorm:"column:stop_reason"`
 }
 
-func (Transaction) TableName() string {
+func (OcppTransaction) TableName() string {
 	_ = strconv.Quote("")
-	return constants.SCHEMA + "transaction"
+	return constants.SCHEMA + "ocpp_transaction"
 }

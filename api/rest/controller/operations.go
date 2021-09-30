@@ -7,19 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/Beep-Technologies/beepbeep3-iam/pkg/constants"
-	"github.com/Beep-Technologies/beepbeep3-iam/pkg/db"
 	"github.com/Beep-Technologies/beepbeep3-ocpp/api/rpc"
-	ocpp16cs "github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_16_cs"
-	"github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/operations"
+	"github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/operation"
 )
 
 type OperationsAPI struct {
-	ocpp16CentralSystem *ocpp16cs.OCPP16CentralSystem
+	operationService *operation.Service
 }
 
-func NewOperationsAPI(o16cs *ocpp16cs.OCPP16CentralSystem) *OperationsAPI {
+func NewOperationsAPI(operationService *operation.Service) *OperationsAPI {
 	return &OperationsAPI{
-		ocpp16CentralSystem: o16cs,
+		operationService: operationService,
 	}
 }
 
@@ -32,7 +30,7 @@ func NewOperationsAPI(o16cs *ocpp16cs.OCPP16CentralSystem) *OperationsAPI {
 // @Success 200 {object} rpc.RemoteStartTransactionResp
 // @Router /ocpp/operations/remote-start-transaction [post]
 func (api *OperationsAPI) RemoteStartTransaction(c *gin.Context) {
-	var req = rpc.RemoteStartTransactionReq{}
+	var req = &rpc.RemoteStartTransactionReq{}
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		c.Error(err).SetType(gin.ErrorTypeBind)
@@ -44,10 +42,9 @@ func (api *OperationsAPI) RemoteStartTransaction(c *gin.Context) {
 		return
 	}
 
-	srv := operations.NewService(db.ORM, api.ocpp16CentralSystem)
 	ctx := context.Background()
 	ctx = context.WithValue(ctx, constants.CtxKey("gin"), c)
-	res, err := srv.RemoteStartTransaction(ctx, req)
+	res, err := api.operationService.RemoteStartTransaction(ctx, req)
 
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
@@ -74,7 +71,7 @@ func (api *OperationsAPI) RemoteStartTransaction(c *gin.Context) {
 // @Success 200 {object} rpc.RemoteStopTransactionResp
 // @Router /ocpp/operations/remote-stop-transaction [post]
 func (api *OperationsAPI) RemoteStopTransaction(c *gin.Context) {
-	var req = rpc.RemoteStopTransactionReq{}
+	var req = &rpc.RemoteStopTransactionReq{}
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		c.Error(err).SetType(gin.ErrorTypeBind)
@@ -86,10 +83,9 @@ func (api *OperationsAPI) RemoteStopTransaction(c *gin.Context) {
 		return
 	}
 
-	srv := operations.NewService(db.ORM, api.ocpp16CentralSystem)
 	ctx := context.Background()
 	ctx = context.WithValue(ctx, constants.CtxKey("gin"), c)
-	res, err := srv.RemoteStopTransaction(ctx, req)
+	res, err := api.operationService.RemoteStopTransaction(ctx, req)
 
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{

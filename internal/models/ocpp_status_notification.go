@@ -10,8 +10,8 @@ import (
 	"github.com/Beep-Technologies/beepbeep3-iam/pkg/constants"
 )
 
-// StatusNotification is an object representing the database table.
-type StatusNotification struct {
+// OcppStatusNotification is an object representing the database table.
+type OcppStatusNotification struct {
 	ID                int32     `gorm:"column:id"`
 	ChargePointID     int32     `gorm:"column:charge_point_id"`
 	ConnectorID       int32     `gorm:"column:connector_id"`
@@ -24,7 +24,7 @@ type StatusNotification struct {
 	ReportedTimestamp time.Time `gorm:"column:reported_timestamp"`
 }
 
-func (StatusNotification) TableName() string {
+func (OcppStatusNotification) TableName() string {
 	_ = strconv.Quote("")
-	return constants.SCHEMA + "status_notification"
+	return constants.SCHEMA + "ocpp_status_notification"
 }

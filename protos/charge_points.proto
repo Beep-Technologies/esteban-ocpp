@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package ocpp;
+
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+
+option go_package = "rpc";
+option (gogoproto.marshaler_all) = true;
+option (gogoproto.sizer_all) = true;
+option (gogoproto.unmarshaler_all) = true;
+option (gogoproto.goproto_getters_all) = false;
+option (gogoproto.face_all) = true;
+
+message GetChargePointByIDReq {
+    int32 id = 1;
+}
+
+message GetChargePointByIDResp {
+    int32 id = 1;
+    string charge_point_vendor = 2;
+    string charge_point_model = 3;
+    string charge_point_serial_number = 4;
+    string charge_box_serial_number = 5;
+    string iccid = 6;
+    string imsi = 7;
+    string meter_type = 8;
+    string meter_serial_number = 9;
+    string firmware_version = 10;
+    string ocpp_protocol = 11;
+    string charge_point_identifier = 12;
+    string description = 13;
+    double location_latitude = 14;
+    double location_longitude = 15;
+    int32 address_id = 16;
+}
+
+message GetChargePointByIdentifierReq {
+    string charge_point_identifier = 1;
+}
+
+message GetChargePointByIdentifierResp {
+    int32 id = 1;
+    string charge_point_vendor = 2;
+    string charge_point_model = 3;
+    string charge_point_serial_number = 4;
+    string charge_box_serial_number = 5;
+    string iccid = 6;
+    string imsi = 7;
+    string meter_type = 8;
+    string meter_serial_number = 9;
+    string firmware_version = 10;
+    string ocpp_protocol = 11;
+    string charge_point_identifier = 12;
+    string description = 13;
+    double location_latitude = 14;
+    double location_longitude = 15;
+    int32 address_id = 16;
+}
+
+

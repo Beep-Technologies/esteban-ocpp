@@ -9,7 +9,7 @@ import (
 )
 
 type BaseRepo interface {
-	Create(ctx context.Context, cp models.StatusNotification) (models.StatusNotification, error)
+	Create(ctx context.Context, cp models.OcppStatusNotification) (models.OcppStatusNotification, error)
 }
 
 type baseRepo struct {
@@ -22,10 +22,10 @@ func NewBaseRepo(db *gorm.DB) BaseRepo {
 	}
 }
 
-func (repo baseRepo) Create(ctx context.Context, sn models.StatusNotification) (models.StatusNotification, error) {
-	err := repo.db.Create(&sn).Error
+func (repo baseRepo) Create(ctx context.Context, sn models.OcppStatusNotification) (models.OcppStatusNotification, error) {
+	err := repo.db.Table("bb3.ocpp_status_notification").Create(&sn).Error
 	if err != nil {
-		return models.StatusNotification{}, err
+		return models.OcppStatusNotification{}, err
 	}
 
 	return sn, nil

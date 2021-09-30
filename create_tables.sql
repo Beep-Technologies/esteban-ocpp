@@ -1,5 +1,5 @@
 create schema if not exists bb3;
-create table bb3.address (
+create table bb3.ocpp_address (
     id serial primary key,
     country_code char(2) not null,
     /* ISO 3166 Alpha-2 Code */
@@ -8,7 +8,7 @@ create table bb3.address (
     line_2 varchar(255),
     zip_code varchar(10)
 );
-create table bb3.charge_point (
+create table bb3.ocpp_charge_point (
     id serial primary key,
     /* fixed to charge point */
     charge_point_vendor varchar(20) not null,
@@ -24,26 +24,26 @@ create table bb3.charge_point (
     ocpp_protocol varchar(20) not null,
     charge_point_identifier varchar(255) not null,
     description varchar(255) not null,
-    location_latitude decimal(11, 8),
-    location_longitude decimal(11, 8),
+    location_latitude decimal(11, 8) not null,
+    location_longitude decimal(11, 8) not null,
     address_id int not null,
-    foreign key (address_id) references bb3.address(id)
+    foreign key (address_id) references bb3.ocpp_address(id)
 );
-create table bb3.transaction (
+create table bb3.ocpp_transaction (
     id serial primary key,
     charge_point_id int not null,
     connector_id int not null,
     id_tag varchar(20) not null,
-    started bool not null,
-    stopped bool not null,
+    ongoing bool not null,
+    state varchar(50) not null,
     start_timestamp timestamp without time zone not null,
     stop_timestamp timestamp without time zone not null,
     start_meter_value int not null,
     stop_meter_value int not null,
     stop_reason varchar(255) not null,
-    foreign key (charge_point_id) references bb3.charge_point(id)
+    foreign key (charge_point_id) references bb3.ocpp_charge_point(id)
 );
-create table bb3.status_notification (
+create table bb3.ocpp_status_notification (
     id serial primary key,
     charge_point_id int not null,
     connector_id int not null,
@@ -54,10 +54,10 @@ create table bb3.status_notification (
     vendor_error_code varchar(255) not null,
     timestamp timestamp without time zone not null,
     reported_timestamp timestamp without time zone not null,
-    foreign key (charge_point_id) references bb3.charge_point(id)
+    foreign key (charge_point_id) references bb3.ocpp_charge_point(id)
 );
 -- add mock data
-insert into bb3.address (
+insert into bb3.ocpp_address (
         country_code,
         city,
         line_1,
@@ -71,7 +71,7 @@ values (
         '',
         '487372'
     );
-insert into bb3.charge_point (
+insert into bb3.ocpp_charge_point (
         charge_point_vendor,
         charge_point_model,
         charge_point_serial_number,

@@ -25,7 +25,7 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type RemoteStartTransactionReq struct {
-	CpId                 string   `protobuf:"bytes,1,opt,name=cp_id,json=cpId,proto3" json:"cp_id,omitempty"`
+	ChargePointId        int32    `protobuf:"varint,1,opt,name=charge_point_id,json=chargePointId,proto3" json:"charge_point_id,omitempty"`
 	ConnectorId          int32    `protobuf:"varint,2,opt,name=connector_id,json=connectorId,proto3" json:"connector_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -106,7 +106,7 @@ func (m *RemoteStartTransactionResp) XXX_DiscardUnknown() {
 var xxx_messageInfo_RemoteStartTransactionResp proto.InternalMessageInfo
 
 type RemoteStopTransactionReq struct {
-	CpId                 string   `protobuf:"bytes,1,opt,name=cp_id,json=cpId,proto3" json:"cp_id,omitempty"`
+	ChargePointId        int32    `protobuf:"varint,1,opt,name=charge_point_id,json=chargePointId,proto3" json:"charge_point_id,omitempty"`
 	TransactionId        int32    `protobuf:"varint,2,opt,name=transaction_id,json=transactionId,proto3" json:"transaction_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -195,27 +195,28 @@ func init() {
 func init() { proto.RegisterFile("operations.proto", fileDescriptor_1b4a5877375e491e) }
 
 var fileDescriptor_1b4a5877375e491e = []byte{
-	// 234 bytes of a gzipped FileDescriptorProto
+	// 241 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x12, 0xc8, 0x2f, 0x48, 0x2d,
 	0x4a, 0x2c, 0xc9, 0xcc, 0xcf, 0x2b, 0xd6, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0xc9, 0x4f,
 	0x2e, 0x28, 0x90, 0xd2, 0x4d, 0xcf, 0x2c, 0xc9, 0x28, 0x4d, 0xd2, 0x4b, 0xce, 0xcf, 0xd5, 0x4f,
 	0xcf, 0x4f, 0xcf, 0xd7, 0x07, 0x4b, 0x26, 0x95, 0xa6, 0x81, 0x79, 0x60, 0x0e, 0x98, 0x05, 0xd1,
-	0xa4, 0x14, 0xcc, 0x25, 0x19, 0x94, 0x9a, 0x9b, 0x5f, 0x92, 0x1a, 0x5c, 0x92, 0x58, 0x54, 0x12,
-	0x52, 0x94, 0x98, 0x57, 0x9c, 0x98, 0x0c, 0x32, 0x35, 0x28, 0xb5, 0x50, 0x48, 0x98, 0x8b, 0x35,
-	0xb9, 0x20, 0x3e, 0x33, 0x45, 0x82, 0x51, 0x81, 0x51, 0x83, 0x33, 0x88, 0x25, 0xb9, 0xc0, 0x33,
-	0x45, 0x48, 0x91, 0x8b, 0x27, 0x39, 0x3f, 0x2f, 0x2f, 0x35, 0xb9, 0x24, 0xbf, 0x08, 0x24, 0xc7,
-	0xa4, 0xc0, 0xa8, 0xc1, 0x1a, 0xc4, 0x0d, 0x17, 0xf3, 0x4c, 0x51, 0x72, 0xe6, 0x92, 0xc2, 0x65,
-	0x68, 0x71, 0x81, 0x90, 0x2a, 0x17, 0x5f, 0x09, 0x42, 0x08, 0x66, 0x3c, 0x6b, 0x10, 0x2f, 0x92,
-	0xa8, 0x67, 0x8a, 0x52, 0x18, 0x97, 0x04, 0xcc, 0x90, 0xfc, 0x02, 0x62, 0x1c, 0x86, 0x69, 0x2e,
-	0x13, 0x36, 0x73, 0xa5, 0x11, 0x3e, 0x46, 0x33, 0xb7, 0xb8, 0xc0, 0x49, 0xf2, 0xc4, 0x43, 0x39,
-	0x86, 0x17, 0x0f, 0xe5, 0x18, 0x4f, 0x3c, 0x92, 0x63, 0xbc, 0xf0, 0x48, 0x8e, 0xf1, 0xc1, 0x23,
-	0x39, 0xc6, 0x28, 0xe6, 0xa2, 0x82, 0xe4, 0x24, 0x36, 0x70, 0x80, 0x19, 0x03, 0x02, 0x00, 0x00,
-	0xff, 0xff, 0x31, 0x78, 0x95, 0x39, 0x79, 0x01, 0x00, 0x00,
+	0xa4, 0x94, 0xc6, 0x25, 0x19, 0x94, 0x9a, 0x9b, 0x5f, 0x92, 0x1a, 0x5c, 0x92, 0x58, 0x54, 0x12,
+	0x52, 0x94, 0x98, 0x57, 0x9c, 0x98, 0x0c, 0x32, 0x35, 0x28, 0xb5, 0x50, 0x48, 0x8d, 0x8b, 0x3f,
+	0x39, 0x23, 0xb1, 0x28, 0x3d, 0x35, 0xbe, 0x20, 0x3f, 0x33, 0xaf, 0x24, 0x3e, 0x33, 0x45, 0x82,
+	0x51, 0x81, 0x51, 0x83, 0x35, 0x88, 0x17, 0x22, 0x1c, 0x00, 0x12, 0xf5, 0x4c, 0x11, 0x52, 0xe4,
+	0xe2, 0x49, 0xce, 0xcf, 0xcb, 0x4b, 0x4d, 0x2e, 0xc9, 0x2f, 0x02, 0x29, 0x62, 0x02, 0x2b, 0xe2,
+	0x86, 0x8b, 0x79, 0xa6, 0x28, 0x39, 0x73, 0x49, 0xe1, 0xb2, 0xa7, 0xb8, 0x40, 0x48, 0x95, 0x8b,
+	0xaf, 0x04, 0x21, 0x84, 0x64, 0x0f, 0x92, 0xa8, 0x67, 0x8a, 0x52, 0x26, 0x97, 0x04, 0xcc, 0x90,
+	0xfc, 0x02, 0x32, 0xdd, 0x8a, 0x69, 0x15, 0x13, 0x36, 0xab, 0xa4, 0x11, 0xe1, 0x82, 0x66, 0x55,
+	0x71, 0x81, 0x93, 0xe4, 0x89, 0x87, 0x72, 0x0c, 0x2f, 0x1e, 0xca, 0x31, 0x9e, 0x78, 0x24, 0xc7,
+	0x78, 0xe1, 0x91, 0x1c, 0xe3, 0x83, 0x47, 0x72, 0x8c, 0x51, 0xcc, 0x45, 0x05, 0xc9, 0x49, 0x6c,
+	0xe0, 0x60, 0x35, 0x06, 0x04, 0x00, 0x00, 0xff, 0xff, 0x26, 0x51, 0xa8, 0xb4, 0x9f, 0x01, 0x00,
+	0x00,
 }
 
 type RemoteStartTransactionReqFace interface {
 	Proto() github_com_gogo_protobuf_proto.Message
-	GetCpId() string
+	GetChargePointId() int32
 	GetConnectorId() int32
 }
 
@@ -227,8 +228,8 @@ func (this *RemoteStartTransactionReq) TestProto() github_com_gogo_protobuf_prot
 	return NewRemoteStartTransactionReqFromFace(this)
 }
 
-func (this *RemoteStartTransactionReq) GetCpId() string {
-	return this.CpId
+func (this *RemoteStartTransactionReq) GetChargePointId() int32 {
+	return this.ChargePointId
 }
 
 func (this *RemoteStartTransactionReq) GetConnectorId() int32 {
@@ -237,7 +238,7 @@ func (this *RemoteStartTransactionReq) GetConnectorId() int32 {
 
 func NewRemoteStartTransactionReqFromFace(that RemoteStartTransactionReqFace) *RemoteStartTransactionReq {
 	this := &RemoteStartTransactionReq{}
-	this.CpId = that.GetCpId()
+	this.ChargePointId = that.GetChargePointId()
 	this.ConnectorId = that.GetConnectorId()
 	return this
 }
@@ -267,7 +268,7 @@ func NewRemoteStartTransactionRespFromFace(that RemoteStartTransactionRespFace) 
 
 type RemoteStopTransactionReqFace interface {
 	Proto() github_com_gogo_protobuf_proto.Message
-	GetCpId() string
+	GetChargePointId() int32
 	GetTransactionId() int32
 }
 
@@ -279,8 +280,8 @@ func (this *RemoteStopTransactionReq) TestProto() github_com_gogo_protobuf_proto
 	return NewRemoteStopTransactionReqFromFace(this)
 }
 
-func (this *RemoteStopTransactionReq) GetCpId() string {
-	return this.CpId
+func (this *RemoteStopTransactionReq) GetChargePointId() int32 {
+	return this.ChargePointId
 }
 
 func (this *RemoteStopTransactionReq) GetTransactionId() int32 {
@@ -289,7 +290,7 @@ func (this *RemoteStopTransactionReq) GetTransactionId() int32 {
 
 func NewRemoteStopTransactionReqFromFace(that RemoteStopTransactionReqFace) *RemoteStopTransactionReq {
 	this := &RemoteStopTransactionReq{}
-	this.CpId = that.GetCpId()
+	this.ChargePointId = that.GetChargePointId()
 	this.TransactionId = that.GetTransactionId()
 	return this
 }
@@ -340,12 +341,10 @@ func (m *RemoteStartTransactionReq) MarshalToSizedBuffer(dAtA []byte) (int, erro
 		i--
 		dAtA[i] = 0x10
 	}
-	if len(m.CpId) > 0 {
-		i -= len(m.CpId)
-		copy(dAtA[i:], m.CpId)
-		i = encodeVarintOperations(dAtA, i, uint64(len(m.CpId)))
+	if m.ChargePointId != 0 {
+		i = encodeVarintOperations(dAtA, i, uint64(m.ChargePointId))
 		i--
-		dAtA[i] = 0xa
+		dAtA[i] = 0x8
 	}
 	return len(dAtA) - i, nil
 }
@@ -411,12 +410,10 @@ func (m *RemoteStopTransactionReq) MarshalToSizedBuffer(dAtA []byte) (int, error
 		i--
 		dAtA[i] = 0x10
 	}
-	if len(m.CpId) > 0 {
-		i -= len(m.CpId)
-		copy(dAtA[i:], m.CpId)
-		i = encodeVarintOperations(dAtA, i, uint64(len(m.CpId)))
+	if m.ChargePointId != 0 {
+		i = encodeVarintOperations(dAtA, i, uint64(m.ChargePointId))
 		i--
-		dAtA[i] = 0xa
+		dAtA[i] = 0x8
 	}
 	return len(dAtA) - i, nil
 }
@@ -465,9 +462,8 @@ func (m *RemoteStartTransactionReq) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.CpId)
-	if l > 0 {
-		n += 1 + l + sovOperations(uint64(l))
+	if m.ChargePointId != 0 {
+		n += 1 + sovOperations(uint64(m.ChargePointId))
 	}
 	if m.ConnectorId != 0 {
 		n += 1 + sovOperations(uint64(m.ConnectorId))
@@ -499,9 +495,8 @@ func (m *RemoteStopTransactionReq) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.CpId)
-	if l > 0 {
-		n += 1 + l + sovOperations(uint64(l))
+	if m.ChargePointId != 0 {
+		n += 1 + sovOperations(uint64(m.ChargePointId))
 	}
 	if m.TransactionId != 0 {
 		n += 1 + sovOperations(uint64(m.TransactionId))
@@ -560,10 +555,10 @@ func (m *RemoteStartTransactionReq) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field CpId", wireType)
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ChargePointId", wireType)
 			}
-			var stringLen uint64
+			m.ChargePointId = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowOperations
@@ -573,24 +568,11 @@ func (m *RemoteStartTransactionReq) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				m.ChargePointId |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthOperations
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthOperations
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.CpId = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
 		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ConnectorId", wireType)
@@ -732,10 +714,10 @@ func (m *RemoteStopTransactionReq) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field CpId", wireType)
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ChargePointId", wireType)
 			}
-			var stringLen uint64
+			m.ChargePointId = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowOperations
@@ -745,24 +727,11 @@ func (m *RemoteStopTransactionReq) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				m.ChargePointId |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthOperations
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthOperations
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.CpId = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
 		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field TransactionId", wireType)

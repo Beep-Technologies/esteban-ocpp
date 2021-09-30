@@ -17,6 +17,10 @@ var upgrader = websocket.Upgrader{
 	ReadBufferSize:    1024,
 	WriteBufferSize:   1024,
 	EnableCompression: false,
+	// Allow connections from all origins
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
 }
 
 type OCPPWebSocketServer struct {
@@ -39,9 +43,9 @@ func (s *OCPPWebSocketServer) HttpUpgradeHandler(c *gin.Context) {
 
 	// get the charge point identifier and decode it
 	// charge point identifiers are percent-encoded
-	cpId := c.Param("chargePointIdentifier")
+	chargePointIdentifier := c.Param("chargePointIdentifier")
 
-	if cpId == "" {
+	if chargePointIdentifier == "" {
 		http.Error(w, "Invalid Charge Point Identifier", http.StatusNotFound)
 		return
 	}
@@ -85,7 +89,7 @@ func (s *OCPPWebSocketServer) HttpUpgradeHandler(c *gin.Context) {
 	}
 
 	s.logger.Printf("Client connecting with identifier \"%+v\" and protocol \"%+v\"\n",
-		cpId,
+		chargePointIdentifier,
 		selectedProtocol,
 	)
 
@@ -97,7 +101,10 @@ func (s *OCPPWebSocketServer) HttpUpgradeHandler(c *gin.Context) {
 
 	switch selectedProtocol {
 	case "ocpp1.6":
-		s.ocpp16centralSystem.ConnectChargePoint(cpId, conn)
+		err := s.ocpp16centralSystem.ConnectChargePoint(chargePointIdentifier, conn)
+		if err != nil {
+			s.logger.Printf("[ERROR] %+v\n", err.Error())
+		}
 	case "":
 		conn.Close()
 	}

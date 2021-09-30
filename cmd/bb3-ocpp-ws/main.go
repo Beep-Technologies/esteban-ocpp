@@ -14,8 +14,13 @@ import (
 
 	"github.com/Beep-Technologies/beepbeep3-ocpp/api/rest/controller"
 	"github.com/Beep-Technologies/beepbeep3-ocpp/api/rest/router"
+
 	ocpp16cs "github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_16_cs"
 	ocppserver "github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_server"
+	chargepointsrv "github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/charge_point"
+	operationsrv "github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/operation"
+	statusnotificationsrv "github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/status_notification"
+	transactionsrv "github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/transaction"
 )
 
 // @title BB3 OCPP API
@@ -36,12 +41,30 @@ func main() {
 
 	l := log.New(os.Stdout, "", 0)
 
-	o16cs := ocpp16cs.NewOCPP16CentralSystem(l)      // ocpp 1.6 central system
-	o := ocppserver.NewOCPPWebSocketServer(l, o16cs) // ocpp websocket server
-	oa := controller.NewOperationsAPI(o16cs)         // operations api controller
-	rt := router.NewRouter(o, oa)                    // api router
+	chargePointService := chargepointsrv.NewService(db.ORM)
+	transactionService := transactionsrv.NewService(db.ORM)
+	statusNotificationService := statusnotificationsrv.NewService(db.ORM)
 
-	r := gin.Default()
+	ocpp16CentralSystem := ocpp16cs.NewOCPP16CentralSystem(
+		l,
+		chargePointService,
+		transactionService,
+		statusNotificationService,
+	)
+
+	operationService := operationsrv.NewService(
+		db.ORM,
+		chargePointService,
+		transactionService,
+		ocpp16CentralSystem,
+	)
+
+	ocppWebSocketServer := ocppserver.NewOCPPWebSocketServer(l, ocpp16CentralSystem)
+	operationController := controller.NewOperationsAPI(operationService)
+
+	rt := router.NewRouter(ocppWebSocketServer, operationController)
+
+	r := gin.New()
 	r.Use(gin.LoggerWithWriter(l.Writer()))
 	rt.Apply(r)
 

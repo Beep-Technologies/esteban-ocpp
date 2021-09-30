@@ -97,11 +97,11 @@ var doc = `{
         "rpc.RemoteStartTransactionReq": {
             "type": "object",
             "properties": {
-                "connector_id": {
+                "charge_point_id": {
                     "type": "integer"
                 },
-                "cp_id": {
-                    "type": "string"
+                "connector_id": {
+                    "type": "integer"
                 }
             }
         },
@@ -116,8 +116,8 @@ var doc = `{
         "rpc.RemoteStopTransactionReq": {
             "type": "object",
             "properties": {
-                "cp_id": {
-                    "type": "string"
+                "charge_point_id": {
+                    "type": "integer"
                 },
                 "transaction_id": {
                     "type": "integer"

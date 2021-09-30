@@ -1,0 +1,28 @@
+# mostly modified from [pgweb](https://github.com/sosedoff/pgweb/blob/master/Dockerfile)
+FROM alpine:3.14
+
+ENV PGWEB_PORT 8081
+
+# for dockerize
+RUN apk add --no-cache openssl
+ENV DOCKERIZE_VERSION v0.5.0
+RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+    && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+    && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+
+
+# for pgweb
+ENV PGWEB_VERSION 0.11.8
+RUN \
+    apk update && \
+    apk add --no-cache postgresql && \
+    rm -rf /var/cache/apk/* && \
+    cd /tmp && \
+    wget -q https://github.com/sosedoff/pgweb/releases/download/v$PGWEB_VERSION/pgweb_linux_amd64.zip && \
+    unzip pgweb_linux_amd64.zip -d /usr/bin && \
+    mv /usr/bin/pgweb_linux_amd64 /usr/bin/pgweb && \
+    rm -f pgweb_linux_amd64.zip
+
+
+# Command to run
+CMD dockerize -wait tcp://${DATABASE_HOST}:${DATABASE_PORT} -timeout 60s && /usr/bin/pgweb --bind=0.0.0.0 --listen=${PGWEB_PORT}

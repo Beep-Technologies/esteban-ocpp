@@ -10,8 +10,8 @@ import (
 	"github.com/volatiletech/null/v8"
 )
 
-// Address is an object representing the database table.
-type Address struct {
+// OcppAddress is an object representing the database table.
+type OcppAddress struct {
 	ID          int32       `gorm:"column:id"`
 	CountryCode string      `gorm:"column:country_code"`
 	City        null.String `gorm:"column:city"`
@@ -20,7 +20,7 @@ type Address struct {
 	ZipCode     null.String `gorm:"column:zip_code"`
 }
 
-func (Address) TableName() string {
+func (OcppAddress) TableName() string {
 	_ = strconv.Quote("")
-	return constants.SCHEMA + "address"
+	return constants.SCHEMA + "ocpp_address"
 }

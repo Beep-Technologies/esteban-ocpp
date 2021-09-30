@@ -9,10 +9,10 @@ import (
 )
 
 type BaseRepo interface {
-	Create(ctx context.Context, addr models.Address) (models.Address, error)
-	GetByID(ctx context.Context, id int32) (models.Address, error)
+	Create(ctx context.Context, addr models.OcppAddress) (models.OcppAddress, error)
+	GetByID(ctx context.Context, id int32) (models.OcppAddress, error)
 	// TODO: Implement Update and Delete
-	// Update(ctx context.Context, fields []string) (addr models.Address, err error)
+	// Update(ctx context.Context, fields []string) (addr models.OcppAddress, err error)
 	// Delete(ctx context.Context, id int32) (err error)
 }
 
@@ -26,21 +26,21 @@ func NewBaseRepo(db *gorm.DB) BaseRepo {
 	}
 }
 
-func (repo baseRepo) Create(ctx context.Context, addr models.Address) (models.Address, error) {
-	err := repo.db.Create(&addr).Error
+func (repo baseRepo) Create(ctx context.Context, addr models.OcppAddress) (models.OcppAddress, error) {
+	err := repo.db.Table("bb3.ocpp_address").Create(&addr).Error
 	if err != nil {
-		return models.Address{}, err
+		return models.OcppAddress{}, err
 	}
 
 	return addr, nil
 }
 
-func (repo baseRepo) GetByID(ctx context.Context, addrID int32) (models.Address, error) {
-	addr := models.Address{}
-	err := repo.db.Where("id = ?", addrID).First(&addr).Error
+func (repo baseRepo) GetByID(ctx context.Context, addrID int32) (models.OcppAddress, error) {
+	addr := models.OcppAddress{}
+	err := repo.db.Table("bb3.ocpp_address").Where("id = ?", addrID).First(&addr).Error
 
 	if err != nil {
-		return models.Address{}, err
+		return models.OcppAddress{}, err
 	}
 
 	return addr, nil

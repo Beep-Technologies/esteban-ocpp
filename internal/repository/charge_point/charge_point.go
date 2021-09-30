@@ -9,11 +9,11 @@ import (
 )
 
 type BaseRepo interface {
-	Create(ctx context.Context, cp models.ChargePoint) (models.ChargePoint, error)
-	GetByID(ctx context.Context, id int32) (models.ChargePoint, error)
-	GetByChargePointIdentifier(ctx context.Context, cpId string) (models.ChargePoint, error)
-	// TODO: Implement Update and Delete
-	// Update(ctx context.Context, fields []string) (addr models.Address, err error)
+	Create(ctx context.Context, cp models.OcppChargePoint) (models.OcppChargePoint, error)
+	GetByID(ctx context.Context, id int32) (models.OcppChargePoint, error)
+	GetByChargePointIdentifier(ctx context.Context, cpId string) (models.OcppChargePoint, error)
+	Update(ctx context.Context, id int32, fields []string, chargePoint models.OcppChargePoint) (models.OcppChargePoint, error)
+	// TODO: Implement Delete
 	// Delete(ctx context.Context, id int32) (err error)
 }
 
@@ -27,33 +27,52 @@ func NewBaseRepo(db *gorm.DB) BaseRepo {
 	}
 }
 
-func (repo baseRepo) Create(ctx context.Context, cp models.ChargePoint) (models.ChargePoint, error) {
-	err := repo.db.Create(&cp).Error
+func (repo baseRepo) Create(ctx context.Context, cp models.OcppChargePoint) (models.OcppChargePoint, error) {
+	err := repo.db.Table("bb3.ocpp_charge_point").Create(&cp).Error
 	if err != nil {
-		return models.ChargePoint{}, err
+		return models.OcppChargePoint{}, err
 	}
 
 	return cp, nil
 }
 
-func (repo baseRepo) GetByID(ctx context.Context, id int32) (models.ChargePoint, error) {
-	cp := models.ChargePoint{}
-	err := repo.db.Where("id = ?", id).First(&cp).Error
+func (repo baseRepo) GetByID(ctx context.Context, id int32) (models.OcppChargePoint, error) {
+	cp := models.OcppChargePoint{}
+	err := repo.db.Table("bb3.ocpp_charge_point").Where("id = ?", id).First(&cp).Error
 
 	if err != nil {
-		return models.ChargePoint{}, err
+		return models.OcppChargePoint{}, err
 	}
 
 	return cp, nil
 }
 
-func (repo baseRepo) GetByChargePointIdentifier(ctx context.Context, cpId string) (models.ChargePoint, error) {
-	cp := models.ChargePoint{}
-	err := repo.db.Where("charge_point_identifier = ?", cpId).First(&cp).Error
+func (repo baseRepo) GetByChargePointIdentifier(ctx context.Context, cpId string) (models.OcppChargePoint, error) {
+	cp := models.OcppChargePoint{}
+	err := repo.db.Table("bb3.ocpp_charge_point").Where("charge_point_identifier = ?", cpId).First(&cp).Error
 
 	if err != nil {
-		return models.ChargePoint{}, err
+		return models.OcppChargePoint{}, err
 	}
 
 	return cp, nil
+}
+
+func (repo baseRepo) Update(ctx context.Context, id int32, fields []string, cp models.OcppChargePoint) (models.OcppChargePoint, error) {
+	err := repo.db.Model(&cp).Select(fields).Where("id = ?", id).Updates(cp).Error
+
+	if err != nil {
+		return models.OcppChargePoint{}, err
+	}
+
+	cpo := models.OcppChargePoint{}
+	err = repo.db.Table("bb3.ocpp_charge_point").
+		Where("id = ?", id).
+		First(&cpo).Error
+
+	if err != nil {
+		return models.OcppChargePoint{}, err
+	}
+
+	return cpo, nil
 }

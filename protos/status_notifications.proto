@@ -11,20 +11,17 @@ option (gogoproto.unmarshaler_all) = true;
 option (gogoproto.goproto_getters_all) = false;
 option (gogoproto.face_all) = true;
 
-
-message RemoteStartTransactionReq {
+message CreateStatusNotificationReq {
     int32 charge_point_id = 1;
     int32 connector_id = 2;
+    string error_code = 3;
+    string info = 4;
+    string status = 5;
+    string timestamp = 6;
+    string vendor_id = 7;
+    string vendor_error_code = 8;
 }
 
-message RemoteStartTransactionResp {
-    int32 transaction_id = 1;
-}
+message CreateStatusNotificationResp {
 
-message RemoteStopTransactionReq {
-    int32 charge_point_id = 1;
-    int32 transaction_id = 2;
-}
-
-message RemoteStopTransactionResp {
 }
