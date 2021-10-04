@@ -1,5 +1,49 @@
 basePath: /v2
 definitions:
+  rpc.GetLatestStatusNotificationsReq:
+    properties:
+      charge_point_id:
+        type: integer
+    type: object
+  rpc.GetLatestStatusNotificationsResp:
+    properties:
+      address_id:
+        type: integer
+      charge_box_serial_number:
+        type: string
+      charge_point_id:
+        type: integer
+      charge_point_identifier:
+        type: string
+      charge_point_model:
+        type: string
+      charge_point_serial_number:
+        type: string
+      charge_point_vendor:
+        type: string
+      connector_status:
+        items:
+          $ref: '#/definitions/rpc.StatusNotification'
+        type: array
+      description:
+        type: string
+      firmware_version:
+        type: string
+      iccid:
+        type: string
+      imsi:
+        type: string
+      location_latitude:
+        type: number
+      location_longitude:
+        type: number
+      meter_serial_number:
+        type: string
+      meter_type:
+        type: string
+      ocpp_protocol:
+        type: string
+    type: object
   rpc.RemoteStartTransactionReq:
     properties:
       charge_point_id:
@@ -21,6 +65,23 @@ definitions:
     type: object
   rpc.RemoteStopTransactionResp:
     type: object
+  rpc.StatusNotification:
+    properties:
+      connector_id:
+        type: integer
+      error_code:
+        type: string
+      info:
+        type: string
+      status:
+        type: string
+      timestamp:
+        type: string
+      vendor_error_code:
+        type: string
+      vendor_id:
+        type: string
+    type: object
 host: dev.beepbeep.tech
 info:
   contact:
@@ -30,6 +91,27 @@ info:
   title: BB3 OCPP API
   version: "2.0"
 paths:
+  /ocpp/operations/get-latest-status:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Post GetLatestStatus body
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/rpc.GetLatestStatusNotificationsReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rpc.GetLatestStatusNotificationsResp'
+      summary: Get Status of Connectors
+      tags:
+      - Operations
   /ocpp/operations/remote-start-transaction:
     post:
       consumes:

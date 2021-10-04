@@ -9,15 +9,18 @@ import (
 	"github.com/Beep-Technologies/beepbeep3-iam/pkg/constants"
 	"github.com/Beep-Technologies/beepbeep3-ocpp/api/rpc"
 	"github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/operation"
+	statusnotification "github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/status_notification"
 )
 
 type OperationsAPI struct {
-	operationService *operation.Service
+	operationService          *operation.Service
+	statusnotificationService *statusnotification.Service
 }
 
-func NewOperationsAPI(operationService *operation.Service) *OperationsAPI {
+func NewOperationsAPI(oS *operation.Service, snS *statusnotification.Service) *OperationsAPI {
 	return &OperationsAPI{
-		operationService: operationService,
+		operationService:          oS,
+		statusnotificationService: snS,
 	}
 }
 
@@ -86,6 +89,47 @@ func (api *OperationsAPI) RemoteStopTransaction(c *gin.Context) {
 	ctx := context.Background()
 	ctx = context.WithValue(ctx, constants.CtxKey("gin"), c)
 	res, err := api.operationService.RemoteStopTransaction(ctx, req)
+
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": err.Error(),
+			"data":    nil,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": "Success",
+		"data":    res,
+	})
+}
+
+// GetLatestStatus fetches the latest status notifications from each connector for a particular charge_point_id
+// @Summary Get Status of Connectors
+// @Tags Operations
+// @Accept json
+// @Produce json
+// @Param Body body rpc.GetLatestStatusNotificationsReq true "Post GetLatestStatus body"
+// @Success 200 {object} rpc.GetLatestStatusNotificationsResp
+// @Router /ocpp/operations/get-latest-status [post]
+func (api *OperationsAPI) GetLatestStatus(c *gin.Context) {
+	var req = &rpc.GetLatestStatusNotificationsReq{}
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		c.Error(err).SetType(gin.ErrorTypeBind)
+		c.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{
+			"status":  http.StatusUnprocessableEntity,
+			"message": err.Error(),
+			"data":    nil,
+		})
+		return
+	}
+
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, constants.CtxKey("gin"), c)
+	res, err := api.statusnotificationService.GetLatestStatusNotifications(ctx, req)
 
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{

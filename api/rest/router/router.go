@@ -50,6 +50,7 @@ func (rt *Router) Apply(r *gin.Engine) *gin.Engine {
 	// set up APIs
 	rg.POST("/operations/remote-start-transaction", rt.operationsAPI.RemoteStartTransaction)
 	rg.POST("/operations/remote-stop-transaction", rt.operationsAPI.RemoteStopTransaction)
+	rg.POST("/operations/get-latest-status", rt.operationsAPI.GetLatestStatus)
 
 	return r
 }

@@ -60,7 +60,10 @@ func main() {
 	)
 
 	ocppWebSocketServer := ocppserver.NewOCPPWebSocketServer(l, ocpp16CentralSystem)
-	operationController := controller.NewOperationsAPI(operationService)
+	operationController := controller.NewOperationsAPI(
+		operationService,
+		statusNotificationService,
+	)
 
 	rt := router.NewRouter(ocppWebSocketServer, operationController)
 

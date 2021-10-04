@@ -26,6 +26,39 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/ocpp/operations/get-latest-status": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Operations"
+                ],
+                "summary": "Get Status of Connectors",
+                "parameters": [
+                    {
+                        "description": "Post GetLatestStatus body",
+                        "name": "Body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/rpc.GetLatestStatusNotificationsReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/rpc.GetLatestStatusNotificationsResp"
+                        }
+                    }
+                }
+            }
+        },
         "/ocpp/operations/remote-start-transaction": {
             "post": {
                 "consumes": [
@@ -94,6 +127,73 @@ var doc = `{
         }
     },
     "definitions": {
+        "rpc.GetLatestStatusNotificationsReq": {
+            "type": "object",
+            "properties": {
+                "charge_point_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "rpc.GetLatestStatusNotificationsResp": {
+            "type": "object",
+            "properties": {
+                "address_id": {
+                    "type": "integer"
+                },
+                "charge_box_serial_number": {
+                    "type": "string"
+                },
+                "charge_point_id": {
+                    "type": "integer"
+                },
+                "charge_point_identifier": {
+                    "type": "string"
+                },
+                "charge_point_model": {
+                    "type": "string"
+                },
+                "charge_point_serial_number": {
+                    "type": "string"
+                },
+                "charge_point_vendor": {
+                    "type": "string"
+                },
+                "connector_status": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/rpc.StatusNotification"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "firmware_version": {
+                    "type": "string"
+                },
+                "iccid": {
+                    "type": "string"
+                },
+                "imsi": {
+                    "type": "string"
+                },
+                "location_latitude": {
+                    "type": "number"
+                },
+                "location_longitude": {
+                    "type": "number"
+                },
+                "meter_serial_number": {
+                    "type": "string"
+                },
+                "meter_type": {
+                    "type": "string"
+                },
+                "ocpp_protocol": {
+                    "type": "string"
+                }
+            }
+        },
         "rpc.RemoteStartTransactionReq": {
             "type": "object",
             "properties": {
@@ -126,6 +226,32 @@ var doc = `{
         },
         "rpc.RemoteStopTransactionResp": {
             "type": "object"
+        },
+        "rpc.StatusNotification": {
+            "type": "object",
+            "properties": {
+                "connector_id": {
+                    "type": "integer"
+                },
+                "error_code": {
+                    "type": "string"
+                },
+                "info": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "string"
+                },
+                "vendor_error_code": {
+                    "type": "string"
+                },
+                "vendor_id": {
+                    "type": "string"
+                }
+            }
         }
     }
 }`
