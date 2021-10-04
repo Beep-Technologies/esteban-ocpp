@@ -6,3 +6,6 @@
 
 # scratch files and example data
 scratch
+
+# files for deployment
+.deployment
