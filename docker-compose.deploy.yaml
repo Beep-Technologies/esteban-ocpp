@@ -8,6 +8,8 @@ services:
     ports:
       - 8060:8060
     environment:
+      - LIVE=TRUE
+      - CALLBACK_BASE_URL=http://busways.beepbeep.tech
       - DB_HOST=tsdb
       - DB_NAME=beepbeep3
       - DB_USER=beep

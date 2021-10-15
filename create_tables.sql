@@ -1,15 +1,20 @@
 create schema if not exists bb3;
-create table bb3.ocpp_address (
+create table bb3.ocpp_application (
     id serial primary key,
-    country_code char(2) not null,
-    /* ISO 3166 Alpha-2 Code */
-    city varchar(255),
-    line_1 varchar(255),
-    line_2 varchar(255),
-    zip_code varchar(10)
+    uuid varchar(36) not null,
+    name varchar(255) not null,
+    unique (uuid)
+);
+create table bb3.ocpp_application_callback (
+    id serial primary key,
+    application_id int not null,
+    callback_event varchar(255) not null,
+    callback_url varchar(2048) not null,
+    unique (application_id, callback_event)
 );
 create table bb3.ocpp_charge_point (
     id serial primary key,
+    application_id int not null,
     /* fixed to charge point */
     charge_point_vendor varchar(20) not null,
     charge_point_model varchar(20) not null,
@@ -20,22 +25,25 @@ create table bb3.ocpp_charge_point (
     meter_type varchar(25) not null,
     meter_serial_number varchar(25) not null,
     firmware_version varchar(50) not null,
+    connector_count int not null,
     /* user-set */
+    charge_point_identifier varchar(255) not null unique,
     ocpp_protocol varchar(20) not null,
-    charge_point_identifier varchar(255) not null,
-    description varchar(255) not null,
-    location_latitude decimal(11, 8) not null,
-    location_longitude decimal(11, 8) not null,
-    address_id int not null,
-    foreign key (address_id) references bb3.ocpp_address(id)
+    foreign key (application_id) references bb3.ocpp_application(id)
+);
+create table bb3.ocpp_charge_point_id_tag (
+    id serial primary key,
+    charge_point_id int not null,
+    id_tag varchar(20) not null,
+    foreign key (charge_point_id) references bb3.ocpp_charge_point(id)
 );
 create table bb3.ocpp_transaction (
     id serial primary key,
     charge_point_id int not null,
     connector_id int not null,
     id_tag varchar(20) not null,
-    ongoing bool not null,
     state varchar(50) not null,
+    remote_initiated bool not null,
     start_timestamp timestamp without time zone not null,
     stop_timestamp timestamp without time zone not null,
     start_meter_value int not null,
@@ -57,21 +65,16 @@ create table bb3.ocpp_status_notification (
     foreign key (charge_point_id) references bb3.ocpp_charge_point(id)
 );
 -- add mock data
-insert into bb3.ocpp_address (
-        country_code,
-        city,
-        line_1,
-        line_2,
-        zip_code
+insert into bb3.ocpp_application (
+    uuid, 
+    name
     )
 values (
-        'SG',
-        'Singapore',
-        '8 Somapah Road',
-        '',
-        '487372'
+        'cde0496a-bcd8-408e-9d07-65d07d841487',
+        'busways'
     );
 insert into bb3.ocpp_charge_point (
+        application_id,
         charge_point_vendor,
         charge_point_model,
         charge_point_serial_number,
@@ -84,25 +87,20 @@ insert into bb3.ocpp_charge_point (
         /* user-set */
         ocpp_protocol,
         charge_point_identifier,
-        description,
-        location_latitude,
-        location_longitude,
-        address_id
-    )
+        connector_count
+    ) 
 values (
-        'Schneider Electric',
-        'EVlink Smart Wallbox',
-        'EVB1A22PCRI3N192421401400',
-        '3N192040721A1S1B755170001',
+        1,
         '',
         '',
         '',
         '',
-        '3.3.0.16',
+        '',
+        '',
+        '',
+        '',
+        '',
         'ocpp1.6J',
         'SUTD_TEST',
-        'EVLink @ SUTD for Testing',
-        1.3413647,
-        103.9611493,
-        1
+        0
     );

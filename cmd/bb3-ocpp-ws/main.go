@@ -17,6 +17,7 @@ import (
 
 	ocpp16cs "github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_16_cs"
 	ocppserver "github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_server"
+	applicationsrv "github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/application"
 	chargepointsrv "github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/charge_point"
 	operationsrv "github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/operation"
 	statusnotificationsrv "github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/status_notification"
@@ -30,9 +31,8 @@ import (
 // @contact.name Lowen
 // @contact.email lowen@beepbeep.tech
 
-// @host dev.beepbeep.tech
-// @BasePath /v2
-// @Schemes https
+// @host ocpp-dev.beepbeep.tech:8060
+// @schemes http
 func main() {
 	// load from .env file. doesn't matter if an error is returned
 	godotenv.Load()
@@ -41,12 +41,14 @@ func main() {
 
 	l := log.New(os.Stdout, "", 0)
 
+	applicationService := applicationsrv.NewService(db.ORM)
 	chargePointService := chargepointsrv.NewService(db.ORM)
 	transactionService := transactionsrv.NewService(db.ORM)
 	statusNotificationService := statusnotificationsrv.NewService(db.ORM)
 
 	ocpp16CentralSystem := ocpp16cs.NewOCPP16CentralSystem(
 		l,
+		applicationService,
 		chargePointService,
 		transactionService,
 		statusNotificationService,

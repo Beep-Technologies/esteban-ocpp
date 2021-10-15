@@ -11,22 +11,20 @@ import (
 
 // OcppChargePoint is an object representing the database table.
 type OcppChargePoint struct {
-	ID                      int32   `gorm:"column:id"`
-	ChargePointVendor       string  `gorm:"column:charge_point_vendor"`
-	ChargePointModel        string  `gorm:"column:charge_point_model"`
-	ChargePointSerialNumber string  `gorm:"column:charge_point_serial_number"`
-	ChargeBoxSerialNumber   string  `gorm:"column:charge_box_serial_number"`
-	Iccid                   string  `gorm:"column:iccid"`
-	Imsi                    string  `gorm:"column:imsi"`
-	MeterType               string  `gorm:"column:meter_type"`
-	MeterSerialNumber       string  `gorm:"column:meter_serial_number"`
-	FirmwareVersion         string  `gorm:"column:firmware_version"`
-	OcppProtocol            string  `gorm:"column:ocpp_protocol"`
-	ChargePointIdentifier   string  `gorm:"column:charge_point_identifier"`
-	Description             string  `gorm:"column:description"`
-	LocationLatitude        float64 `gorm:"column:location_latitude"`
-	LocationLongitude       float64 `gorm:"column:location_longitude"`
-	AddressID               int32   `gorm:"column:address_id"`
+	ID                      int32  `gorm:"column:id"`
+	ApplicationID           int32  `gorm:"column:application_id"`
+	ChargePointVendor       string `gorm:"column:charge_point_vendor"`
+	ChargePointModel        string `gorm:"column:charge_point_model"`
+	ChargePointSerialNumber string `gorm:"column:charge_point_serial_number"`
+	ChargeBoxSerialNumber   string `gorm:"column:charge_box_serial_number"`
+	Iccid                   string `gorm:"column:iccid"`
+	Imsi                    string `gorm:"column:imsi"`
+	MeterType               string `gorm:"column:meter_type"`
+	MeterSerialNumber       string `gorm:"column:meter_serial_number"`
+	FirmwareVersion         string `gorm:"column:firmware_version"`
+	ConnectorCount          int32  `gorm:"column:connector_count"`
+	ChargePointIdentifier   string `gorm:"column:charge_point_identifier"`
+	OcppProtocol            string `gorm:"column:ocpp_protocol"`
 }
 
 func (OcppChargePoint) TableName() string {

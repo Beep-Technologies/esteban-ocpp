@@ -14,27 +14,40 @@ import (
 // RemoteStartTransactionOp makes a RemoteStartTransaction call to the charge point
 func (c *OCPP16ChargePoint) RemoteStartTransactionOp(cnid int) (*rpc.RemoteStartTransactionResp, error) {
 	// check if there is already an ongoing transaction
-	_, ok := c.currentConnectorTransactions[cnid]
-	if ok {
-		return nil, errors.New("there is already an ongoing transaction at this connection")
-	}
-
-	// create transaction row on db
-	t, err := c.transactionService.CreateTransaction(
+	tRes, err := c.transactionService.OnGoingTransaction(
 		context.Background(),
-		&rpc.CreateTransactionReq{
-			ChargePointId: int32(c.id),
-			ConnectorId:   int32(cnid),
+		&rpc.OngoingTransactionReq{
+			ApplicationId:         int32(c.applicationId),
+			ChargePointIdentifier: c.chargePointIdentifier,
+			ConnectorId:           int32(cnid),
 		})
 
 	if err != nil {
 		return nil, err
 	}
 
-	// set the current transaction on this connector
-	c.currentConnectorTransactions[cnid] = int(t.Id)
+	if tRes.OngoingTransaction == true {
+		return nil, errors.New("there is already an ongoing transaction at the charge point connector")
+	}
 
-	c.logger.Printf("inserting transaction, %+v", c.currentConnectorTransactions)
+	// generate a unique id tag for this connection
+	// id tags must be 20 characters long
+	idTag := uuid.NewString()[0:20]
+
+	// set the current transaction on this connector
+	// create transaction row on db
+	t, err := c.transactionService.CreateTransaction(
+		context.Background(),
+		&rpc.CreateTransactionReq{
+			ChargePointId:   int32(c.id),
+			ConnectorId:     int32(cnid),
+			RemoteInitiated: true,
+			IdTag:           idTag,
+		})
+
+	if err != nil {
+		return nil, err
+	}
 
 	// make the RemoteStartTransaction call
 	m := msg.OCPP16CallMessage{
@@ -43,7 +56,7 @@ func (c *OCPP16ChargePoint) RemoteStartTransactionOp(cnid int) (*rpc.RemoteStart
 		Action:        "RemoteStartTransaction",
 		// TODO: figure out how to deal with IdTag
 		Payload: &ocpp16.RemoteStartTransactionRequest{
-			IdTag:       "TEST",
+			IdTag:       idTag,
 			ConnectorId: cnid,
 		},
 	}
@@ -54,7 +67,7 @@ func (c *OCPP16ChargePoint) RemoteStartTransactionOp(cnid int) (*rpc.RemoteStart
 	}
 
 	res := &rpc.RemoteStartTransactionResp{
-		TransactionId: t.Id,
+		TransactionId: t.Transaction.Id,
 	}
 
 	return res, nil

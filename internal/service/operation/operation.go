@@ -36,11 +36,19 @@ func (srv Service) RemoteStartTransaction(
 	ctx context.Context,
 	req *rpc.RemoteStartTransactionReq,
 ) (*rpc.RemoteStartTransactionResp, error) {
-	// TODO: figure out how this interfaces with the database
-	// for now we handle this locally
+	cpRes, err := srv.chargePointService.GetChargePointByIdentifier(
+		context.Background(),
+		&rpc.GetChargePointByIdentifierReq{
+			ApplicationId:         req.ApplicationId,
+			ChargePointIdentifier: req.ChargePointIdentifier,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
 
 	// get the charge point
-	cp, err := srv.ocpp16CentralSystem.GetChargePoint(int(req.ChargePointId))
+	cp, err := srv.ocpp16CentralSystem.GetChargePoint(int(cpRes.ChargePoint.Id))
 	if err != nil {
 		return nil, err
 	}
@@ -55,15 +63,37 @@ func (srv Service) RemoteStopTransaction(
 	ctx context.Context,
 	req *rpc.RemoteStopTransactionReq,
 ) (*rpc.RemoteStopTransactionResp, error) {
-	// TODO: figure out how this interfaces with the database
-
-	// get the charge point
-	cp, err := srv.ocpp16CentralSystem.GetChargePoint(int(req.ChargePointId))
+	cpRes, err := srv.chargePointService.GetChargePointByIdentifier(
+		context.Background(),
+		&rpc.GetChargePointByIdentifierReq{
+			ApplicationId:         req.ApplicationId,
+			ChargePointIdentifier: req.ChargePointIdentifier,
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := cp.RemoteStopTransactionOp(int(req.TransactionId))
+	// get the charge point
+	cp, err := srv.ocpp16CentralSystem.GetChargePoint(int(cpRes.ChargePoint.Id))
+	if err != nil {
+		return nil, err
+	}
+
+	// get the transaction
+	tRes, err := srv.transactionService.GetOngoingTransaction(
+		context.Background(),
+		&rpc.GetOngoingTransactionReq{
+			ApplicationId:         req.ApplicationId,
+			ChargePointIdentifier: req.ChargePointIdentifier,
+			ConnectorId:           req.ConnectorId,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := cp.RemoteStopTransactionOp(int(tRes.Transaction.Id))
 
 	return res, err
 }

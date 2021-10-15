@@ -35,6 +35,9 @@ func (c *OCPP16ChargePoint) statusNotification(req *msg.OCPP16CallMessage) (*msg
 		}
 	}
 
+	// make callback
+	go c.makeCallback("StatusNotification", b)
+
 	c.status = msg.OCPP16Status(b.Status)
 
 	_, err = c.statusNotificationService.CreateStatusNotification(context.Background(), &rpc.CreateStatusNotificationReq{

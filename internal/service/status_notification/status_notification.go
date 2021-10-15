@@ -34,7 +34,7 @@ func (srv Service) CreateStatusNotification(ctx context.Context, req *rpc.Create
 		return nil, err
 	}
 
-	_, err = srv.statusnotification.Create(ctx, models.OcppStatusNotification{
+	sn, err := srv.statusnotification.Create(ctx, models.OcppStatusNotification{
 		ChargePointID:     req.ChargePointId,
 		ConnectorID:       req.ConnectorId,
 		ErrorCode:         req.ErrorCode,
@@ -50,16 +50,32 @@ func (srv Service) CreateStatusNotification(ctx context.Context, req *rpc.Create
 		return nil, err
 	}
 
-	return &rpc.CreateStatusNotificationResp{}, nil
+	res := &rpc.CreateStatusNotificationResp{
+		StatusNotification: &rpc.StatusNotification{
+			Id:                sn.ID,
+			ChargePointId:     sn.ChargePointID,
+			ConnectorId:       sn.ConnectorID,
+			ErrorCode:         sn.ErrorCode,
+			Info:              sn.Info,
+			Status:            sn.Status,
+			VendorId:          sn.VendorID,
+			VendorErrorCode:   sn.VendorErrorCode,
+			Timestamp:         sn.Timestamp.UTC().Format(time.RFC3339Nano),
+			ReportedTimestamp: sn.ReportedTimestamp.UTC().Format(time.RFC3339Nano),
+		},
+	}
+
+	return res, nil
 }
 
 func (srv Service) GetLatestStatusNotifications(ctx context.Context, req *rpc.GetLatestStatusNotificationsReq) (*rpc.GetLatestStatusNotificationsResp, error) {
-	cpModel, err := srv.chargepoint.GetByID(ctx, req.ChargePointId)
+	cpModel, err := srv.chargepoint.GetChargePointByIdentifier(ctx, req.ApplicationId, req.ChargePointIdentifier)
+
 	if err != nil {
 		return nil, err
 	}
 
-	snModels, err := srv.statusnotification.GetLatest(ctx, int(req.ChargePointId))
+	snModels, err := srv.statusnotification.GetLatestStatusNotifications(ctx, cpModel.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -68,35 +84,23 @@ func (srv Service) GetLatestStatusNotifications(ctx context.Context, req *rpc.Ge
 
 	for _, sn := range snModels {
 		snRpc := &rpc.StatusNotification{
-			ConnectorId:     sn.ChargePointID,
-			ErrorCode:       sn.ErrorCode,
-			Info:            sn.Info,
-			Status:          sn.Status,
-			Timestamp:       sn.Timestamp.UTC().Format(RFC3339Milli),
-			VendorId:        sn.VendorID,
-			VendorErrorCode: sn.VendorErrorCode,
+			Id:                sn.ID,
+			ChargePointId:     sn.ChargePointID,
+			ConnectorId:       sn.ConnectorID,
+			ErrorCode:         sn.ErrorCode,
+			Info:              sn.Info,
+			Status:            sn.Status,
+			VendorId:          sn.VendorID,
+			VendorErrorCode:   sn.VendorErrorCode,
+			Timestamp:         sn.Timestamp.UTC().Format(RFC3339Milli),
+			ReportedTimestamp: sn.ReportedTimestamp.UTC().Format(RFC3339Milli),
 		}
 
 		snRpcs = append(snRpcs, snRpc)
 	}
 
 	res := &rpc.GetLatestStatusNotificationsResp{
-		ChargePointId:           cpModel.ID,
-		ChargePointVendor:       cpModel.ChargePointVendor,
-		ChargePointModel:        cpModel.ChargePointModel,
-		ChargePointSerialNumber: cpModel.ChargePointSerialNumber,
-		ChargeBoxSerialNumber:   cpModel.ChargeBoxSerialNumber,
-		Iccid:                   cpModel.Iccid,
-		Imsi:                    cpModel.Imsi,
-		MeterType:               cpModel.MeterType,
-		MeterSerialNumber:       cpModel.MeterSerialNumber,
-		FirmwareVersion:         cpModel.FirmwareVersion,
-		OcppProtocol:            cpModel.OcppProtocol,
-		ChargePointIdentifier:   cpModel.ChargePointIdentifier,
-		Description:             cpModel.Description,
-		LocationLatitude:        cpModel.LocationLatitude,
-		LocationLongitude:       cpModel.LocationLongitude,
-		ConnectorStatus:         snRpcs,
+		ConnectorStatus: snRpcs,
 	}
 
 	return res, nil

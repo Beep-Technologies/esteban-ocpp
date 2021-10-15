@@ -41,14 +41,12 @@ func NewOCPPWebSocketServer(l *log.Logger, o16cs *ocpp16cs.OCPP16CentralSystem) 
 func (s *OCPPWebSocketServer) HttpUpgradeHandler(c *gin.Context) {
 	w, r := c.Writer, c.Request
 
+	// get the application uuid
+	applicationUuid := c.Param("applicationUuid")
+
 	// get the charge point identifier and decode it
 	// charge point identifiers are percent-encoded
 	chargePointIdentifier := c.Param("chargePointIdentifier")
-
-	if chargePointIdentifier == "" {
-		http.Error(w, "Invalid Charge Point Identifier", http.StatusNotFound)
-		return
-	}
 
 	// server-offered subprotocols
 	serverProtocols := []string{"ocpp1.6"}
@@ -101,7 +99,10 @@ func (s *OCPPWebSocketServer) HttpUpgradeHandler(c *gin.Context) {
 
 	switch selectedProtocol {
 	case "ocpp1.6":
-		err := s.ocpp16centralSystem.ConnectChargePoint(chargePointIdentifier, conn)
+		err := s.ocpp16centralSystem.ConnectChargePoint(
+			applicationUuid,
+			chargePointIdentifier,
+			conn)
 		if err != nil {
 			s.logger.Printf("[ERROR] %+v\n", err.Error())
 		}

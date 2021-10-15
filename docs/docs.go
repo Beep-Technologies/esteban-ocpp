@@ -26,7 +26,7 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/ocpp/operations/get-latest-status": {
+        "/v2/ocpp/operations/get-latest-status": {
             "post": {
                 "consumes": [
                     "application/json"
@@ -59,7 +59,7 @@ var doc = `{
                 }
             }
         },
-        "/ocpp/operations/remote-start-transaction": {
+        "/v2/ocpp/operations/remote-start-transaction": {
             "post": {
                 "consumes": [
                     "application/json"
@@ -92,7 +92,7 @@ var doc = `{
                 }
             }
         },
-        "/ocpp/operations/remote-stop-transaction": {
+        "/v2/ocpp/operations/remote-stop-transaction": {
             "post": {
                 "consumes": [
                     "application/json"
@@ -130,75 +130,33 @@ var doc = `{
         "rpc.GetLatestStatusNotificationsReq": {
             "type": "object",
             "properties": {
-                "charge_point_id": {
+                "application_id": {
                     "type": "integer"
+                },
+                "charge_point_identifier": {
+                    "type": "string"
                 }
             }
         },
         "rpc.GetLatestStatusNotificationsResp": {
             "type": "object",
             "properties": {
-                "address_id": {
-                    "type": "integer"
-                },
-                "charge_box_serial_number": {
-                    "type": "string"
-                },
-                "charge_point_id": {
-                    "type": "integer"
-                },
-                "charge_point_identifier": {
-                    "type": "string"
-                },
-                "charge_point_model": {
-                    "type": "string"
-                },
-                "charge_point_serial_number": {
-                    "type": "string"
-                },
-                "charge_point_vendor": {
-                    "type": "string"
-                },
                 "connector_status": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/rpc.StatusNotification"
                     }
-                },
-                "description": {
-                    "type": "string"
-                },
-                "firmware_version": {
-                    "type": "string"
-                },
-                "iccid": {
-                    "type": "string"
-                },
-                "imsi": {
-                    "type": "string"
-                },
-                "location_latitude": {
-                    "type": "number"
-                },
-                "location_longitude": {
-                    "type": "number"
-                },
-                "meter_serial_number": {
-                    "type": "string"
-                },
-                "meter_type": {
-                    "type": "string"
-                },
-                "ocpp_protocol": {
-                    "type": "string"
                 }
             }
         },
         "rpc.RemoteStartTransactionReq": {
             "type": "object",
             "properties": {
-                "charge_point_id": {
+                "application_id": {
                     "type": "integer"
+                },
+                "charge_point_identifier": {
+                    "type": "string"
                 },
                 "connector_id": {
                     "type": "integer"
@@ -216,10 +174,13 @@ var doc = `{
         "rpc.RemoteStopTransactionReq": {
             "type": "object",
             "properties": {
-                "charge_point_id": {
+                "application_id": {
                     "type": "integer"
                 },
-                "transaction_id": {
+                "charge_point_identifier": {
+                    "type": "string"
+                },
+                "connector_id": {
                     "type": "integer"
                 }
             }
@@ -230,13 +191,22 @@ var doc = `{
         "rpc.StatusNotification": {
             "type": "object",
             "properties": {
+                "charge_point_id": {
+                    "type": "integer"
+                },
                 "connector_id": {
                     "type": "integer"
                 },
                 "error_code": {
                     "type": "string"
                 },
+                "id": {
+                    "type": "integer"
+                },
                 "info": {
+                    "type": "string"
+                },
+                "reported_timestamp": {
                     "type": "string"
                 },
                 "status": {
@@ -268,9 +238,9 @@ type swaggerInfo struct {
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
 	Version:     "2.0",
-	Host:        "dev.beepbeep.tech",
-	BasePath:    "/v2",
-	Schemes:     []string{"https"},
+	Host:        "ocpp-dev.beepbeep.tech:8060",
+	BasePath:    "",
+	Schemes:     []string{"http"},
 	Title:       "BB3 OCPP API",
 	Description: "Service to interface with OCPP-compliant charge points",
 }

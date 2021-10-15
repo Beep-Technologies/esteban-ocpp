@@ -11,50 +11,100 @@ option (gogoproto.unmarshaler_all) = true;
 option (gogoproto.goproto_getters_all) = false;
 option (gogoproto.face_all) = true;
 
-message GetChargePointByIDReq {
-    int32 id = 1;
+message ChargePoint {
+    int32 id = 1 [(gogoproto.jsontag) = "id"];
+    int32 application_id = 2 [(gogoproto.jsontag) = "application_id"];
+    string charge_point_identifier = 3 [(gogoproto.jsontag) = "charge_point_identifier"];  
+    string charge_point_vendor = 4 [(gogoproto.jsontag) = "charge_point_vendor"];
+    string charge_point_model = 5 [(gogoproto.jsontag) = "charge_point_model"];
+    string charge_point_serial_number = 6 [(gogoproto.jsontag) = "charge_point_serial_number"];
+    string charge_box_serial_number = 7 [(gogoproto.jsontag) = "charge_box_serial_number"];
+    string iccid = 8 [(gogoproto.jsontag) = "iccid"];
+    string imsi = 9 [(gogoproto.jsontag) = "imsi"];
+    string meter_type = 10 [(gogoproto.jsontag) = "meter_type"];
+    string meter_serial_number = 11 [(gogoproto.jsontag) = "meter_serial_number"];
+    string firmware_version = 12 [(gogoproto.jsontag) = "firmware_version"];
+    int32 connector_count = 13 [(gogoproto.jsontag) = "connector_count"];
+    string ocpp_protocol = 14 [(gogoproto.jsontag) = "ocpp_protocol"];
 }
 
-message GetChargePointByIDResp {
-    int32 id = 1;
-    string charge_point_vendor = 2;
-    string charge_point_model = 3;
-    string charge_point_serial_number = 4;
-    string charge_box_serial_number = 5;
-    string iccid = 6;
-    string imsi = 7;
-    string meter_type = 8;
-    string meter_serial_number = 9;
-    string firmware_version = 10;
-    string ocpp_protocol = 11;
-    string charge_point_identifier = 12;
-    string description = 13;
-    double location_latitude = 14;
-    double location_longitude = 15;
-    int32 address_id = 16;
+message ChargePointIdTag {
+    int32 charge_point_id = 1 [(gogoproto.jsontag) = "charge_point_id"];
+    string charge_point_identifier = 2 [(gogoproto.jsontag) = "charge_point_identifier"];
+    string id_tag = 3 [(gogoproto.jsontag) = "id_tag"];
+}
+
+// for exposed services
+message CreateChargePointReq {
+    int32 application_id = 1;
+    string charge_point_identifier = 2;
+    string ocpp_protocol = 3;
+}
+
+message CreateChargePointResp {
+    ChargePoint charge_point = 1 [(gogoproto.jsontag) = "charge_point"];
+}
+
+message GetChargePointsReq {
+    int32 application_id = 1;
+}
+
+message GetChargePointsResp {
+    repeated ChargePoint charge_points = 1 [(gogoproto.jsontag) = "charge_points"];
 }
 
 message GetChargePointByIdentifierReq {
     string charge_point_identifier = 1;
+    int32 application_id = 2;
 }
 
 message GetChargePointByIdentifierResp {
-    int32 id = 1;
-    string charge_point_vendor = 2;
-    string charge_point_model = 3;
-    string charge_point_serial_number = 4;
-    string charge_box_serial_number = 5;
-    string iccid = 6;
-    string imsi = 7;
-    string meter_type = 8;
-    string meter_serial_number = 9;
-    string firmware_version = 10;
-    string ocpp_protocol = 11;
-    string charge_point_identifier = 12;
-    string description = 13;
-    double location_latitude = 14;
-    double location_longitude = 15;
-    int32 address_id = 16;
+    ChargePoint charge_point = 1;
+}
+
+message UpdateChargePointDetailsReq {
+    int32 charge_point_id = 1 [(gogoproto.jsontag) = "id"];
+    string charge_point_vendor = 2 [(gogoproto.jsontag) = "charge_point_vendor"];
+    string charge_point_model = 3 [(gogoproto.jsontag) = "charge_point_model"];
+    string charge_point_serial_number = 4 [(gogoproto.jsontag) = "charge_point_serial_number"];
+    string charge_box_serial_number = 5 [(gogoproto.jsontag) = "charge_box_serial_number"];
+    string iccid = 6 [(gogoproto.jsontag) = "iccid"];
+    string imsi = 7 [(gogoproto.jsontag) = "imsi"];
+    string meter_type = 8 [(gogoproto.jsontag) = "meter_type"];
+    string meter_serial_number = 9 [(gogoproto.jsontag) = "meter_serial_number"];
+    string firmware_version = 10 [(gogoproto.jsontag) = "firmware_version"];
+}
+
+message UpdateChargePointDetailsResp {
+    ChargePoint charge_point = 1;
+}
+
+message CreateChargePointIdTagReq {
+    string charge_point_identifier = 1;
+    int32 application_id = 2;
+    string id_tag = 3;
+}
+
+message CreateChargePointIdTagResp {
+    ChargePointIdTag charge_point_id_tag = 1 [(gogoproto.jsontag) = "charge_point_id_tag"];
+}
+
+message GetChargePointIdTagsReq {
+    string charge_point_identifier = 1;
+    int32 application_id = 2;
+}
+
+message GetChargePointIdTagsResp {
+    repeated ChargePointIdTag charge_point_id_tags = 1 [(gogoproto.jsontag) = "charge_point_id_tags"];
 }
 
 
+// for internal services
+message GetChargePointByIDReq {
+    int32 id = 1;
+    int32 application_id = 2;
+}
+
+message GetChargePointByIDResp {
+    ChargePoint charge_point = 1;
+}

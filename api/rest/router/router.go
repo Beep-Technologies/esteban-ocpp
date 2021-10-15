@@ -35,16 +35,17 @@ func (rt *Router) Apply(r *gin.Engine) *gin.Engine {
 	}))
 
 	// set up websocket server endpoint
-	r.GET("/ocpp/:chargePointIdentifier", rt.ocppWebSocketServer.HttpUpgradeHandler)
+	r.GET("/ocpp-central-system/:applicationUuid/:chargePointIdentifier", rt.ocppWebSocketServer.HttpUpgradeHandler)
 
 	rg := r.Group("v2/ocpp")
 
 	// for swagger
-	// set host to localhost if not live, else defaults to dev.beepbeep.tech
+	// set host to localhost if not live, else defaults to ocpp-dev.beepbeep.tech
 	if os.Getenv("LIVE") == "" {
 		docs.SwaggerInfo.Host = "localhost:8060"
 		docs.SwaggerInfo.Schemes = []string{"http"}
 	}
+
 	rg.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// set up APIs

@@ -35,22 +35,60 @@ func (c *OCPP16ChargePoint) startTransaction(req *msg.OCPP16CallMessage) (*msg.O
 		}
 	}
 
-	tid, ok := c.currentConnectorTransactions[b.ConnectorId]
-
-	if !ok {
+	otRes, err := c.transactionService.OnGoingTransaction(context.Background(), &rpc.OngoingTransactionReq{
+		ApplicationId:         int32(c.applicationId),
+		ChargePointIdentifier: c.chargePointIdentifier,
+		ConnectorId:           int32(b.ConnectorId),
+	})
+	if err != nil {
 		return nil, &msg.OCPP16CallError{
 			MessageTypeID:    msg.CALLERROR,
 			UniqueID:         req.UniqueID,
 			ErrorCode:        msg.InternalError,
-			ErrorDescription: "there is no transaction on the charge point",
+			ErrorDescription: err.Error(),
 			ErrorDetails:     struct{}{},
 		}
 	}
 
+	// if there is no ongoing transaction, this should not be a remote-initiated transaction
+	if !otRes.OngoingTransaction {
+		// TODO: allow non remote-initiated transactions
+		return &msg.OCPP16CallResult{
+			MessageTypeID: msg.CALLRESULT,
+			UniqueID:      req.UniqueID,
+			Payload: &ocpp16.StartTransactionResponse{
+				IdTagInfo: &ocpp16.IdTagInfo{
+					Status: "Rejected",
+				},
+			},
+		}, nil
+	}
+
+	// else it should be a remote-initiated transaction
+	tRes, err := c.transactionService.GetTransactionById(context.Background(),
+		&rpc.GetTransactionByIdReq{Id: otRes.TransactionId},
+	)
+
+	// check if the idTags match, reject if they dont
+	if b.IdTag != tRes.Transaction.IdTag {
+		return &msg.OCPP16CallResult{
+			MessageTypeID: msg.CALLRESULT,
+			UniqueID:      req.UniqueID,
+			Payload: &ocpp16.StartTransactionResponse{
+				IdTagInfo: &ocpp16.IdTagInfo{
+					Status: "Rejected",
+				},
+			},
+		}, nil
+	}
+
 	_, err = c.transactionService.StartTransaction(context.Background(), &rpc.StartTransactionReq{
-		Id:              int32(tid),
+		Id:              int32(tRes.Transaction.Id),
 		StartMeterValue: int32(b.MeterStart),
 	})
+
+	// make callback
+	c.makeCallback("StartTransaction", b)
 
 	if err != nil {
 		return nil, &msg.OCPP16CallError{
@@ -63,7 +101,7 @@ func (c *OCPP16ChargePoint) startTransaction(req *msg.OCPP16CallMessage) (*msg.O
 	}
 
 	rb := &ocpp16.StartTransactionResponse{
-		TransactionId: tid,
+		TransactionId: int(tRes.Transaction.Id),
 		IdTagInfo: &ocpp16.IdTagInfo{
 			Status: "Accepted",
 		},

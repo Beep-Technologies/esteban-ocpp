@@ -1,9 +1,11 @@
 package ocpp16cp
 
 import (
+	"context"
 	"encoding/json"
 	"time"
 
+	"github.com/Beep-Technologies/beepbeep3-ocpp/api/rpc"
 	msg "github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_16_messaging"
 	ocpp16 "github.com/Beep-Technologies/beepbeep3-ocpp/internal/schemas/ocpp_16"
 )
@@ -40,6 +42,26 @@ func (c *OCPP16ChargePoint) bootNotification(req *msg.OCPP16CallMessage) (*msg.O
 		}
 	}
 
+	// make callback
+	go c.makeCallback("BootNotification", b)
+
+	// TODO: figure out if it is necessary to handle errors
+	c.chargepointService.UpdateChargePointDetails(
+		context.Background(),
+		&rpc.UpdateChargePointDetailsReq{
+			ChargePointId:           int32(c.id),
+			ChargePointVendor:       b.ChargePointVendor,
+			ChargePointModel:        b.ChargePointModel,
+			ChargePointSerialNumber: b.ChargeBoxSerialNumber,
+			ChargeBoxSerialNumber:   b.ChargeBoxSerialNumber,
+			Iccid:                   b.Iccid,
+			Imsi:                    b.Imsi,
+			MeterType:               b.MeterType,
+			MeterSerialNumber:       b.MeterSerialNumber,
+			FirmwareVersion:         b.FirmwareVersion,
+		})
+
+	// TODO: move heartbeat interval config somewhere else
 	rb := &ocpp16.BootNotificationResponse{
 		Status:      "Accepted",
 		CurrentTime: getCurrentTime(),

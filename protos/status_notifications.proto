@@ -11,50 +11,43 @@ option (gogoproto.unmarshaler_all) = true;
 option (gogoproto.goproto_getters_all) = false;
 option (gogoproto.face_all) = true;
 
-message CreateStatusNotificationReq {
-    int32 charge_point_id = 1;
-    int32 connector_id = 2;
-    string error_code = 3;
-    string info = 4;
-    string status = 5;
-    string timestamp = 6;
-    string vendor_id = 7;
-    string vendor_error_code = 8;
-}
-
-message CreateStatusNotificationResp {}
-
-message GetLatestStatusNotificationsReq {
-    int32 charge_point_id = 1;
-}
-
 message StatusNotification {
-    int32 connector_id = 1;
-    string error_code = 2;
-    string info = 3;
-    string status = 4;
-    string timestamp = 5;
-    string vendor_id = 6;
-    string vendor_error_code = 7;
+    int32 id = 1 [(gogoproto.jsontag) = "id"];
+    int32 charge_point_id = 2 [(gogoproto.jsontag) = "charge_point_id"];
+    int32 connector_id = 3 [(gogoproto.jsontag) = "connector_id"];
+    string error_code = 4 [(gogoproto.jsontag) = "error_code"];
+    string info = 5 [(gogoproto.jsontag) = "info"];
+    string status = 6 [(gogoproto.jsontag) = "status"];
+    string vendor_id = 7 [(gogoproto.jsontag) = "vendor_id"];
+    string vendor_error_code = 8 [(gogoproto.jsontag) = "vendor_error_code"];
+    string timestamp = 9 [(gogoproto.jsontag) = "timestamp"];
+    string reported_timestamp = 10 [(gogoproto.jsontag) = "reported_timestamp"];
+}
+
+// for exposed services
+message GetLatestStatusNotificationsReq {
+    int32 application_id = 1;
+    string charge_point_identifier = 2;
 }
 
 message GetLatestStatusNotificationsResp {
-    int32 charge_point_id = 1 [(gogoproto.jsontag) = "charge_point_id"];
-    string charge_point_vendor = 2 [(gogoproto.jsontag) = "charge_point_vendor"];
-    string charge_point_model = 3 [(gogoproto.jsontag) = "charge_point_model"];
-    string charge_point_serial_number = 4 [(gogoproto.jsontag) = "charge_point_serial_number"];
-    string charge_box_serial_number = 5 [(gogoproto.jsontag) = "charge_box_serial_number"];
-    string iccid = 6 [(gogoproto.jsontag) = "iccid"];
-    string imsi = 7 [(gogoproto.jsontag) = "imsi"];
-    string meter_type = 8 [(gogoproto.jsontag) = "meter_type"];
-    string meter_serial_number = 9 [(gogoproto.jsontag) = "meter_serial_number"];
-    string firmware_version = 10 [(gogoproto.jsontag) = "firmware_version"];
-    string ocpp_protocol = 11 [(gogoproto.jsontag) = "ocpp_protocol"];
-    string charge_point_identifier = 12 [(gogoproto.jsontag) = "charge_point_identifier"];
-    string description = 13 [(gogoproto.jsontag) = "description"];
-    double location_latitude = 14 [(gogoproto.jsontag) = "location_latitude"];
-    double location_longitude = 15 [(gogoproto.jsontag) = "location_longitude"];
-    int32 address_id = 16 [(gogoproto.jsontag) = "address_id"];
+    repeated StatusNotification connector_status = 1 [(gogoproto.jsontag) = "connector_status"];  
+}
 
-    repeated StatusNotification connector_status = 17 [(gogoproto.jsontag) = "connector_status"];  
+
+// for internal services
+message CreateStatusNotificationReq {
+    int32 application_id = 1;
+    int32 charge_point_id = 2;
+    int32 connector_id = 3;
+    string error_code = 4;
+    string info = 5;
+    string status = 6;
+    string timestamp = 7;
+    string vendor_id = 8;
+    string vendor_error_code = 9;
+}
+
+message CreateStatusNotificationResp {
+    StatusNotification status_notification = 1 [(gogoproto.jsontag) = "status_notification"];
 }

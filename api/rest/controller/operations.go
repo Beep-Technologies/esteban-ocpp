@@ -31,7 +31,7 @@ func NewOperationsAPI(oS *operation.Service, snS *statusnotification.Service) *O
 // @Produce json
 // @Param Body body rpc.RemoteStartTransactionReq true "Post RemoteStartTransactionReq body"
 // @Success 200 {object} rpc.RemoteStartTransactionResp
-// @Router /ocpp/operations/remote-start-transaction [post]
+// @Router /v2/ocpp/operations/remote-start-transaction [post]
 func (api *OperationsAPI) RemoteStartTransaction(c *gin.Context) {
 	var req = &rpc.RemoteStartTransactionReq{}
 	err := c.ShouldBindJSON(&req)
@@ -72,7 +72,7 @@ func (api *OperationsAPI) RemoteStartTransaction(c *gin.Context) {
 // @Produce json
 // @Param Body body rpc.RemoteStopTransactionReq true "Post RemoteStopTransactionReq body"
 // @Success 200 {object} rpc.RemoteStopTransactionResp
-// @Router /ocpp/operations/remote-stop-transaction [post]
+// @Router /v2/ocpp/operations/remote-stop-transaction [post]
 func (api *OperationsAPI) RemoteStopTransaction(c *gin.Context) {
 	var req = &rpc.RemoteStopTransactionReq{}
 	err := c.ShouldBindJSON(&req)
@@ -113,7 +113,7 @@ func (api *OperationsAPI) RemoteStopTransaction(c *gin.Context) {
 // @Produce json
 // @Param Body body rpc.GetLatestStatusNotificationsReq true "Post GetLatestStatus body"
 // @Success 200 {object} rpc.GetLatestStatusNotificationsResp
-// @Router /ocpp/operations/get-latest-status [post]
+// @Router /v2/ocpp/operations/get-latest-status [post]
 func (api *OperationsAPI) GetLatestStatus(c *gin.Context) {
 	var req = &rpc.GetLatestStatusNotificationsReq{}
 	err := c.ShouldBindJSON(&req)

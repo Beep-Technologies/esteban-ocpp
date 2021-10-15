@@ -10,7 +10,8 @@ import (
 
 type BaseRepo interface {
 	Create(ctx context.Context, cp models.OcppStatusNotification) (models.OcppStatusNotification, error)
-	GetLatest(ctx context.Context, cpid int) ([]models.OcppStatusNotification, error)
+	GetStatusNotifications(ctx context.Context, cpid int32) ([]models.OcppStatusNotification, error)
+	GetLatestStatusNotifications(ctx context.Context, cpid int32) ([]models.OcppStatusNotification, error)
 }
 
 type baseRepo struct {
@@ -32,11 +33,28 @@ func (repo baseRepo) Create(ctx context.Context, sn models.OcppStatusNotificatio
 	return sn, nil
 }
 
-func (repo baseRepo) GetLatest(ctx context.Context, cpid int) ([]models.OcppStatusNotification, error) {
+func (repo baseRepo) GetStatusNotifications(ctx context.Context, cpid int32) ([]models.OcppStatusNotification, error) {
+	sns := make([]models.OcppStatusNotification, 0)
+
+	err := repo.db.Table("bb3.ocpp_status_notification").
+		Where("charge_point_id = ?", cpid).
+		Order("timestamp desc").
+		Find(&sns).
+		Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return sns, nil
+}
+
+func (repo baseRepo) GetLatestStatusNotifications(ctx context.Context, cpid int32) ([]models.OcppStatusNotification, error) {
 	res := make([]models.OcppStatusNotification, 0)
 
 	// this entire query might cause issues if two status notifications somehow have
 	// the exact same charge_point_id, connector_id and timestamp
+	// this is extremely unlikely, but I'm just pointing it out here
 	uniqueSubquery := repo.db.Table("bb3.ocpp_status_notification").
 		Select("charge_point_id, connector_id, MAX(timestamp) as timestamp").
 		Where("charge_point_id = ?", cpid).

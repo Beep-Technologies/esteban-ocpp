@@ -10,6 +10,7 @@ import (
 
 	"github.com/Beep-Technologies/beepbeep3-ocpp/api/rpc"
 	ocpp16cp "github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_16_cp"
+	applicationsrv "github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/application"
 	chargepointsrv "github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/charge_point"
 	statusnotificationsrv "github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/status_notification"
 	transactionsrv "github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/transaction"
@@ -18,6 +19,7 @@ import (
 type OCPP16CentralSystem struct {
 	logger                    *log.Logger
 	chargePoints              map[int]*ocpp16cp.OCPP16ChargePoint
+	applicationService        *applicationsrv.Service
 	chargePointService        *chargepointsrv.Service
 	transactionService        *transactionsrv.Service
 	statusNotificationService *statusnotificationsrv.Service
@@ -25,6 +27,7 @@ type OCPP16CentralSystem struct {
 
 func NewOCPP16CentralSystem(
 	l *log.Logger,
+	aSrv *applicationsrv.Service,
 	cpSrv *chargepointsrv.Service,
 	trSrv *transactionsrv.Service,
 	snSrv *statusnotificationsrv.Service,
@@ -32,32 +35,57 @@ func NewOCPP16CentralSystem(
 	return &OCPP16CentralSystem{
 		logger:                    l,
 		chargePoints:              make(map[int]*ocpp16cp.OCPP16ChargePoint),
+		applicationService:        aSrv,
 		chargePointService:        cpSrv,
 		transactionService:        trSrv,
 		statusNotificationService: snSrv,
 	}
 }
 
-func (cs *OCPP16CentralSystem) ConnectChargePoint(chargePointIdentifier string, conn *websocket.Conn) error {
-	// get charge point by identifier
-	// if there is no matching identifier, immediately disconnect the charge point
+func (cs *OCPP16CentralSystem) ConnectChargePoint(
+	applicationUuid string,
+	chargePointIdentifier string,
+	conn *websocket.Conn) error {
+
+	// check that both the application uuid and charge point identifier
+	// correspond to an application and a charge point,
+	// and that the charge point belongs to the application
 	ctx := context.Background()
-	req := &rpc.GetChargePointByIdentifierReq{
+
+	// get the application
+	ao, aerr := cs.applicationService.GetApplicationByUuid(ctx, &rpc.GetApplicationByUuidReq{
+		ApplicationUuid: applicationUuid,
+	})
+
+	// get the charge point
+	cpo, cerr := cs.chargePointService.GetChargePointByIdentifier(ctx, &rpc.GetChargePointByIdentifierReq{
+		ApplicationId:         ao.Application.Id,
 		ChargePointIdentifier: chargePointIdentifier,
-	}
+	})
 
-	cpo, err := cs.chargePointService.GetChargePointByIdentifier(ctx, req)
-	if err != nil {
+	if aerr != nil || cerr != nil || cpo.ChargePoint.ApplicationId != ao.Application.Id {
 		conn.Close()
-		return err
+
+		if aerr != nil {
+			return aerr
+		}
+
+		if cerr != nil {
+			return cerr
+		}
+
+		return errors.New("charge point identifier does not correspond to the application")
 	}
 
-	// if there is a matching identifier, create a new charge point and add it to the map
-	id := int(cpo.Id)
+	// if there is a valid match, create a new charge point and add it to the map
+	id := int(cpo.ChargePoint.Id)
 	cs.chargePoints[id] = ocpp16cp.NewOCPP16ChargePoint(
 		id,
 		chargePointIdentifier,
+		int(ao.Application.Id),
 		conn,
+		cs.applicationService,
+		cs.chargePointService,
 		cs.transactionService,
 		cs.statusNotificationService,
 		cs.logger,

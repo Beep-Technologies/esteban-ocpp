@@ -11,10 +11,11 @@ option (gogoproto.unmarshaler_all) = true;
 option (gogoproto.goproto_getters_all) = false;
 option (gogoproto.face_all) = true;
 
-
+// for exposed services
 message RemoteStartTransactionReq {
-    int32 charge_point_id = 1;
-    int32 connector_id = 2;
+    int32 application_id = 1;
+    string charge_point_identifier = 2;
+    int32 connector_id = 3;
 }
 
 message RemoteStartTransactionResp {
@@ -22,8 +23,9 @@ message RemoteStartTransactionResp {
 }
 
 message RemoteStopTransactionReq {
-    int32 charge_point_id = 1;
-    int32 transaction_id = 2;
+    int32 application_id = 1;
+    string charge_point_identifier = 2;
+    int32 connector_id = 3;
 }
 
 message RemoteStopTransactionResp {

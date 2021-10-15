@@ -16,8 +16,8 @@ type OcppTransaction struct {
 	ChargePointID   int32     `gorm:"column:charge_point_id"`
 	ConnectorID     int32     `gorm:"column:connector_id"`
 	IDTag           string    `gorm:"column:id_tag"`
-	Ongoing         bool      `gorm:"column:ongoing"`
 	State           string    `gorm:"column:state"`
+	RemoteInitiated bool      `gorm:"column:remote_initiated"`
 	StartTimestamp  time.Time `gorm:"column:start_timestamp"`
 	StopTimestamp   time.Time `gorm:"column:stop_timestamp"`
 	StartMeterValue int32     `gorm:"column:start_meter_value"`

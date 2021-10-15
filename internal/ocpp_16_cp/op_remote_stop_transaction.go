@@ -1,7 +1,7 @@
 package ocpp16cp
 
 import (
-	"errors"
+	"context"
 
 	"github.com/google/uuid"
 
@@ -13,9 +13,9 @@ import (
 
 // RemoteStopTransaction makes a RemoteStopTransaction call to the charge point
 func (c *OCPP16ChargePoint) RemoteStopTransactionOp(tid int) (*rpc.RemoteStopTransactionResp, error) {
-	cnid := c.GetTransactionConnectorID(tid)
-	if cnid == 0 {
-		return nil, errors.New("there is no transaction at the connector with the specified transaction id")
+	_, err := c.transactionService.GetTransactionById(context.Background(), &rpc.GetTransactionByIdReq{Id: int32(tid)})
+	if err != nil {
+		return nil, err
 	}
 
 	m := msg.OCPP16CallMessage{
@@ -27,7 +27,7 @@ func (c *OCPP16ChargePoint) RemoteStopTransactionOp(tid int) (*rpc.RemoteStopTra
 		},
 	}
 
-	err := c.makeCall(m)
+	err = c.makeCall(m)
 	if err != nil {
 		return nil, err
 	}

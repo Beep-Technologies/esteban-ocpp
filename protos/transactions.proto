@@ -12,64 +12,80 @@ option (gogoproto.goproto_getters_all) = false;
 option (gogoproto.face_all) = true;
 
 message Transaction {
-    int32 id = 1;
-    int32 charge_point_id = 2;
-    int32 connector_id = 3;
-    string id_tag = 4;
-    bool started = 5;
-    bool stopped = 6;
-    string start_timestamp = 7;
-    string stop_timestamp = 8;
-    int32 start_meter_value = 9;
-    int32 stop_meter_value = 10;
-    string stop_reason = 11;
+    int32 id = 1 [(gogoproto.jsontag) = "id"];
+    int32 charge_point_id = 2 [(gogoproto.jsontag) = "charge_point_id"];
+    int32 connector_id = 3 [(gogoproto.jsontag) = "connector_id"];
+    string id_tag = 4 [(gogoproto.jsontag) = "id_tag"];
+    string state = 5 [(gogoproto.jsontag) = "state"];
+    bool remote_initiated = 6 [(gogoproto.jsontag) = "remote_initiated"];
+    string start_timestamp = 7 [(gogoproto.jsontag) = "start_timestamp"];
+    string stop_timestamp = 8 [(gogoproto.jsontag) = "stop_timestamp"];
+    int32 start_meter_value = 9 [(gogoproto.jsontag) = "start_meter_value"];
+    int32 stop_meter_value = 10 [(gogoproto.jsontag) = "stop_meter_value"];
+    string stop_reason = 11 [(gogoproto.jsontag) = "stop_reason"];
 }
 
-message CreateTransactionReq {
-    int32 charge_point_id = 1;
-    int32 connector_id = 2;
-}
 
-message CreateTransactionResp {
-    int32 id = 1;
-    int32 charge_point_id = 2;
-    int32 connector_id = 3;
-    string id_tag = 4;
-    bool started = 5;
-    bool stopped = 6;
-    string start_timestamp = 7;
-    string stop_timestamp = 8;
-    int32 start_meter_value = 9;
-    int32 stop_meter_value = 10;
-    string stop_reason = 11;
-}
-
+// for exposed services
 message GetTransactionByIdReq {
     int32 id = 1;
 }
 
 message GetTransactionByIdResp {
-    int32 id = 1;
-    int32 charge_point_id = 2;
-    int32 connector_id = 3;
-    string id_tag = 4;
-    bool started = 5;
-    bool stopped = 6;
-    string start_timestamp = 7;
-    string stop_timestamp = 8;
-    int32 start_meter_value = 9;
-    int32 stop_meter_value = 10;
-    string stop_reason = 11;
+    Transaction transaction = 1 [(gogoproto.jsontag) = "transaction"];
 }
 
-message GetChargePointOngoingTransactionReq {
+message GetOngoingTransactionReq {
+    int32 application_id = 1;
+    string charge_point_identifier = 2;
+    int32 connector_id = 3;
+}
+
+message GetOngoingTransactionResp {
+    Transaction transaction = 1 [(gogoproto.jsontag) = "transaction"];
+}
+
+message GetOngoingTransactionsReq {
+    int32 application_id = 1;
+    int32 charge_point_identifier = 2;
+}
+
+message GetOngoingTransactionsResp {
+    repeated Transaction transactions = 1 [(gogoproto.jsontag) = "transaction"];
+}
+
+message OngoingTransactionReq {
+    int32 application_id = 1;
+    string charge_point_identifier = 2;
+    int32 connector_id = 3;
+}
+
+message OngoingTransactionResp {
+    bool ongoing_transaction = 1 [(gogoproto.jsontag) = "ongoing_transaction"];
+    int32 transaction_id = 2 [(gogoproto.jsontag) = "transaction_id"];
+}
+
+message CreatedTransactionReq {
+    int32 application_id = 1;
+    string charge_point_identifier = 2;
+    int32 connector_id = 3;
+}
+
+message CreatedTransactionResp {
+    bool created_transaction = 1 [(gogoproto.jsontag) = "created_transaction"];
+    int32 transaction_id = 2 [(gogoproto.jsontag) = "transaction_id"];
+}
+
+// for internal services
+message CreateTransactionReq {
     int32 charge_point_id = 1;
     int32 connector_id = 2;
+    bool remote_initiated = 3;
+    string id_tag = 4;
 }
 
-message GetChargePointOngoingTransactionResp {
-    bool transaction_ongoing = 1;
-    Transaction transaction = 2;
+message CreateTransactionResp {
+    Transaction transaction = 1 [(gogoproto.jsontag) = "transaction"];
 }
 
 message StartTransactionReq {
@@ -77,13 +93,17 @@ message StartTransactionReq {
     int32 start_meter_value = 2;
 }
 
-message StartTransactionResp {}
+message StartTransactionResp {
+    Transaction transaction = 1 [(gogoproto.jsontag) = "transaction"];
+}
 
 message AbortTransactionReq {
     int32 id = 1;
 }
 
-message AbortTransactionResp {}
+message AbortTransactionResp {
+    Transaction transaction = 1 [(gogoproto.jsontag) = "transaction"];
+}
 
 message StopTransactionReq {
     int32 id = 1;
@@ -91,4 +111,6 @@ message StopTransactionReq {
     string stop_reason = 3;
 }
 
-message StopTransactionResp {}
+message StopTransactionResp {
+    Transaction transaction = 1 [(gogoproto.jsontag) = "transaction"];
+}
