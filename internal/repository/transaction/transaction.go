@@ -2,7 +2,6 @@ package transaction
 
 import (
 	"context"
-	"fmt"
 
 	"gorm.io/gorm"
 
@@ -77,8 +76,6 @@ func (repo baseRepo) GetAllByChargePointIDStates(ctx context.Context, cpid int32
 
 func (repo baseRepo) GetByChargePointIDConnectorStates(ctx context.Context, cpid int32, cnid int32, states []string) (models.OcppTransaction, error) {
 	t := models.OcppTransaction{}
-
-	fmt.Printf("%d %d %+v", cpid, cnid, states)
 
 	// TODO: order by
 	err := repo.db.Table("bb3.ocpp_transaction").

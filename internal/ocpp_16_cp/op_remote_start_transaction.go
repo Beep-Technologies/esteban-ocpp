@@ -26,7 +26,7 @@ func (c *OCPP16ChargePoint) RemoteStartTransactionOp(cnid int) (*rpc.RemoteStart
 		return nil, err
 	}
 
-	if tRes.OngoingTransaction == true {
+	if tRes.OngoingTransaction {
 		return nil, errors.New("there is already an ongoing transaction at the charge point connector")
 	}
 
@@ -52,9 +52,8 @@ func (c *OCPP16ChargePoint) RemoteStartTransactionOp(cnid int) (*rpc.RemoteStart
 	// make the RemoteStartTransaction call
 	m := msg.OCPP16CallMessage{
 		MessageTypeID: msg.CALL,
-		UniqueID:      uuid.NewString(), // TODO: maybe use an incremementing ID instead of uuid?
+		UniqueID:      uuid.NewString(),
 		Action:        "RemoteStartTransaction",
-		// TODO: figure out how to deal with IdTag
 		Payload: &ocpp16.RemoteStartTransactionRequest{
 			IdTag:       idTag,
 			ConnectorId: cnid,

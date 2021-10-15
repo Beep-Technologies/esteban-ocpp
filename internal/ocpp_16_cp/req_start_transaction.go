@@ -68,6 +68,15 @@ func (c *OCPP16ChargePoint) startTransaction(req *msg.OCPP16CallMessage) (*msg.O
 	tRes, err := c.transactionService.GetTransactionById(context.Background(),
 		&rpc.GetTransactionByIdReq{Id: otRes.TransactionId},
 	)
+	if err != nil {
+		return nil, &msg.OCPP16CallError{
+			MessageTypeID:    msg.CALLERROR,
+			UniqueID:         req.UniqueID,
+			ErrorCode:        msg.InternalError,
+			ErrorDescription: err.Error(),
+			ErrorDetails:     struct{}{},
+		}
+	}
 
 	// check if the idTags match, reject if they dont
 	if b.IdTag != tRes.Transaction.IdTag {

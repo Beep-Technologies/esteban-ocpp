@@ -38,6 +38,35 @@ func (c *OCPP16ChargePoint) statusNotification(req *msg.OCPP16CallMessage) (*msg
 	// make callback
 	go c.makeCallback("StatusNotification", b)
 
+	// if the status notification shows that the connector is available,
+	// if there is ongoing transaction on the database, abort it
+	if b.Status == "Available" {
+		tRes, err := c.transactionService.OnGoingTransaction(context.Background(), &rpc.OngoingTransactionReq{
+			ApplicationId:         int32(c.applicationId),
+			ChargePointIdentifier: c.chargePointIdentifier,
+			ConnectorId:           int32(b.ConnectorId),
+		})
+
+		if err != nil {
+			return nil, &msg.OCPP16CallError{
+				MessageTypeID:    msg.CALLERROR,
+				UniqueID:         req.UniqueID,
+				ErrorCode:        msg.InternalError,
+				ErrorDescription: err.Error(),
+				ErrorDetails:     struct{}{},
+			}
+		}
+
+		if tRes.OngoingTransaction {
+			c.transactionService.AbortTransaction(
+				context.Background(),
+				&rpc.AbortTransactionReq{
+					Id: tRes.TransactionId,
+				},
+			)
+		}
+	}
+
 	c.status = msg.OCPP16Status(b.Status)
 
 	_, err = c.statusNotificationService.CreateStatusNotification(context.Background(), &rpc.CreateStatusNotificationReq{

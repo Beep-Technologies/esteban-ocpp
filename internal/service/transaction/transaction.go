@@ -3,7 +3,6 @@ package transaction
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"gorm.io/gorm"
@@ -62,7 +61,6 @@ func (srv Service) GetOngoingTransaction(ctx context.Context, req *rpc.GetOngoin
 		return nil, err
 	}
 
-	fmt.Printf("leather leather %+v\n", []string{"CREATED", "STARTED"})
 	t, err := srv.transactionRepo.GetByChargePointIDConnectorStates(ctx, cp.ID, req.ConnectorId, []string{"CREATED", "STARTED"})
 	if err != nil {
 		return nil, err
