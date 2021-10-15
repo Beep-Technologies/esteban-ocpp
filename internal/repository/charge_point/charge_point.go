@@ -16,6 +16,7 @@ type BaseRepo interface {
 	Update(ctx context.Context, cpid int32, fields []string, cp models.OcppChargePoint) (models.OcppChargePoint, error)
 	CreateIdTag(ctx context.Context, it models.OcppChargePointIDTag) (models.OcppChargePointIDTag, error)
 	GetIdTags(ctx context.Context, cpid int32) ([]models.OcppChargePointIDTag, error)
+	GetIdTag(ctx context.Context, aid int, cpid int, idTag string) (models.OcppChargePointIDTag, error)
 }
 
 type baseRepo struct {
@@ -112,4 +113,20 @@ func (repo baseRepo) GetIdTags(ctx context.Context, cpid int32) ([]models.OcppCh
 	}
 
 	return ids, nil
+}
+
+func (repo baseRepo) GetIdTag(ctx context.Context, aid int, cpid int, idTag string) (models.OcppChargePointIDTag, error) {
+	idt := models.OcppChargePointIDTag{}
+
+	err := repo.db.Table("bb3.ocpp_charge_point_id_tag").
+		Where("charge_point_id = ?", cpid).
+		Where("id_tag = ?", idTag).
+		First(&idt).
+		Error
+
+	if err != nil {
+		return models.OcppChargePointIDTag{}, err
+	}
+
+	return idt, nil
 }

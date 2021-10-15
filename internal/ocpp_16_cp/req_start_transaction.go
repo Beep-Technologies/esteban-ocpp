@@ -52,15 +52,69 @@ func (c *OCPP16ChargePoint) startTransaction(req *msg.OCPP16CallMessage) (*msg.O
 
 	// if there is no ongoing transaction, this should not be a remote-initiated transaction
 	if !otRes.OngoingTransaction {
-		// TODO: allow non remote-initiated transactions
+		res, err := c.chargepointService.GetChargePointIdTag(context.Background(), &rpc.GetChargePointIdTagReq{
+			ChargePointIdentifier: c.chargePointIdentifier,
+			ApplicationId:         int32(c.applicationId),
+			IdTag:                 b.IdTag,
+		})
+		if err != nil {
+			return nil, &msg.OCPP16CallError{
+				MessageTypeID:    msg.CALLERROR,
+				UniqueID:         req.UniqueID,
+				ErrorCode:        msg.FormationViolation,
+				ErrorDescription: "",
+				ErrorDetails:     struct{}{},
+			}
+		}
+
+		// create transaction and start
+		t, err := c.transactionService.CreateTransaction(context.Background(), &rpc.CreateTransactionReq{
+			ChargePointId:   int32(c.id),
+			ConnectorId:     int32(b.ConnectorId),
+			RemoteInitiated: false,
+			IdTag:           b.IdTag,
+		})
+
+		if err != nil {
+			return nil, &msg.OCPP16CallError{
+				MessageTypeID:    msg.CALLERROR,
+				UniqueID:         req.UniqueID,
+				ErrorCode:        msg.InternalError,
+				ErrorDescription: err.Error(),
+				ErrorDetails:     struct{}{},
+			}
+		}
+
+		_, err = c.transactionService.StartTransaction(context.Background(), &rpc.StartTransactionReq{
+			Id:              t.Transaction.Id,
+			StartMeterValue: int32(b.MeterStart),
+		})
+
+		if err != nil {
+			return nil, &msg.OCPP16CallError{
+				MessageTypeID:    msg.CALLERROR,
+				UniqueID:         req.UniqueID,
+				ErrorCode:        msg.InternalError,
+				ErrorDescription: err.Error(),
+				ErrorDetails:     struct{}{},
+			}
+		}
+
+		rb := &ocpp16.StartTransactionResponse{
+			IdTagInfo:     &ocpp16.IdTagInfo{},
+			TransactionId: int(t.Transaction.Id),
+		}
+
+		if res.ChargePointIdTag != nil {
+			rb.IdTagInfo.Status = "Accepted"
+		} else {
+			rb.IdTagInfo.Status = "Invalid"
+		}
+
 		return &msg.OCPP16CallResult{
 			MessageTypeID: msg.CALLRESULT,
 			UniqueID:      req.UniqueID,
-			Payload: &ocpp16.StartTransactionResponse{
-				IdTagInfo: &ocpp16.IdTagInfo{
-					Status: "Rejected",
-				},
-			},
+			Payload:       rb,
 		}, nil
 	}
 

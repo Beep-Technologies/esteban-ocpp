@@ -1,4 +1,102 @@
 definitions:
+  rpc.Application:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      uuid:
+        type: string
+    type: object
+  rpc.ApplicationCallback:
+    properties:
+      application_id:
+        type: integer
+      callback_event:
+        type: string
+      callback_url:
+        type: string
+      id:
+        type: integer
+    type: object
+  rpc.ChargePoint:
+    properties:
+      application_id:
+        type: integer
+      charge_box_serial_number:
+        type: string
+      charge_point_identifier:
+        type: string
+      charge_point_model:
+        type: string
+      charge_point_serial_number:
+        type: string
+      charge_point_vendor:
+        type: string
+      connector_count:
+        type: integer
+      firmware_version:
+        type: string
+      iccid:
+        type: string
+      id:
+        type: integer
+      imsi:
+        type: string
+      meter_serial_number:
+        type: string
+      meter_type:
+        type: string
+      ocpp_protocol:
+        type: string
+    type: object
+  rpc.CreateApplicationCallbackReq:
+    properties:
+      application_id:
+        type: integer
+      callback_event:
+        type: string
+      callback_url:
+        type: string
+    type: object
+  rpc.CreateApplicationCallbackResp:
+    properties:
+      application_callback:
+        $ref: '#/definitions/rpc.ApplicationCallback'
+    type: object
+  rpc.CreateApplicationReq:
+    properties:
+      name:
+        type: string
+    type: object
+  rpc.CreateApplicationResp:
+    properties:
+      application:
+        $ref: '#/definitions/rpc.Application'
+    type: object
+  rpc.CreateChargePointIdTagReq:
+    properties:
+      application_id:
+        type: integer
+      charge_point_identifier:
+        type: string
+      id_tag:
+        type: string
+    type: object
+  rpc.CreateChargePointReq:
+    properties:
+      application_id:
+        type: integer
+      charge_point_identifier:
+        type: string
+      ocpp_protocol:
+        type: string
+    type: object
+  rpc.CreateChargePointResp:
+    properties:
+      charge_point:
+        $ref: '#/definitions/rpc.ChargePoint'
+    type: object
   rpc.GetLatestStatusNotificationsReq:
     properties:
       application_id:
@@ -70,6 +168,90 @@ info:
   title: BB3 OCPP API
   version: "2.0"
 paths:
+  /v2/ocpp/applications/:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Post CreateApplicationReq body
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/rpc.CreateApplicationReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rpc.CreateApplicationResp'
+      summary: Create an Application
+      tags:
+      - Applications
+  /v2/ocpp/applications/callbacks:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Post CreateApplicationCallbackReq body
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/rpc.CreateApplicationCallbackReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rpc.CreateApplicationCallbackResp'
+      summary: Set Callback URL for Application
+      tags:
+      - Applications
+  /v2/ocpp/charge_points:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Post CreateChargePointReq body
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/rpc.CreateChargePointReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rpc.CreateChargePointResp'
+      summary: Create a Charge Point
+      tags:
+      - Charge Points
+  /v2/ocpp/charge_points/id_tags:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Post CreateChargePointIdTagReq body
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/rpc.CreateChargePointIdTagReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rpc.CreateChargePointIdTagReq'
+      summary: Create a Charge Point ID tag
+      tags:
+      - Charge Points
   /v2/ocpp/operations/get-latest-status:
     post:
       consumes:

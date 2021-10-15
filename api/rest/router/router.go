@@ -16,12 +16,21 @@ import (
 type Router struct {
 	ocppWebSocketServer *ocppserver.OCPPWebSocketServer
 	operationsAPI       *controller.OperationsAPI
+	applicationsAPI     *controller.ApplicationsAPI
+	chargepointsAPI     *controller.ChargePointsAPI
 }
 
-func NewRouter(s *ocppserver.OCPPWebSocketServer, oa *controller.OperationsAPI) (rt *Router) {
+func NewRouter(
+	s *ocppserver.OCPPWebSocketServer,
+	oa *controller.OperationsAPI,
+	aa *controller.ApplicationsAPI,
+	ca *controller.ChargePointsAPI,
+) (rt *Router) {
 	return &Router{
 		ocppWebSocketServer: s,
 		operationsAPI:       oa,
+		applicationsAPI:     aa,
+		chargepointsAPI:     ca,
 	}
 }
 
@@ -52,6 +61,12 @@ func (rt *Router) Apply(r *gin.Engine) *gin.Engine {
 	rg.POST("/operations/remote-start-transaction", rt.operationsAPI.RemoteStartTransaction)
 	rg.POST("/operations/remote-stop-transaction", rt.operationsAPI.RemoteStopTransaction)
 	rg.POST("/operations/get-latest-status", rt.operationsAPI.GetLatestStatus)
+
+	rg.POST("/charge_points", rt.chargepointsAPI.CreateChargePoint)
+	rg.POST("/charge_points/id_tags", rt.chargepointsAPI.CreateChargePointIdTag)
+
+	rg.POST("/applications", rt.applicationsAPI.CreateApplication)
+	rg.POST("/applications/callbacks", rt.applicationsAPI.SetApplicationCallback)
 
 	return r
 }

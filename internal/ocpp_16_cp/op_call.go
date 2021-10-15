@@ -65,6 +65,8 @@ func (c *OCPP16ChargePoint) cancelCall() {
 func (c *OCPP16ChargePoint) handleCall(req *msg.OCPP16CallMessage) (res *msg.OCPP16CallResult, err *msg.OCPP16CallError) {
 	// go generics couldn't come sooner ....
 	switch req.Action {
+	case "Authorize":
+		res, err = c.authorize(req)
 	case "BootNotification":
 		res, err = c.bootNotification(req)
 	case "StatusNotification":

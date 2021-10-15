@@ -66,8 +66,15 @@ func main() {
 		operationService,
 		statusNotificationService,
 	)
+	applicationController := controller.NewApplicationsAPI(applicationService)
+	chargepointController := controller.NewChargePointsAPI(chargePointService)
 
-	rt := router.NewRouter(ocppWebSocketServer, operationController)
+	rt := router.NewRouter(
+		ocppWebSocketServer,
+		operationController,
+		applicationController,
+		chargepointController,
+	)
 
 	r := gin.New()
 	r.Use(gin.LoggerWithWriter(l.Writer()))

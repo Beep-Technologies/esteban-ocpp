@@ -26,6 +26,138 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/v2/ocpp/applications/": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "Create an Application",
+                "parameters": [
+                    {
+                        "description": "Post CreateApplicationReq body",
+                        "name": "Body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/rpc.CreateApplicationReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/rpc.CreateApplicationResp"
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/ocpp/applications/callbacks": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "Set Callback URL for Application",
+                "parameters": [
+                    {
+                        "description": "Post CreateApplicationCallbackReq body",
+                        "name": "Body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/rpc.CreateApplicationCallbackReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/rpc.CreateApplicationCallbackResp"
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/ocpp/charge_points": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Charge Points"
+                ],
+                "summary": "Create a Charge Point",
+                "parameters": [
+                    {
+                        "description": "Post CreateChargePointReq body",
+                        "name": "Body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/rpc.CreateChargePointReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/rpc.CreateChargePointResp"
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/ocpp/charge_points/id_tags": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Charge Points"
+                ],
+                "summary": "Create a Charge Point ID tag",
+                "parameters": [
+                    {
+                        "description": "Post CreateChargePointIdTagReq body",
+                        "name": "Body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/rpc.CreateChargePointIdTagReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/rpc.CreateChargePointIdTagReq"
+                        }
+                    }
+                }
+            }
+        },
         "/v2/ocpp/operations/get-latest-status": {
             "post": {
                 "consumes": [
@@ -127,6 +259,158 @@ var doc = `{
         }
     },
     "definitions": {
+        "rpc.Application": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "uuid": {
+                    "type": "string"
+                }
+            }
+        },
+        "rpc.ApplicationCallback": {
+            "type": "object",
+            "properties": {
+                "application_id": {
+                    "type": "integer"
+                },
+                "callback_event": {
+                    "type": "string"
+                },
+                "callback_url": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "rpc.ChargePoint": {
+            "type": "object",
+            "properties": {
+                "application_id": {
+                    "type": "integer"
+                },
+                "charge_box_serial_number": {
+                    "type": "string"
+                },
+                "charge_point_identifier": {
+                    "type": "string"
+                },
+                "charge_point_model": {
+                    "type": "string"
+                },
+                "charge_point_serial_number": {
+                    "type": "string"
+                },
+                "charge_point_vendor": {
+                    "type": "string"
+                },
+                "connector_count": {
+                    "type": "integer"
+                },
+                "firmware_version": {
+                    "type": "string"
+                },
+                "iccid": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "imsi": {
+                    "type": "string"
+                },
+                "meter_serial_number": {
+                    "type": "string"
+                },
+                "meter_type": {
+                    "type": "string"
+                },
+                "ocpp_protocol": {
+                    "type": "string"
+                }
+            }
+        },
+        "rpc.CreateApplicationCallbackReq": {
+            "type": "object",
+            "properties": {
+                "application_id": {
+                    "type": "integer"
+                },
+                "callback_event": {
+                    "type": "string"
+                },
+                "callback_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "rpc.CreateApplicationCallbackResp": {
+            "type": "object",
+            "properties": {
+                "application_callback": {
+                    "$ref": "#/definitions/rpc.ApplicationCallback"
+                }
+            }
+        },
+        "rpc.CreateApplicationReq": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "rpc.CreateApplicationResp": {
+            "type": "object",
+            "properties": {
+                "application": {
+                    "$ref": "#/definitions/rpc.Application"
+                }
+            }
+        },
+        "rpc.CreateChargePointIdTagReq": {
+            "type": "object",
+            "properties": {
+                "application_id": {
+                    "type": "integer"
+                },
+                "charge_point_identifier": {
+                    "type": "string"
+                },
+                "id_tag": {
+                    "type": "string"
+                }
+            }
+        },
+        "rpc.CreateChargePointReq": {
+            "type": "object",
+            "properties": {
+                "application_id": {
+                    "type": "integer"
+                },
+                "charge_point_identifier": {
+                    "type": "string"
+                },
+                "ocpp_protocol": {
+                    "type": "string"
+                }
+            }
+        },
+        "rpc.CreateChargePointResp": {
+            "type": "object",
+            "properties": {
+                "charge_point": {
+                    "$ref": "#/definitions/rpc.ChargePoint"
+                }
+            }
+        },
         "rpc.GetLatestStatusNotificationsReq": {
             "type": "object",
             "properties": {

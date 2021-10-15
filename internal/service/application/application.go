@@ -2,12 +2,14 @@ package application
 
 import (
 	"context"
+	"errors"
 
 	"gorm.io/gorm"
 
 	"github.com/Beep-Technologies/beepbeep3-ocpp/api/rpc"
 	"github.com/Beep-Technologies/beepbeep3-ocpp/internal/models"
 	application "github.com/Beep-Technologies/beepbeep3-ocpp/internal/repository/application"
+	"github.com/Beep-Technologies/beepbeep3-ocpp/pkg/util"
 )
 
 type Service struct {
@@ -58,27 +60,63 @@ func (srv Service) GetApplicationByUuid(ctx context.Context, req *rpc.GetApplica
 	return res, nil
 }
 
-func (srv Service) CreateApplicationCallback(ctx context.Context, req *rpc.CreateApplicationCallbackReq) (*rpc.CreateApplicationCallbackResp, error) {
-	ac, err := srv.application.CreateCallback(ctx, models.OcppApplicationCallback{
-		ApplicationID: req.ApplicationId,
-		CallbackEvent: req.CallbackEvent,
-		CallbackURL:   req.CallbackUrl,
-	})
+func (srv Service) SetApplicationCallback(ctx context.Context, req *rpc.CreateApplicationCallbackReq) (*rpc.CreateApplicationCallbackResp, error) {
+	// essentially upserting a application callback entry
+	a, err := srv.application.GetApplicationByID(ctx, req.ApplicationId)
+	if err != nil {
+		return nil, err
+	}
+
+	// create entry if not exists
+	ac, err := srv.application.GetApplicationCallback(ctx, a.ID, req.CallbackEvent)
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		ac, err = srv.application.CreateCallback(ctx, models.OcppApplicationCallback{
+			ApplicationID: a.ID,
+			CallbackEvent: req.CallbackEvent,
+			CallbackURL:   req.CallbackUrl,
+		})
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &rpc.CreateApplicationCallbackResp{
+			ApplicationCallback: &rpc.ApplicationCallback{
+				Id:            ac.ID,
+				ApplicationId: ac.ApplicationID,
+				CallbackEvent: ac.CallbackEvent,
+				CallbackUrl:   ac.CallbackURL,
+			},
+		}, nil
+	}
+
+	acM := models.OcppApplicationCallback{}
+	err = util.ConvertCopyStruct(&acM, req, map[string]util.ConverterFunc{})
 
 	if err != nil {
 		return nil, err
 	}
 
-	res := &rpc.CreateApplicationCallbackResp{
-		ApplicationCallback: &rpc.ApplicationCallback{
-			Id:            ac.ID,
-			ApplicationId: ac.ApplicationID,
-			CallbackEvent: ac.CallbackEvent,
-			CallbackUrl:   ac.CallbackURL,
-		},
+	ac, err = srv.application.UpdateCallback(
+		ctx,
+		ac.ID,
+		[]string{"callback_url"},
+		models.OcppApplicationCallback{
+			CallbackURL: req.CallbackUrl,
+		})
+	if err != nil {
+		return nil, err
 	}
 
-	return res, nil
+	acRes := &rpc.ApplicationCallback{}
+	err = util.ConvertCopyStruct(acRes, &ac, map[string]util.ConverterFunc{})
+	if err != nil {
+		return nil, err
+	}
+
+	return &rpc.CreateApplicationCallbackResp{
+		ApplicationCallback: acRes,
+	}, nil
 }
 
 func (srv Service) GetApplicationCallback(ctx context.Context, req *rpc.GetApplicationCallbackReq) (*rpc.GetApplicationCallbackResp, error) {

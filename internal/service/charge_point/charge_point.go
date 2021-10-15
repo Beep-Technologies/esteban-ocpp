@@ -2,12 +2,14 @@ package chargepoint
 
 import (
 	"context"
+	"errors"
 
 	"gorm.io/gorm"
 
 	"github.com/Beep-Technologies/beepbeep3-ocpp/api/rpc"
 	"github.com/Beep-Technologies/beepbeep3-ocpp/internal/models"
 	chargepoint "github.com/Beep-Technologies/beepbeep3-ocpp/internal/repository/charge_point"
+	"github.com/Beep-Technologies/beepbeep3-ocpp/pkg/util"
 )
 
 type Service struct {
@@ -102,6 +104,36 @@ func (srv Service) CreateChargePointIdTag(ctx context.Context, req *rpc.CreateCh
 			ChargePointIdentifier: cp.ChargePointIdentifier,
 			IdTag:                 it.IDTag,
 		},
+	}
+
+	return res, nil
+}
+
+func (srv Service) GetChargePointIdTag(ctx context.Context, req *rpc.GetChargePointIdTagReq) (*rpc.GetChargePointIdTagResp, error) {
+	cp, err := srv.chargePoint.GetChargePointByIdentifier(ctx, req.ApplicationId, req.ChargePointIdentifier)
+	if err != nil {
+		return nil, err
+	}
+
+	it, err := srv.chargePoint.GetIdTag(ctx, int(req.ApplicationId), int(cp.ID), req.IdTag)
+	if err != nil && errors.Is(gorm.ErrRecordNotFound, err) {
+		return &rpc.GetChargePointIdTagResp{
+			ChargePointIdTag: nil,
+		}, nil
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	resIt := &rpc.ChargePointIdTag{}
+	err = util.ConvertCopyStruct(resIt, &it, map[string]util.ConverterFunc{})
+	if err != nil {
+		return nil, err
+	}
+
+	res := &rpc.GetChargePointIdTagResp{
+		ChargePointIdTag: resIt,
 	}
 
 	return res, nil
