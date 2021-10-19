@@ -184,6 +184,25 @@ func (srv Service) AbortTransaction(ctx context.Context, req *rpc.AbortTransacti
 	return res, err
 }
 
+func (srv Service) AbnormalStopTransaction(ctx context.Context, req *rpc.AbnormalStopTransactionReq) (*rpc.AbnormalStopTransactionResp, error) {
+	_, err := srv.transactionRepo.Update(
+		ctx,
+		req.Id,
+		[]string{"state", "ongoing"},
+		models.OcppTransaction{
+			State: "ABNORMAL_STOPPED",
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	res := &rpc.AbnormalStopTransactionResp{}
+
+	return res, err
+}
+
 func (srv Service) StopTransaction(ctx context.Context, req *rpc.StopTransactionReq) (*rpc.StopTransactionResp, error) {
 	t, err := srv.transactionRepo.Update(
 		ctx,

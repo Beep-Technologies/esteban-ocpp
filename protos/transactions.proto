@@ -94,7 +94,6 @@ message StartTransactionReq {
 }
 
 message StartTransactionResp {
-    Transaction transaction = 1 [(gogoproto.jsontag) = "transaction"];
 }
 
 message AbortTransactionReq {
@@ -102,8 +101,15 @@ message AbortTransactionReq {
 }
 
 message AbortTransactionResp {
-    Transaction transaction = 1 [(gogoproto.jsontag) = "transaction"];
 }
+
+message AbnormalStopTransactionReq {
+    int32 id = 1;
+}
+
+message AbnormalStopTransactionResp {
+}
+
 
 message StopTransactionReq {
     int32 id = 1;
