@@ -49,8 +49,14 @@ func (rt *Router) Apply(r *gin.Engine) *gin.Engine {
 	rg := r.Group("v2/ocpp")
 
 	// for swagger
-	docs.SwaggerInfo.Host = os.Getenv("HOST_URL")
-	docs.SwaggerInfo.Schemes = []string{"http", "https"}
+	hostUrl := os.Getenv("HOST_URL")
+	if hostUrl == "" || hostUrl == "localhost:8060" {
+		docs.SwaggerInfo.Host = "localhost:8060"
+		docs.SwaggerInfo.Schemes = []string{"http"}
+	} else {
+		docs.SwaggerInfo.Host = hostUrl
+		docs.SwaggerInfo.Schemes = []string{"https"}
+	}
 
 	rg.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
