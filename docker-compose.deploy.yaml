@@ -7,16 +7,12 @@ services:
       dockerfile: Dockerfile.bb3-ocpp-ws
     ports:
       - 8060:8060
-    environment:
-      - LIVE=TRUE
-      - CALLBACK_BASE_URL=http://busways.beepbeep.tech
-      - DB_HOST=tsdb
-      - DB_NAME=beepbeep3
-      - DB_USER=beep
-      - DB_PASSWORD=beep
-      - DB_SSLMODE=disable
+    env_file:
+      - .env
     depends_on:
       - tsdb
+    networks:
+      - ocpp
 
   tsdb:
     image: timescale/timescaledb:latest-pg13
@@ -27,7 +23,9 @@ services:
       - TIMESCALEDB_TELEMETRY=off
     volumes:
       - ./create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql:ro
-      - ./pg_data:/var/lib/postgresql/data
+      - ../pg_data:/var/lib/postgresql/data
+    networks:
+      - ocpp
 
   pgweb:
     image: deployment_pgweb
@@ -43,3 +41,9 @@ services:
       - DATABASE_URL=postgres://beep:beep@tsdb:5432/beepbeep3?sslmode=disable
     depends_on:
       - tsdb
+    networks:
+      - ocpp
+
+networks:
+  ocpp:
+    driver: bridge

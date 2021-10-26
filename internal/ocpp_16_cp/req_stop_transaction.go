@@ -35,9 +35,6 @@ func (c *OCPP16ChargePoint) stopTransaction(req *msg.OCPP16CallMessage) (*msg.OC
 		}
 	}
 
-	// make callback
-	go c.makeCallback("StopTransaction", b)
-
 	t, err := c.transactionService.StopTransaction(context.Background(), &rpc.StopTransactionReq{
 		Id:             int32(b.TransactionId),
 		StopMeterValue: int32(b.MeterStop),

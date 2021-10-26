@@ -1,5 +1,6 @@
 # .env files
 .env
+.env.deploy
 
 # sqlboiler toml files
 *.toml

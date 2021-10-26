@@ -49,11 +49,8 @@ func (rt *Router) Apply(r *gin.Engine) *gin.Engine {
 	rg := r.Group("v2/ocpp")
 
 	// for swagger
-	// set host to localhost if not live, else defaults to ocpp-dev.beepbeep.tech
-	if os.Getenv("LIVE") == "" {
-		docs.SwaggerInfo.Host = "localhost:8060"
-		docs.SwaggerInfo.Schemes = []string{"http"}
-	}
+	docs.SwaggerInfo.Host = os.Getenv("HOST_URL")
+	docs.SwaggerInfo.Schemes = []string{"http", "https"}
 
 	rg.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
