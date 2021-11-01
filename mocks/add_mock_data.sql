@@ -1,14 +1,15 @@
 -- add mock data
 insert into bb3.ocpp_application (
-    uuid, 
+    id,
     name
     )
 values (
-        'cde0496a-bcd8-408e-9d07-65d07d841487',
+        'cde0496a',
         'busways'
     );
 insert into bb3.ocpp_charge_point (
         application_id,
+        entity_code,
         charge_point_vendor,
         charge_point_model,
         charge_point_serial_number,
@@ -24,7 +25,8 @@ insert into bb3.ocpp_charge_point (
         connector_count
     ) 
 values (
-        1,
+        'cde0496a',
+        'C6155373',
         '',
         '',
         '',

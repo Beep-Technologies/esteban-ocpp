@@ -1,21 +1,21 @@
 -- +migrate Up
 create schema if not exists bb3;
 create table bb3.ocpp_application (
-    id serial primary key,
-    uuid varchar(36) not null,
-    name varchar(255) not null,
-    unique (uuid)
+    id varchar(255) primary key,
+    name varchar(255) not null
 );
 create table bb3.ocpp_application_callback (
     id serial primary key,
-    application_id int not null,
+    application_id varchar(255) not null,
     callback_event varchar(255) not null,
     callback_url varchar(2048) not null,
-    unique (application_id, callback_event)
+    unique (application_id, callback_event),
+    foreign key (application_id) references bb3.ocpp_application(id)
 );
 create table bb3.ocpp_charge_point (
     id serial primary key,
-    application_id int not null,
+    application_id varchar(255) not null,
+    entity_code varchar(255) not null,
     /* fixed to charge point */
     charge_point_vendor varchar(20) not null,
     charge_point_model varchar(20) not null,
@@ -28,8 +28,9 @@ create table bb3.ocpp_charge_point (
     firmware_version varchar(50) not null,
     connector_count int not null,
     /* user-set */
-    charge_point_identifier varchar(255) not null unique,
+    charge_point_identifier varchar(255) not null,
     ocpp_protocol varchar(20) not null,
+    unique (entity_code, charge_point_identifier),
     foreign key (application_id) references bb3.ocpp_application(id)
 );
 create table bb3.ocpp_charge_point_id_tag (
