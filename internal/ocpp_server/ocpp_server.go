@@ -42,7 +42,10 @@ func (s *OCPPWebSocketServer) HttpUpgradeHandler(c *gin.Context) {
 	w, r := c.Writer, c.Request
 
 	// get the application uuid
-	applicationUuid := c.Param("applicationUuid")
+	applicationId := c.Param("applicationId")
+
+	// get the entity code
+	entityCode := c.Param("entityCode")
 
 	// get the charge point identifier and decode it
 	// charge point identifiers are percent-encoded
@@ -100,7 +103,8 @@ func (s *OCPPWebSocketServer) HttpUpgradeHandler(c *gin.Context) {
 	switch selectedProtocol {
 	case "ocpp1.6":
 		err := s.ocpp16centralSystem.ConnectChargePoint(
-			applicationUuid,
+			applicationId,
+			entityCode,
 			chargePointIdentifier,
 			conn)
 		if err != nil {

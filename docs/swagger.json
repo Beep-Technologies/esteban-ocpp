@@ -251,12 +251,9 @@
             "type": "object",
             "properties": {
                 "id": {
-                    "type": "integer"
-                },
-                "name": {
                     "type": "string"
                 },
-                "uuid": {
+                "name": {
                     "type": "string"
                 }
             }
@@ -265,7 +262,7 @@
             "type": "object",
             "properties": {
                 "application_id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "callback_event": {
                     "type": "string"
@@ -282,7 +279,7 @@
             "type": "object",
             "properties": {
                 "application_id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "charge_box_serial_number": {
                     "type": "string"
@@ -301,6 +298,9 @@
                 },
                 "connector_count": {
                     "type": "integer"
+                },
+                "entity_code": {
+                    "type": "string"
                 },
                 "firmware_version": {
                     "type": "string"
@@ -329,7 +329,7 @@
             "type": "object",
             "properties": {
                 "application_id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "callback_event": {
                     "type": "string"
@@ -367,7 +367,7 @@
             "type": "object",
             "properties": {
                 "application_id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "charge_point_identifier": {
                     "type": "string"
@@ -381,9 +381,12 @@
             "type": "object",
             "properties": {
                 "application_id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "charge_point_identifier": {
+                    "type": "string"
+                },
+                "entity_code": {
                     "type": "string"
                 },
                 "ocpp_protocol": {
@@ -403,7 +406,7 @@
             "type": "object",
             "properties": {
                 "application_id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "charge_point_identifier": {
                     "type": "string"
@@ -425,7 +428,7 @@
             "type": "object",
             "properties": {
                 "application_id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "charge_point_identifier": {
                     "type": "string"
@@ -447,7 +450,7 @@
             "type": "object",
             "properties": {
                 "application_id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "charge_point_identifier": {
                     "type": "string"

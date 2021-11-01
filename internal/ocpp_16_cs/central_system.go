@@ -44,37 +44,29 @@ func NewOCPP16CentralSystem(
 
 func (cs *OCPP16CentralSystem) ConnectChargePoint(
 	applicationId string,
+	entityCode string,
 	chargePointIdentifier string,
 	conn *websocket.Conn) error {
 
-	// check that both the application uuid and charge point identifier
-	// correspond to an application and a charge point,
-	// and that the charge point belongs to the application
+	// check that the application id, entity code and charge point identifier
+	// correspond to an application, an entity and a charge point,
+	// and that the charge point belongs to the application and the entity
 	ctx := context.Background()
-
-	// get the application
-	ao, aerr := cs.applicationService.GetApplicationByID(ctx, &rpc.GetApplicationByIdReq{
-		ApplicationId: applicationId,
-	})
 
 	// get the charge point
 	cpo, cerr := cs.chargePointService.GetChargePointByIdentifier(ctx, &rpc.GetChargePointByIdentifierReq{
-		ApplicationId:         ao.Application.Id,
+		ApplicationId:         applicationId,
 		ChargePointIdentifier: chargePointIdentifier,
 	})
 
-	if aerr != nil || cerr != nil || cpo.ChargePoint.ApplicationId != ao.Application.Id {
+	if cerr != nil || cpo.ChargePoint.ApplicationId != applicationId || cpo.ChargePoint.EntityCode != entityCode {
 		conn.Close()
-
-		if aerr != nil {
-			return aerr
-		}
 
 		if cerr != nil {
 			return cerr
 		}
 
-		return errors.New("charge point identifier does not correspond to the application")
+		return errors.New("charge point identifier does not correspond to the application or entity")
 	}
 
 	// if there is a valid match, create a new charge point and add it to the map
@@ -82,7 +74,7 @@ func (cs *OCPP16CentralSystem) ConnectChargePoint(
 	cs.chargePoints[id] = ocpp16cp.NewOCPP16ChargePoint(
 		id,
 		chargePointIdentifier,
-		ao.Application.Id,
+		applicationId,
 		conn,
 		cs.applicationService,
 		cs.chargePointService,

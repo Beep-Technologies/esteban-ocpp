@@ -54,7 +54,7 @@ func (c *OCPP16ChargePoint) makeCallback(event string, data interface{}) {
 	}
 
 	if url == "" {
-		c.logger.Printf("no callback found for event %s for application with id %d", event, c.applicationId)
+		c.logger.Printf("no callback found for event %s for application with id %s", event, c.applicationId)
 		return
 	}
 

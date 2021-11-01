@@ -2,16 +2,14 @@ definitions:
   rpc.Application:
     properties:
       id:
-        type: integer
-      name:
         type: string
-      uuid:
+      name:
         type: string
     type: object
   rpc.ApplicationCallback:
     properties:
       application_id:
-        type: integer
+        type: string
       callback_event:
         type: string
       callback_url:
@@ -22,7 +20,7 @@ definitions:
   rpc.ChargePoint:
     properties:
       application_id:
-        type: integer
+        type: string
       charge_box_serial_number:
         type: string
       charge_point_identifier:
@@ -35,6 +33,8 @@ definitions:
         type: string
       connector_count:
         type: integer
+      entity_code:
+        type: string
       firmware_version:
         type: string
       iccid:
@@ -53,7 +53,7 @@ definitions:
   rpc.CreateApplicationCallbackReq:
     properties:
       application_id:
-        type: integer
+        type: string
       callback_event:
         type: string
       callback_url:
@@ -77,7 +77,7 @@ definitions:
   rpc.CreateChargePointIdTagReq:
     properties:
       application_id:
-        type: integer
+        type: string
       charge_point_identifier:
         type: string
       id_tag:
@@ -86,8 +86,10 @@ definitions:
   rpc.CreateChargePointReq:
     properties:
       application_id:
-        type: integer
+        type: string
       charge_point_identifier:
+        type: string
+      entity_code:
         type: string
       ocpp_protocol:
         type: string
@@ -100,7 +102,7 @@ definitions:
   rpc.GetLatestStatusNotificationsReq:
     properties:
       application_id:
-        type: integer
+        type: string
       charge_point_identifier:
         type: string
     type: object
@@ -114,7 +116,7 @@ definitions:
   rpc.RemoteStartTransactionReq:
     properties:
       application_id:
-        type: integer
+        type: string
       charge_point_identifier:
         type: string
       connector_id:
@@ -128,7 +130,7 @@ definitions:
   rpc.RemoteStopTransactionReq:
     properties:
       application_id:
-        type: integer
+        type: string
       charge_point_identifier:
         type: string
       connector_id:

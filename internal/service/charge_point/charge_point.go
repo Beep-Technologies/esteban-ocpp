@@ -28,6 +28,7 @@ func (srv Service) CreateChargePoint(ctx context.Context, req *rpc.CreateChargeP
 	cp, err := srv.chargePoint.Create(ctx, models.OcppChargePoint{
 		ApplicationID:         req.ApplicationId,
 		ChargePointIdentifier: req.ChargePointIdentifier,
+		EntityCode:            req.EntityCode,
 		OcppProtocol:          req.OcppProtocol,
 	})
 
@@ -86,7 +87,8 @@ func (srv Service) CreateChargePointIdTag(ctx context.Context, req *rpc.CreateCh
 
 	res := &rpc.CreateChargePointIdTagResp{
 		ChargePointIdTag: &rpc.ChargePointIdTag{
-			ChargePointId:         cp.ID,
+			Id:                    it.ID,
+			ChargePointId:         it.ChargePointID,
 			ChargePointIdentifier: cp.ChargePointIdentifier,
 			IdTag:                 it.IDTag,
 		},

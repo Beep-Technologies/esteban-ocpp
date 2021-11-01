@@ -44,7 +44,7 @@ func (rt *Router) Apply(r *gin.Engine) *gin.Engine {
 	}))
 
 	// set up websocket server endpoint
-	r.GET("/ocpp-central-system/:applicationUuid/:chargePointIdentifier", rt.ocppWebSocketServer.HttpUpgradeHandler)
+	r.GET("/ocpp-central-system/:applicationId/:entityCode/:chargePointIdentifier", rt.ocppWebSocketServer.HttpUpgradeHandler)
 
 	rg := r.Group("v2/ocpp")
 
