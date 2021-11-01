@@ -11,6 +11,7 @@ import (
 	"github.com/Beep-Technologies/beepbeep3-ocpp/internal/models"
 	chargePointRepo "github.com/Beep-Technologies/beepbeep3-ocpp/internal/repository/charge_point"
 	transactionRepo "github.com/Beep-Technologies/beepbeep3-ocpp/internal/repository/transaction"
+	"github.com/Beep-Technologies/beepbeep3-ocpp/pkg/util"
 )
 
 const RFC3339Milli = "2006-01-02T15:04:05.000Z07:00"
@@ -62,51 +63,26 @@ func (srv Service) GetOngoingTransaction(ctx context.Context, req *rpc.GetOngoin
 	}
 
 	t, err := srv.transactionRepo.GetByChargePointIDConnectorStates(ctx, cp.ID, req.ConnectorId, []string{"CREATED", "STARTED"})
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		res := &rpc.GetOngoingTransactionResp{
+			OngoingTransaction: false,
+		}
+		return res, err
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	to := rpc.Transaction{}
+	err = util.ConvertCopyStruct(&to, &t, map[string]util.ConverterFunc{})
 	if err != nil {
 		return nil, err
 	}
 
 	res := &rpc.GetOngoingTransactionResp{
-		Transaction: &rpc.Transaction{
-			Id:              t.ID,
-			ChargePointId:   t.ChargePointID,
-			ConnectorId:     t.ConnectorID,
-			IdTag:           t.IDTag,
-			State:           t.State,
-			RemoteInitiated: t.RemoteInitiated,
-			StartTimestamp:  t.StartTimestamp.UTC().Format(RFC3339Milli),
-			StopTimestamp:   t.StopTimestamp.UTC().Format(RFC3339Milli),
-			StartMeterValue: t.StartMeterValue,
-			StopMeterValue:  t.StopMeterValue,
-			StopReason:      t.StopReason,
-		},
-	}
-
-	return res, nil
-}
-
-func (srv Service) OnGoingTransaction(ctx context.Context, req *rpc.OngoingTransactionReq) (*rpc.OngoingTransactionResp, error) {
-	cp, err := srv.chargePointRepo.GetChargePointByIdentifier(ctx, req.ApplicationId, req.ChargePointIdentifier)
-	if err != nil {
-		return nil, err
-	}
-
-	t, err := srv.transactionRepo.GetByChargePointIDConnectorStates(ctx, cp.ID, req.ConnectorId, []string{"CREATED", "STARTED"})
-	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
-		res := &rpc.OngoingTransactionResp{
-			OngoingTransaction: false,
-		}
-
-		return res, nil
-	}
-
-	if err != nil {
-		return nil, err
-	}
-
-	res := &rpc.OngoingTransactionResp{
 		OngoingTransaction: true,
-		TransactionId:      t.ID,
+		Transaction:        &to,
 	}
 
 	return res, nil

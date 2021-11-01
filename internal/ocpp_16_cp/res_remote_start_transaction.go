@@ -35,8 +35,8 @@ func (c *OCPP16ChargePoint) remoteStartTransaction(res *msg.OCPP16CallResult) er
 		return err
 	}
 
-	tRes, err := c.transactionService.OnGoingTransaction(context.Background(), &rpc.OngoingTransactionReq{
-		ApplicationId:         int32(c.applicationId),
+	tRes, err := c.transactionService.GetOngoingTransaction(context.Background(), &rpc.GetOngoingTransactionReq{
+		ApplicationId:         c.applicationId,
 		ChargePointIdentifier: c.chargePointIdentifier,
 		ConnectorId:           int32(br.ConnectorId),
 	})
@@ -48,7 +48,7 @@ func (c *OCPP16ChargePoint) remoteStartTransaction(res *msg.OCPP16CallResult) er
 	if b.Status != "Accepted" {
 		// set the transaction status to ABORTED on the database
 		_, err = c.transactionService.AbortTransaction(context.Background(), &rpc.AbortTransactionReq{
-			Id: int32(tRes.TransactionId),
+			Id: int32(tRes.Transaction.Id),
 		})
 		if err != nil {
 			return err

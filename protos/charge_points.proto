@@ -13,7 +13,7 @@ option (gogoproto.face_all) = true;
 
 message ChargePoint {
     int32 id = 1 [(gogoproto.jsontag) = "id"];
-    int32 application_id = 2 [(gogoproto.jsontag) = "application_id"];
+    string application_id = 2 [(gogoproto.jsontag) = "application_id"];
     string charge_point_identifier = 3 [(gogoproto.jsontag) = "charge_point_identifier"];  
     string charge_point_vendor = 4 [(gogoproto.jsontag) = "charge_point_vendor"];
     string charge_point_model = 5 [(gogoproto.jsontag) = "charge_point_model"];
@@ -36,7 +36,7 @@ message ChargePointIdTag {
 
 // for exposed services
 message CreateChargePointReq {
-    int32 application_id = 1;
+    string application_id = 1;
     string charge_point_identifier = 2;
     string ocpp_protocol = 3;
 }
@@ -46,7 +46,7 @@ message CreateChargePointResp {
 }
 
 message GetChargePointsReq {
-    int32 application_id = 1;
+    string application_id = 1;
 }
 
 message GetChargePointsResp {
@@ -55,7 +55,7 @@ message GetChargePointsResp {
 
 message GetChargePointByIdentifierReq {
     string charge_point_identifier = 1;
-    int32 application_id = 2;
+    string application_id = 2;
 }
 
 message GetChargePointByIdentifierResp {
@@ -81,7 +81,7 @@ message UpdateChargePointDetailsResp {
 
 message CreateChargePointIdTagReq {
     string charge_point_identifier = 1;
-    int32 application_id = 2;
+    string application_id = 2;
     string id_tag = 3;
 }
 
@@ -91,7 +91,7 @@ message CreateChargePointIdTagResp {
 
 message GetChargePointIdTagsReq {
     string charge_point_identifier = 1;
-    int32 application_id = 2;
+    string application_id = 2;
 }
 
 message GetChargePointIdTagsResp {
@@ -100,7 +100,7 @@ message GetChargePointIdTagsResp {
 
 message GetChargePointIdTagReq {
     string charge_point_identifier = 1;
-    int32 application_id = 2;
+    string application_id = 2;
     string id_tag = 3;
 }
 
@@ -111,7 +111,7 @@ message GetChargePointIdTagResp {
 // for internal services
 message GetChargePointByIDReq {
     int32 id = 1;
-    int32 application_id = 2;
+    string application_id = 2;
 }
 
 message GetChargePointByIDResp {

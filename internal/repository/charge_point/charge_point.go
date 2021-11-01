@@ -8,28 +8,17 @@ import (
 	"github.com/Beep-Technologies/beepbeep3-ocpp/internal/models"
 )
 
-type BaseRepo interface {
-	Create(ctx context.Context, cp models.OcppChargePoint) (models.OcppChargePoint, error)
-	GetChargePoints(ctx context.Context, aid int32) ([]models.OcppChargePoint, error)
-	GetChargePointByID(ctx context.Context, cpid int32) (models.OcppChargePoint, error)
-	GetChargePointByIdentifier(ctx context.Context, aid int32, cpid string) (models.OcppChargePoint, error)
-	Update(ctx context.Context, cpid int32, fields []string, cp models.OcppChargePoint) (models.OcppChargePoint, error)
-	CreateIdTag(ctx context.Context, it models.OcppChargePointIDTag) (models.OcppChargePointIDTag, error)
-	GetIdTags(ctx context.Context, cpid int32) ([]models.OcppChargePointIDTag, error)
-	GetIdTag(ctx context.Context, aid int, cpid int, idTag string) (models.OcppChargePointIDTag, error)
-}
-
-type baseRepo struct {
+type BaseRepo struct {
 	db *gorm.DB
 }
 
 func NewBaseRepo(db *gorm.DB) BaseRepo {
-	return &baseRepo{
+	return BaseRepo{
 		db: db,
 	}
 }
 
-func (repo baseRepo) Create(ctx context.Context, cp models.OcppChargePoint) (models.OcppChargePoint, error) {
+func (repo BaseRepo) Create(ctx context.Context, cp models.OcppChargePoint) (models.OcppChargePoint, error) {
 	err := repo.db.Table("bb3.ocpp_charge_point").Create(&cp).Error
 	if err != nil {
 		return models.OcppChargePoint{}, err
@@ -38,7 +27,7 @@ func (repo baseRepo) Create(ctx context.Context, cp models.OcppChargePoint) (mod
 	return cp, nil
 }
 
-func (repo baseRepo) GetChargePoints(ctx context.Context, aid int32) ([]models.OcppChargePoint, error) {
+func (repo BaseRepo) GetChargePoints(ctx context.Context, aid string) ([]models.OcppChargePoint, error) {
 	cps := make([]models.OcppChargePoint, 0)
 
 	err := repo.db.Table("bb3.ocpp_charge_point").
@@ -49,7 +38,7 @@ func (repo baseRepo) GetChargePoints(ctx context.Context, aid int32) ([]models.O
 	return cps, err
 }
 
-func (repo baseRepo) GetChargePointByID(ctx context.Context, cpid int32) (models.OcppChargePoint, error) {
+func (repo BaseRepo) GetChargePointByID(ctx context.Context, cpid int32) (models.OcppChargePoint, error) {
 	cp := models.OcppChargePoint{}
 	err := repo.db.Table("bb3.ocpp_charge_point").
 		Where("id = ?", cpid).
@@ -59,7 +48,7 @@ func (repo baseRepo) GetChargePointByID(ctx context.Context, cpid int32) (models
 	return cp, err
 }
 
-func (repo baseRepo) GetChargePointByIdentifier(ctx context.Context, aid int32, cpid string) (models.OcppChargePoint, error) {
+func (repo BaseRepo) GetChargePointByIdentifier(ctx context.Context, aid string, cpid string) (models.OcppChargePoint, error) {
 	cp := models.OcppChargePoint{}
 	err := repo.db.Table("bb3.ocpp_charge_point").
 		Where("application_id = ?", aid).
@@ -69,8 +58,8 @@ func (repo baseRepo) GetChargePointByIdentifier(ctx context.Context, aid int32, 
 	return cp, err
 }
 
-func (repo baseRepo) Update(ctx context.Context, cpid int32, fields []string, cp models.OcppChargePoint) (models.OcppChargePoint, error) {
-	err := repo.db.Model(&cp).
+func (repo BaseRepo) Update(ctx context.Context, cpid int32, fields []string, cp models.OcppChargePoint) (models.OcppChargePoint, error) {
+	err := repo.db.Table("bb3.ocpp_charge_point").
 		Select(fields).Where("id = ?", cpid).
 		Updates(cp).
 		Error
@@ -91,7 +80,7 @@ func (repo baseRepo) Update(ctx context.Context, cpid int32, fields []string, cp
 	return cpo, nil
 }
 
-func (repo baseRepo) CreateIdTag(ctx context.Context, it models.OcppChargePointIDTag) (models.OcppChargePointIDTag, error) {
+func (repo BaseRepo) CreateIdTag(ctx context.Context, it models.OcppChargePointIDTag) (models.OcppChargePointIDTag, error) {
 	err := repo.db.Table("bb3.ocpp_charge_point_id_tag").Create(&it).Error
 	if err != nil {
 		return models.OcppChargePointIDTag{}, err
@@ -100,7 +89,7 @@ func (repo baseRepo) CreateIdTag(ctx context.Context, it models.OcppChargePointI
 	return it, nil
 }
 
-func (repo baseRepo) GetIdTags(ctx context.Context, cpid int32) ([]models.OcppChargePointIDTag, error) {
+func (repo BaseRepo) GetIdTags(ctx context.Context, cpid int32) ([]models.OcppChargePointIDTag, error) {
 	ids := make([]models.OcppChargePointIDTag, 0)
 
 	err := repo.db.Table("bb3.ocpp_charge_point_id_tag").
@@ -115,7 +104,7 @@ func (repo baseRepo) GetIdTags(ctx context.Context, cpid int32) ([]models.OcppCh
 	return ids, nil
 }
 
-func (repo baseRepo) GetIdTag(ctx context.Context, aid int, cpid int, idTag string) (models.OcppChargePointIDTag, error) {
+func (repo BaseRepo) GetIdTag(ctx context.Context, cpid int, idTag string) (models.OcppChargePointIDTag, error) {
 	idt := models.OcppChargePointIDTag{}
 
 	err := repo.db.Table("bb3.ocpp_charge_point_id_tag").

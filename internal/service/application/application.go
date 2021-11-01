@@ -43,16 +43,15 @@ func (srv Service) CreateApplication(ctx context.Context, req *rpc.CreateApplica
 	return res, nil
 }
 
-func (srv Service) GetApplicationByUuid(ctx context.Context, req *rpc.GetApplicationByUuidReq) (*rpc.GetApplicationByUuidResp, error) {
-	a, err := srv.application.GetApplicationByUUID(ctx, req.ApplicationUuid)
+func (srv Service) GetApplicationByID(ctx context.Context, req *rpc.GetApplicationByIdReq) (*rpc.GetApplicationByIdResp, error) {
+	a, err := srv.application.GetApplicationByID(ctx, req.ApplicationId)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &rpc.GetApplicationByUuidResp{
+	res := &rpc.GetApplicationByIdResp{
 		Application: &rpc.Application{
 			Id:   a.ID,
-			Uuid: a.UUID,
 			Name: a.Name,
 		},
 	}
@@ -99,7 +98,7 @@ func (srv Service) SetApplicationCallback(ctx context.Context, req *rpc.CreateAp
 
 	ac, err = srv.application.UpdateCallback(
 		ctx,
-		ac.ID,
+		ac.ApplicationID,
 		[]string{"callback_url"},
 		models.OcppApplicationCallback{
 			CallbackURL: req.CallbackUrl,
@@ -164,7 +163,15 @@ func (srv Service) GetApplicationCallbacks(ctx context.Context, req *rpc.GetAppl
 }
 
 func (srv Service) DeleteApplicationCallback(ctx context.Context, req *rpc.DeleteApplicationCallbackReq) (*rpc.DeleteApplicationCallbackResp, error) {
-	err := srv.application.DeleteCallback(ctx, req.ApplicationId)
+	ac, err := srv.application.GetApplicationCallback(ctx, req.ApplicationId, req.CallbackEvent)
+	if err != nil {
+		return nil, err
+	}
+
+	err = srv.application.DeleteCallback(ctx, ac.ID)
+	if err != nil {
+		return nil, err
+	}
 
 	res := &rpc.DeleteApplicationCallbackResp{}
 

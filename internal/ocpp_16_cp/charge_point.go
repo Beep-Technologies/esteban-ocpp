@@ -15,7 +15,7 @@ import (
 type OCPP16ChargePoint struct {
 	id                        int
 	chargePointIdentifier     string
-	applicationId             int
+	applicationId             string
 	conn                      *websocket.Conn
 	status                    msg.OCPP16Status
 	currentCall               *currentCall
@@ -29,7 +29,7 @@ type OCPP16ChargePoint struct {
 func NewOCPP16ChargePoint(
 	id int,
 	chargePointIdentifier string,
-	applicationId int,
+	applicationId string,
 	conn *websocket.Conn,
 	applicationService *application.Service,
 	chargepointService *chargepoint.Service,

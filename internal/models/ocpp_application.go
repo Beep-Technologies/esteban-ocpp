@@ -11,8 +11,7 @@ import (
 
 // OcppApplication is an object representing the database table.
 type OcppApplication struct {
-	ID   int32  `gorm:"column:id"`
-	UUID string `gorm:"column:uuid"`
+	ID   string `gorm:"column:id"`
 	Name string `gorm:"column:name"`
 }
 

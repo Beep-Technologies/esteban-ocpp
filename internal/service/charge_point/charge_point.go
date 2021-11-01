@@ -35,22 +35,15 @@ func (srv Service) CreateChargePoint(ctx context.Context, req *rpc.CreateChargeP
 		return nil, err
 	}
 
+	cpo := rpc.ChargePoint{}
+
+	err = util.ConvertCopyStruct(&cpo, &cp, map[string]util.ConverterFunc{})
+	if err != nil {
+		return nil, err
+	}
+
 	res := &rpc.CreateChargePointResp{
-		ChargePoint: &rpc.ChargePoint{
-			Id:                      cp.ID,
-			ApplicationId:           cp.ApplicationID,
-			ChargePointVendor:       cp.ChargePointVendor,
-			ChargePointModel:        cp.ChargePointModel,
-			ChargePointSerialNumber: cp.ChargePointSerialNumber,
-			ChargeBoxSerialNumber:   cp.ChargeBoxSerialNumber,
-			Iccid:                   cp.Iccid,
-			Imsi:                    cp.Imsi,
-			MeterType:               cp.MeterType,
-			MeterSerialNumber:       cp.MeterSerialNumber,
-			FirmwareVersion:         cp.FirmwareVersion,
-			ChargePointIdentifier:   cp.ChargePointIdentifier,
-			OcppProtocol:            cp.OcppProtocol,
-		},
+		ChargePoint: &cpo,
 	}
 
 	return res, nil
@@ -62,22 +55,15 @@ func (srv Service) GetChargePointByIdentifier(ctx context.Context, req *rpc.GetC
 		return nil, err
 	}
 
+	cpo := rpc.ChargePoint{}
+
+	err = util.ConvertCopyStruct(&cpo, &cp, map[string]util.ConverterFunc{})
+	if err != nil {
+		return nil, err
+	}
+
 	res := &rpc.GetChargePointByIdentifierResp{
-		ChargePoint: &rpc.ChargePoint{
-			Id:                      cp.ID,
-			ApplicationId:           cp.ApplicationID,
-			ChargePointVendor:       cp.ChargePointVendor,
-			ChargePointModel:        cp.ChargePointModel,
-			ChargePointSerialNumber: cp.ChargePointSerialNumber,
-			ChargeBoxSerialNumber:   cp.ChargeBoxSerialNumber,
-			Iccid:                   cp.Iccid,
-			Imsi:                    cp.Imsi,
-			MeterType:               cp.MeterType,
-			MeterSerialNumber:       cp.MeterSerialNumber,
-			FirmwareVersion:         cp.FirmwareVersion,
-			ChargePointIdentifier:   cp.ChargePointIdentifier,
-			OcppProtocol:            cp.OcppProtocol,
-		},
+		ChargePoint: &cpo,
 	}
 
 	return res, nil
@@ -115,7 +101,7 @@ func (srv Service) GetChargePointIdTag(ctx context.Context, req *rpc.GetChargePo
 		return nil, err
 	}
 
-	it, err := srv.chargePoint.GetIdTag(ctx, int(req.ApplicationId), int(cp.ID), req.IdTag)
+	it, err := srv.chargePoint.GetIdTag(ctx, int(cp.ID), req.IdTag)
 	if err != nil && errors.Is(gorm.ErrRecordNotFound, err) {
 		return &rpc.GetChargePointIdTagResp{
 			ChargePointIdTag: nil,
@@ -217,5 +203,4 @@ func (srv Service) UpdateChargePointDetails(ctx context.Context, req *rpc.Update
 	}
 
 	return res, nil
-
 }

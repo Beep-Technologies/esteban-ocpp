@@ -9,29 +9,19 @@ import (
 	"github.com/Beep-Technologies/beepbeep3-ocpp/internal/models"
 )
 
-type BaseRepo interface {
-	Create(ctx context.Context, a models.OcppApplication) (models.OcppApplication, error)
-	GetApplicationByID(ctx context.Context, aid int32) (models.OcppApplication, error)
-	GetApplicationByUUID(ctx context.Context, auuid string) (models.OcppApplication, error)
-	CreateCallback(ctx context.Context, a models.OcppApplicationCallback) (models.OcppApplicationCallback, error)
-	UpdateCallback(ctx context.Context, aid int32, fields []string, a models.OcppApplicationCallback) (models.OcppApplicationCallback, error)
-	GetApplicationCallback(ctx context.Context, aid int32, callbackEvent string) (models.OcppApplicationCallback, error)
-	GetApplicationCallbacks(ctx context.Context, aid int32) ([]models.OcppApplicationCallback, error)
-	DeleteCallback(ctx context.Context, aid int32) error
-}
-
-type baseRepo struct {
+type BaseRepo struct {
 	db *gorm.DB
 }
 
 func NewBaseRepo(db *gorm.DB) BaseRepo {
-	return &baseRepo{
+	return BaseRepo{
 		db: db,
 	}
 }
 
-func (repo baseRepo) Create(ctx context.Context, a models.OcppApplication) (models.OcppApplication, error) {
-	a.UUID = uuid.NewString()
+func (repo BaseRepo) Create(ctx context.Context, a models.OcppApplication) (models.OcppApplication, error) {
+	// an application ID should be 8-character alphanumeric string (first section of a uuid)
+	a.ID = uuid.NewString()[:8]
 
 	err := repo.db.Table("bb3.ocpp_application").Create(&a).Error
 	if err != nil {
@@ -41,29 +31,14 @@ func (repo baseRepo) Create(ctx context.Context, a models.OcppApplication) (mode
 	return a, nil
 }
 
-func (repo baseRepo) GetApplicationByID(ctx context.Context, aid int32) (models.OcppApplication, error) {
+func (repo BaseRepo) GetApplicationByID(ctx context.Context, aid string) (models.OcppApplication, error) {
 	a := models.OcppApplication{}
 	err := repo.db.Table("bb3.ocpp_application").Where("id = ?", aid).First(&a).Error
 
-	if err != nil {
-		return models.OcppApplication{}, err
-	}
-
-	return a, nil
+	return a, err
 }
 
-func (repo baseRepo) GetApplicationByUUID(ctx context.Context, auuid string) (models.OcppApplication, error) {
-	a := models.OcppApplication{}
-	err := repo.db.Table("bb3.ocpp_application").Where("uuid = ?", auuid).First(&a).Error
-
-	if err != nil {
-		return models.OcppApplication{}, err
-	}
-
-	return a, nil
-}
-
-func (repo baseRepo) CreateCallback(ctx context.Context, a models.OcppApplicationCallback) (models.OcppApplicationCallback, error) {
+func (repo BaseRepo) CreateCallback(ctx context.Context, a models.OcppApplicationCallback) (models.OcppApplicationCallback, error) {
 	err := repo.db.Table("bb3.ocpp_application_callback").Create(&a).Error
 	if err != nil {
 		return models.OcppApplicationCallback{}, err
@@ -72,7 +47,7 @@ func (repo baseRepo) CreateCallback(ctx context.Context, a models.OcppApplicatio
 	return a, nil
 }
 
-func (repo baseRepo) GetApplicationCallback(ctx context.Context, aid int32, callbackEvent string) (models.OcppApplicationCallback, error) {
+func (repo BaseRepo) GetApplicationCallback(ctx context.Context, aid string, callbackEvent string) (models.OcppApplicationCallback, error) {
 	a := models.OcppApplicationCallback{}
 
 	err := repo.db.Table("bb3.ocpp_application_callback").
@@ -81,14 +56,10 @@ func (repo baseRepo) GetApplicationCallback(ctx context.Context, aid int32, call
 		First(&a).
 		Error
 
-	if err != nil {
-		return a, err
-	}
-
-	return a, nil
+	return a, err
 }
 
-func (repo baseRepo) GetApplicationCallbacks(ctx context.Context, aid int32) ([]models.OcppApplicationCallback, error) {
+func (repo BaseRepo) GetApplicationCallbacks(ctx context.Context, aid string) ([]models.OcppApplicationCallback, error) {
 	as := make([]models.OcppApplicationCallback, 0)
 
 	err := repo.db.Table("bb3.ocpp_application_callback").
@@ -103,8 +74,8 @@ func (repo baseRepo) GetApplicationCallbacks(ctx context.Context, aid int32) ([]
 	return as, nil
 }
 
-func (repo baseRepo) UpdateCallback(ctx context.Context, aid int32, fields []string, a models.OcppApplicationCallback) (models.OcppApplicationCallback, error) {
-	err := repo.db.Model(&a).
+func (repo BaseRepo) UpdateCallback(ctx context.Context, aid string, fields []string, a models.OcppApplicationCallback) (models.OcppApplicationCallback, error) {
+	err := repo.db.Table("bb3.ocpp_application_callback").
 		Select(fields).Where("id = ?", aid).
 		Updates(a).
 		Error
@@ -123,12 +94,12 @@ func (repo baseRepo) UpdateCallback(ctx context.Context, aid int32, fields []str
 	return ao, nil
 }
 
-func (repo baseRepo) DeleteCallback(ctx context.Context, aid int32) error {
-	a := models.OcppApplicationCallback{
-		ID: aid,
+func (repo BaseRepo) DeleteCallback(ctx context.Context, acid int32) error {
+	ac := models.OcppApplicationCallback{
+		ID: acid,
 	}
 
-	err := repo.db.Table("bb3.ocpp_application_callback").Delete(&a).Error
+	err := repo.db.Table("bb3.ocpp_application_callback").Delete(&ac).Error
 
 	return err
 }

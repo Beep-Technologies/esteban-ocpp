@@ -26,7 +26,7 @@ message StatusNotification {
 
 // for exposed services
 message GetLatestStatusNotificationsReq {
-    int32 application_id = 1;
+    string application_id = 1;
     string charge_point_identifier = 2;
 }
 
@@ -37,15 +37,14 @@ message GetLatestStatusNotificationsResp {
 
 // for internal services
 message CreateStatusNotificationReq {
-    int32 application_id = 1;
-    int32 charge_point_id = 2;
-    int32 connector_id = 3;
-    string error_code = 4;
-    string info = 5;
-    string status = 6;
-    string timestamp = 7;
-    string vendor_id = 8;
-    string vendor_error_code = 9;
+    int32 charge_point_id = 1;
+    int32 connector_id = 2;
+    string error_code = 3;
+    string info = 4;
+    string status = 5;
+    string timestamp = 6;
+    string vendor_id = 7;
+    string vendor_error_code = 8;
 }
 
 message CreateStatusNotificationResp {

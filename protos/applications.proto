@@ -12,14 +12,13 @@ option (gogoproto.goproto_getters_all) = false;
 option (gogoproto.face_all) = true;
 
 message Application {
-    int32 id = 1 [(gogoproto.jsontag) = "id"];
-    string uuid = 2 [(gogoproto.jsontag) = "uuid"];
-    string name = 3 [(gogoproto.jsontag) = "name"];
+    string id = 1 [(gogoproto.jsontag) = "id"];
+    string name = 2 [(gogoproto.jsontag) = "name"];
 }
 
 message ApplicationCallback {
     int32 id = 1 [(gogoproto.jsontag) = "id"];
-    int32 application_id = 2 [(gogoproto.jsontag) = "application_id"];
+    string application_id = 2 [(gogoproto.jsontag) = "application_id"];
     string callback_event = 3 [(gogoproto.jsontag) = "callback_event"];
     string callback_url = 4 [(gogoproto.jsontag) = "callback_url"];
 }
@@ -35,7 +34,7 @@ message CreateApplicationResp {
 }
 
 message CreateApplicationCallbackReq {
-    int32 application_id = 1;
+    string application_id = 1;
     string callback_event = 2;
     string callback_url = 3;
 }
@@ -44,16 +43,16 @@ message CreateApplicationCallbackResp {
     ApplicationCallback application_callback = 1 [(gogoproto.jsontag) = "application_callback"];
 }
 
-message GetApplicationByUuidReq {
-    string application_uuid = 1;
+message GetApplicationByIdReq {
+    string application_id = 1;
 }
 
-message GetApplicationByUuidResp {
+message GetApplicationByIdResp {
     Application application = 1;
 }
 
 message GetApplicationCallbackReq {
-    int32 application_id = 1;
+    string application_id = 1;
     string callback_event = 2;
 }
 
@@ -62,7 +61,7 @@ message GetApplicationCallbackResp {
 }
 
 message GetApplicationCallbacksReq {
-    int32 application_id = 1;
+    string application_id = 1;
 }
 
 message GetApplicationCallbacksResp {
@@ -70,7 +69,7 @@ message GetApplicationCallbacksResp {
 }
 
 message DeleteApplicationCallbackReq {
-    int32 application_id = 1;
+    string application_id = 1;
     string callback_event = 2;
 }
 

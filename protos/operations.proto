@@ -13,7 +13,7 @@ option (gogoproto.face_all) = true;
 
 // for exposed services
 message RemoteStartTransactionReq {
-    int32 application_id = 1;
+    string application_id = 1;
     string charge_point_identifier = 2;
     int32 connector_id = 3;
 }
@@ -23,7 +23,7 @@ message RemoteStartTransactionResp {
 }
 
 message RemoteStopTransactionReq {
-    int32 application_id = 1;
+    string application_id = 1;
     string charge_point_identifier = 2;
     int32 connector_id = 3;
 }

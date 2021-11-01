@@ -36,17 +36,18 @@ message GetTransactionByIdResp {
 }
 
 message GetOngoingTransactionReq {
-    int32 application_id = 1;
+    string application_id = 1;
     string charge_point_identifier = 2;
     int32 connector_id = 3;
 }
 
 message GetOngoingTransactionResp {
-    Transaction transaction = 1 [(gogoproto.jsontag) = "transaction"];
+    bool ongoing_transaction = 1 [(gogoproto.jsontag) = "ongoing_transaction"];
+    Transaction transaction = 2 [(gogoproto.jsontag) = "transaction"];
 }
 
 message GetOngoingTransactionsReq {
-    int32 application_id = 1;
+    string application_id = 1;
     int32 charge_point_identifier = 2;
 }
 
@@ -54,27 +55,6 @@ message GetOngoingTransactionsResp {
     repeated Transaction transactions = 1 [(gogoproto.jsontag) = "transaction"];
 }
 
-message OngoingTransactionReq {
-    int32 application_id = 1;
-    string charge_point_identifier = 2;
-    int32 connector_id = 3;
-}
-
-message OngoingTransactionResp {
-    bool ongoing_transaction = 1 [(gogoproto.jsontag) = "ongoing_transaction"];
-    int32 transaction_id = 2 [(gogoproto.jsontag) = "transaction_id"];
-}
-
-message CreatedTransactionReq {
-    int32 application_id = 1;
-    string charge_point_identifier = 2;
-    int32 connector_id = 3;
-}
-
-message CreatedTransactionResp {
-    bool created_transaction = 1 [(gogoproto.jsontag) = "created_transaction"];
-    int32 transaction_id = 2 [(gogoproto.jsontag) = "transaction_id"];
-}
 
 // for internal services
 message CreateTransactionReq {

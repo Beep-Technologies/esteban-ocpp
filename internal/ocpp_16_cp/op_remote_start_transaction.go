@@ -14,10 +14,10 @@ import (
 // RemoteStartTransactionOp makes a RemoteStartTransaction call to the charge point
 func (c *OCPP16ChargePoint) RemoteStartTransactionOp(cnid int) (*rpc.RemoteStartTransactionResp, error) {
 	// check if there is already an ongoing transaction
-	tRes, err := c.transactionService.OnGoingTransaction(
+	tRes, err := c.transactionService.GetOngoingTransaction(
 		context.Background(),
-		&rpc.OngoingTransactionReq{
-			ApplicationId:         int32(c.applicationId),
+		&rpc.GetOngoingTransactionReq{
+			ApplicationId:         c.applicationId,
 			ChargePointIdentifier: c.chargePointIdentifier,
 			ConnectorId:           int32(cnid),
 		})

@@ -36,7 +36,7 @@ func (c *OCPP16ChargePoint) makeCallback(event string, data interface{}) {
 	res, err := c.applicationService.GetApplicationCallbacks(
 		context.Background(),
 		&rpc.GetApplicationCallbacksReq{
-			ApplicationId: int32(c.applicationId),
+			ApplicationId: c.applicationId,
 		},
 	)
 

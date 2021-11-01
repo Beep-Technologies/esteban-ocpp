@@ -35,8 +35,8 @@ func (c *OCPP16ChargePoint) startTransaction(req *msg.OCPP16CallMessage) (*msg.O
 		}
 	}
 
-	otRes, err := c.transactionService.OnGoingTransaction(context.Background(), &rpc.OngoingTransactionReq{
-		ApplicationId:         int32(c.applicationId),
+	otRes, err := c.transactionService.GetOngoingTransaction(context.Background(), &rpc.GetOngoingTransactionReq{
+		ApplicationId:         c.applicationId,
 		ChargePointIdentifier: c.chargePointIdentifier,
 		ConnectorId:           int32(b.ConnectorId),
 	})
@@ -54,7 +54,7 @@ func (c *OCPP16ChargePoint) startTransaction(req *msg.OCPP16CallMessage) (*msg.O
 	if !otRes.OngoingTransaction {
 		res, err := c.chargepointService.GetChargePointIdTag(context.Background(), &rpc.GetChargePointIdTagReq{
 			ChargePointIdentifier: c.chargePointIdentifier,
-			ApplicationId:         int32(c.applicationId),
+			ApplicationId:         c.applicationId,
 			IdTag:                 b.IdTag,
 		})
 		if err != nil {
@@ -120,7 +120,7 @@ func (c *OCPP16ChargePoint) startTransaction(req *msg.OCPP16CallMessage) (*msg.O
 
 	// else it should be a remote-initiated transaction
 	tRes, err := c.transactionService.GetTransactionById(context.Background(),
-		&rpc.GetTransactionByIdReq{Id: otRes.TransactionId},
+		&rpc.GetTransactionByIdReq{Id: otRes.Transaction.Id},
 	)
 	if err != nil {
 		return nil, &msg.OCPP16CallError{

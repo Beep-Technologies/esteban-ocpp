@@ -12,7 +12,8 @@ import (
 // OcppChargePoint is an object representing the database table.
 type OcppChargePoint struct {
 	ID                      int32  `gorm:"column:id"`
-	ApplicationID           int32  `gorm:"column:application_id"`
+	ApplicationID           string `gorm:"column:application_id"`
+	EntityCode              string `gorm:"column:entity_code"`
 	ChargePointVendor       string `gorm:"column:charge_point_vendor"`
 	ChargePointModel        string `gorm:"column:charge_point_model"`
 	ChargePointSerialNumber string `gorm:"column:charge_point_serial_number"`

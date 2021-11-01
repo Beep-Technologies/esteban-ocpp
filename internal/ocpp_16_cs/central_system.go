@@ -43,7 +43,7 @@ func NewOCPP16CentralSystem(
 }
 
 func (cs *OCPP16CentralSystem) ConnectChargePoint(
-	applicationUuid string,
+	applicationId string,
 	chargePointIdentifier string,
 	conn *websocket.Conn) error {
 
@@ -53,8 +53,8 @@ func (cs *OCPP16CentralSystem) ConnectChargePoint(
 	ctx := context.Background()
 
 	// get the application
-	ao, aerr := cs.applicationService.GetApplicationByUuid(ctx, &rpc.GetApplicationByUuidReq{
-		ApplicationUuid: applicationUuid,
+	ao, aerr := cs.applicationService.GetApplicationByID(ctx, &rpc.GetApplicationByIdReq{
+		ApplicationId: applicationId,
 	})
 
 	// get the charge point
@@ -82,7 +82,7 @@ func (cs *OCPP16CentralSystem) ConnectChargePoint(
 	cs.chargePoints[id] = ocpp16cp.NewOCPP16ChargePoint(
 		id,
 		chargePointIdentifier,
-		int(ao.Application.Id),
+		ao.Application.Id,
 		conn,
 		cs.applicationService,
 		cs.chargePointService,

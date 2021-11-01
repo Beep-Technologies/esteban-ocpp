@@ -12,7 +12,7 @@ import (
 // OcppApplicationCallback is an object representing the database table.
 type OcppApplicationCallback struct {
 	ID            int32  `gorm:"column:id"`
-	ApplicationID int32  `gorm:"column:application_id"`
+	ApplicationID string `gorm:"column:application_id"`
 	CallbackEvent string `gorm:"column:callback_event"`
 	CallbackURL   string `gorm:"column:callback_url"`
 }

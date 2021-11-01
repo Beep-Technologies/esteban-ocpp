@@ -37,7 +37,7 @@ func (c *OCPP16ChargePoint) authorize(req *msg.OCPP16CallMessage) (*msg.OCPP16Ca
 
 	res, err := c.chargepointService.GetChargePointIdTag(context.Background(), &rpc.GetChargePointIdTagReq{
 		ChargePointIdentifier: c.chargePointIdentifier,
-		ApplicationId:         int32(c.applicationId),
+		ApplicationId:         c.applicationId,
 		IdTag:                 b.IdTag,
 	})
 
