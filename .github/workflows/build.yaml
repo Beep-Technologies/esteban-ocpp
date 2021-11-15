@@ -52,6 +52,7 @@ jobs:
           --cache-from type=local,src=/tmp/.buildx-cache \
           --cache-to type=local,dest=/tmp/.buildx-cache-new \
           -f ./Dockerfile.bb3-ocpp-ws .
+        docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         docker push -a $ECR_REGISTRY/$ECR_REPOSITORY
 
     - name: Logout of Amazon ECR
