@@ -40,27 +40,15 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_REGION: ${{ secrets.AWS_REGION }}
 
-    - name: Build Image
-      uses: docker/build-push-action@v2
+    - name: Build, tag, and push image to Amazon ECR
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: beepbeep3-ocpp
         IMAGE_TAG: git-${{ github.sha }}
         GITHUB_TOKEN: ${{secrets.GO_GITHUB_TOKEN}}
-      with:
-        push: false
-        context: .
-        tags: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        cache-from: type=local,src=/tmp/.buildx-cache
-        cache-to: type=local,dest=/tmp/.buildx-cache-new
-
-    - name: Push Image
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: beepbeep3-ocpp
-        IMAGE_TAG: git-${{ github.sha }}
-        GITHUB_TOKEN: ${{secrets.GO_GITHUB_TOKEN}}
-      run: docker push -a $ECR_REGISTRY/$ECR_REPOSITORY
+      run: |
+        docker build --build-arg GITHUB_TOKEN=$GITHUB_TOKEN -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f ./Dockerfile.bb3-ocpp-ws .
+        docker push -a $ECR_REGISTRY/$ECR_REPOSITORY
 
     - name: Logout of Amazon ECR
       if: always()
