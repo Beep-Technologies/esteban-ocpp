@@ -19,7 +19,7 @@ func (c *OCPP16ChargePoint) statusNotification(req *msg.OCPP16CallMessage) (*msg
 			MessageTypeID:    msg.CALLERROR,
 			UniqueID:         req.UniqueID,
 			ErrorCode:        msg.FormationViolation,
-			ErrorDescription: "",
+			ErrorDescription: err.Error(),
 			ErrorDetails:     struct{}{},
 		}
 	}
@@ -30,7 +30,7 @@ func (c *OCPP16ChargePoint) statusNotification(req *msg.OCPP16CallMessage) (*msg
 			MessageTypeID:    msg.CALLERROR,
 			UniqueID:         req.UniqueID,
 			ErrorCode:        msg.FormationViolation,
-			ErrorDescription: "",
+			ErrorDescription: err.Error(),
 			ErrorDetails:     struct{}{},
 		}
 	}
@@ -85,7 +85,7 @@ func (c *OCPP16ChargePoint) statusNotification(req *msg.OCPP16CallMessage) (*msg
 			MessageTypeID:    msg.CALLERROR,
 			UniqueID:         req.UniqueID,
 			ErrorCode:        msg.FormationViolation,
-			ErrorDescription: "",
+			ErrorDescription: err.Error(),
 			ErrorDetails:     struct{}{},
 		}
 	}

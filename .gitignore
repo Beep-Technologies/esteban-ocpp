@@ -3,7 +3,10 @@
 .env.deploy
 
 # sqlboiler toml files
-*.toml
+sqlboiler.toml
+
+# sql-migrate
+dbconfig.yml
 
 # scratch files and example data
 scratch

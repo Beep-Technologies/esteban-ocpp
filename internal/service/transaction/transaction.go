@@ -67,7 +67,7 @@ func (srv Service) GetOngoingTransaction(ctx context.Context, req *rpc.GetOngoin
 		res := &rpc.GetOngoingTransactionResp{
 			OngoingTransaction: false,
 		}
-		return res, err
+		return res, nil
 	}
 
 	if err != nil {

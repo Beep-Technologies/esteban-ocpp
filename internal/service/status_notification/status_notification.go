@@ -29,9 +29,17 @@ func NewService(db *gorm.DB) *Service {
 }
 
 func (srv Service) CreateStatusNotification(ctx context.Context, req *rpc.CreateStatusNotificationReq) (*rpc.CreateStatusNotificationResp, error) {
-	rts, err := time.Parse(time.RFC3339Nano, req.Timestamp)
-	if err != nil {
-		return nil, err
+	// reported timestamp can be empty
+	var rts time.Time
+	var err error
+
+	if req.Timestamp == "" {
+		rts = time.Time{}
+	} else {
+		rts, err = time.Parse(time.RFC3339Nano, req.Timestamp)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	sn, err := srv.statusnotification.Create(ctx, models.OcppStatusNotification{

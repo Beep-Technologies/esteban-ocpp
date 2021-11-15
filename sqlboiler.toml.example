@@ -12,8 +12,11 @@ no-context = true
   pass      = "beepbeep"
   schema    = "bb3"
   whitelist = [
-      "ocpp_address",
+      "ocpp_application",
+      "ocpp_application_callback",
+      "ocpp_application_api_key",
       "ocpp_charge_point",
+      "ocpp_charge_point_id_tag",
       "ocpp_status_notification",
       "ocpp_transaction",
   ]

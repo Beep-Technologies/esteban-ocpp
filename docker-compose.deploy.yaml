@@ -16,6 +16,8 @@ services:
 
   tsdb:
     image: timescale/timescaledb:latest-pg13
+    ports:
+      - 5432:5432
     environment:
       - POSTGRES_USER=beep
       - POSTGRES_PASSWORD=beep
@@ -24,23 +26,6 @@ services:
     volumes:
       - ./migrations/postgres:/docker-entrypoint-initdb.d
       - ../pg_data:/var/lib/postgresql/data
-    networks:
-      - ocpp
-
-  pgweb:
-    image: deployment_pgweb
-    build:
-      context: ..
-      dockerfile: Dockerfile.pgweb
-    ports:
-      - 8062:8062
-    environment:
-      - PGWEB_PORT=8062
-      - DATABASE_HOST=tsdb
-      - DATABASE_PORT=5432
-      - DATABASE_URL=postgres://beep:beep@tsdb:5432/beepbeep3?sslmode=disable
-    depends_on:
-      - tsdb
     networks:
       - ocpp
 
