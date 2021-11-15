@@ -26,8 +26,13 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/v2/ocpp/applications/": {
-            "post": {
+        "/v2/ocpp/applications/callbacks": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -37,30 +42,22 @@ var doc = `{
                 "tags": [
                     "Applications"
                 ],
-                "summary": "Create an Application",
-                "parameters": [
-                    {
-                        "description": "Post CreateApplicationReq body",
-                        "name": "Body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/rpc.CreateApplicationReq"
-                        }
-                    }
-                ],
+                "summary": "Get Callback URL for Application",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/rpc.CreateApplicationResp"
+                            "$ref": "#/definitions/rpc.GetApplicationCallbacksResp"
                         }
                     }
                 }
-            }
-        },
-        "/v2/ocpp/applications/callbacks": {
+            },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -78,7 +75,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/rpc.CreateApplicationCallbackReq"
+                            "$ref": "#/definitions/rpc.CreateApplicationCallbackReqPublic"
                         }
                     }
                 ],
@@ -94,6 +91,11 @@ var doc = `{
         },
         "/v2/ocpp/charge_points": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -111,7 +113,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/rpc.CreateChargePointReq"
+                            "$ref": "#/definitions/rpc.CreateChargePointReqPublic"
                         }
                     }
                 ],
@@ -127,6 +129,11 @@ var doc = `{
         },
         "/v2/ocpp/charge_points/id_tags": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -144,7 +151,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/rpc.CreateChargePointIdTagReq"
+                            "$ref": "#/definitions/rpc.CreateChargePointIdTagReqPublic"
                         }
                     }
                 ],
@@ -160,6 +167,11 @@ var doc = `{
         },
         "/v2/ocpp/operations/get-latest-status": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -177,7 +189,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/rpc.GetLatestStatusNotificationsReq"
+                            "$ref": "#/definitions/rpc.GetLatestStatusNotificationsReqPublic"
                         }
                     }
                 ],
@@ -193,6 +205,11 @@ var doc = `{
         },
         "/v2/ocpp/operations/remote-start-transaction": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -210,7 +227,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/rpc.RemoteStartTransactionReq"
+                            "$ref": "#/definitions/rpc.RemoteStartTransactionReqPublic"
                         }
                     }
                 ],
@@ -226,6 +243,11 @@ var doc = `{
         },
         "/v2/ocpp/operations/remote-stop-transaction": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -243,7 +265,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/rpc.RemoteStopTransactionReq"
+                            "$ref": "#/definitions/rpc.RemoteStopTransactionReqPublic"
                         }
                     }
                 ],
@@ -259,17 +281,6 @@ var doc = `{
         }
     },
     "definitions": {
-        "rpc.Application": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
         "rpc.ApplicationCallback": {
             "type": "object",
             "properties": {
@@ -337,12 +348,9 @@ var doc = `{
                 }
             }
         },
-        "rpc.CreateApplicationCallbackReq": {
+        "rpc.CreateApplicationCallbackReqPublic": {
             "type": "object",
             "properties": {
-                "application_id": {
-                    "type": "string"
-                },
                 "callback_event": {
                     "type": "string"
                 },
@@ -356,22 +364,6 @@ var doc = `{
             "properties": {
                 "application_callback": {
                     "$ref": "#/definitions/rpc.ApplicationCallback"
-                }
-            }
-        },
-        "rpc.CreateApplicationReq": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "rpc.CreateApplicationResp": {
-            "type": "object",
-            "properties": {
-                "application": {
-                    "$ref": "#/definitions/rpc.Application"
                 }
             }
         },
@@ -389,12 +381,20 @@ var doc = `{
                 }
             }
         },
-        "rpc.CreateChargePointReq": {
+        "rpc.CreateChargePointIdTagReqPublic": {
             "type": "object",
             "properties": {
-                "application_id": {
+                "charge_point_identifier": {
                     "type": "string"
                 },
+                "id_tag": {
+                    "type": "string"
+                }
+            }
+        },
+        "rpc.CreateChargePointReqPublic": {
+            "type": "object",
+            "properties": {
                 "charge_point_identifier": {
                     "type": "string"
                 },
@@ -414,12 +414,20 @@ var doc = `{
                 }
             }
         },
-        "rpc.GetLatestStatusNotificationsReq": {
+        "rpc.GetApplicationCallbacksResp": {
             "type": "object",
             "properties": {
-                "application_id": {
-                    "type": "string"
-                },
+                "application_callbacks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/rpc.ApplicationCallback"
+                    }
+                }
+            }
+        },
+        "rpc.GetLatestStatusNotificationsReqPublic": {
+            "type": "object",
+            "properties": {
                 "charge_point_identifier": {
                     "type": "string"
                 }
@@ -436,12 +444,9 @@ var doc = `{
                 }
             }
         },
-        "rpc.RemoteStartTransactionReq": {
+        "rpc.RemoteStartTransactionReqPublic": {
             "type": "object",
             "properties": {
-                "application_id": {
-                    "type": "string"
-                },
                 "charge_point_identifier": {
                     "type": "string"
                 },
@@ -458,12 +463,9 @@ var doc = `{
                 }
             }
         },
-        "rpc.RemoteStopTransactionReq": {
+        "rpc.RemoteStopTransactionReqPublic": {
             "type": "object",
             "properties": {
-                "application_id": {
-                    "type": "string"
-                },
                 "charge_point_identifier": {
                     "type": "string"
                 },
@@ -509,6 +511,13 @@ var doc = `{
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`

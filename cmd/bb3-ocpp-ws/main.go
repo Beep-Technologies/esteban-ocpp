@@ -15,6 +15,7 @@ import (
 	"github.com/Beep-Technologies/beepbeep3-ocpp/api/rest/controller"
 	"github.com/Beep-Technologies/beepbeep3-ocpp/api/rest/router"
 
+	middleware "github.com/Beep-Technologies/beepbeep3-ocpp/internal/middleware"
 	ocpp16cs "github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_16_cs"
 	ocppserver "github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_server"
 	applicationsrv "github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/application"
@@ -33,6 +34,10 @@ import (
 
 // @host ocpp-dev.beepbeep.tech:8060
 // @schemes http
+
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 func main() {
 	// load from .env file. doesn't matter if an error is returned
 	godotenv.Load()
@@ -74,6 +79,7 @@ func main() {
 		operationController,
 		applicationController,
 		chargepointController,
+		middleware.NewMiddleware(db.ORM),
 	)
 
 	r := gin.New()

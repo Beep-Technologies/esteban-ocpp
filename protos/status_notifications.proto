@@ -30,10 +30,14 @@ message GetLatestStatusNotificationsReq {
     string charge_point_identifier = 2;
 }
 
+message GetLatestStatusNotificationsReqPublic {
+    string charge_point_identifier = 1;
+}
+
+
 message GetLatestStatusNotificationsResp {
     repeated StatusNotification connector_status = 1 [(gogoproto.jsontag) = "connector_status"];  
 }
-
 
 // for internal services
 message CreateStatusNotificationReq {

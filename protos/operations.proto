@@ -18,6 +18,11 @@ message RemoteStartTransactionReq {
     int32 connector_id = 3;
 }
 
+message RemoteStartTransactionReqPublic {
+    string charge_point_identifier = 1;
+    int32 connector_id = 2;
+}
+
 message RemoteStartTransactionResp {
     int32 transaction_id = 1;
 }
@@ -26,6 +31,11 @@ message RemoteStopTransactionReq {
     string application_id = 1;
     string charge_point_identifier = 2;
     int32 connector_id = 3;
+}
+
+message RemoteStopTransactionReqPublic {
+    string charge_point_identifier = 1;
+    int32 connector_id = 2;
 }
 
 message RemoteStopTransactionResp {

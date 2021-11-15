@@ -2,6 +2,8 @@ package application
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/base64"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -36,6 +38,20 @@ func (repo BaseRepo) GetApplicationByID(ctx context.Context, aid string) (models
 	err := repo.db.Table("bb3.ocpp_application").Where("id = ?", aid).First(&a).Error
 
 	return a, err
+}
+
+func (repo BaseRepo) GetApiKeyDetails(ctx context.Context, apiKey string) (models.OcppApplicationAPIKey, error) {
+	k := models.OcppApplicationAPIKey{}
+
+	h := sha256.Sum256([]byte(apiKey))
+	s := base64.URLEncoding.EncodeToString(h[:])
+
+	err := repo.db.Table("bb3.ocpp_application_api_key").
+		Where("api_key_hash = ?", s).
+		First(&k).
+		Error
+
+	return k, err
 }
 
 func (repo BaseRepo) CreateCallback(ctx context.Context, a models.OcppApplicationCallback) (models.OcppApplicationCallback, error) {

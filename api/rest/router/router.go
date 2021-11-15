@@ -10,6 +10,7 @@ import (
 
 	"github.com/Beep-Technologies/beepbeep3-ocpp/api/rest/controller"
 	docs "github.com/Beep-Technologies/beepbeep3-ocpp/docs"
+	middleware "github.com/Beep-Technologies/beepbeep3-ocpp/internal/middleware"
 	ocppserver "github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_server"
 )
 
@@ -18,6 +19,7 @@ type Router struct {
 	operationsAPI       *controller.OperationsAPI
 	applicationsAPI     *controller.ApplicationsAPI
 	chargepointsAPI     *controller.ChargePointsAPI
+	middleware          *middleware.Middleware
 }
 
 func NewRouter(
@@ -25,12 +27,14 @@ func NewRouter(
 	oa *controller.OperationsAPI,
 	aa *controller.ApplicationsAPI,
 	ca *controller.ChargePointsAPI,
+	m *middleware.Middleware,
 ) (rt *Router) {
 	return &Router{
 		ocppWebSocketServer: s,
 		operationsAPI:       oa,
 		applicationsAPI:     aa,
 		chargepointsAPI:     ca,
+		middleware:          m,
 	}
 }
 
@@ -61,15 +65,15 @@ func (rt *Router) Apply(r *gin.Engine) *gin.Engine {
 	rg.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// set up APIs
-	rg.POST("/operations/remote-start-transaction", rt.operationsAPI.RemoteStartTransaction)
-	rg.POST("/operations/remote-stop-transaction", rt.operationsAPI.RemoteStopTransaction)
-	rg.POST("/operations/get-latest-status", rt.operationsAPI.GetLatestStatus)
+	rg.POST("/operations/remote-start-transaction", rt.middleware.APIKeyMiddleware(), rt.operationsAPI.RemoteStartTransaction)
+	rg.POST("/operations/remote-stop-transaction", rt.middleware.APIKeyMiddleware(), rt.operationsAPI.RemoteStopTransaction)
+	rg.POST("/operations/get-latest-status", rt.middleware.APIKeyMiddleware(), rt.operationsAPI.GetLatestStatus)
 
-	rg.POST("/charge_points", rt.chargepointsAPI.CreateChargePoint)
-	rg.POST("/charge_points/id_tags", rt.chargepointsAPI.CreateChargePointIdTag)
+	rg.POST("/charge_points", rt.middleware.APIKeyMiddleware(), rt.chargepointsAPI.CreateChargePoint)
+	rg.POST("/charge_points/id_tags", rt.middleware.APIKeyMiddleware(), rt.chargepointsAPI.CreateChargePointIdTag)
 
-	rg.POST("/applications", rt.applicationsAPI.CreateApplication)
-	rg.POST("/applications/callbacks", rt.applicationsAPI.SetApplicationCallback)
+	rg.GET("/applications/callbacks", rt.middleware.APIKeyMiddleware(), rt.applicationsAPI.GetApplicationCallbacks)
+	rg.POST("/applications/callbacks", rt.middleware.APIKeyMiddleware(), rt.applicationsAPI.SetApplicationCallback)
 
 	return r
 }

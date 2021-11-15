@@ -39,6 +39,11 @@ message CreateApplicationCallbackReq {
     string callback_url = 3;
 }
 
+message CreateApplicationCallbackReqPublic {
+    string callback_event = 1;
+    string callback_url = 2;
+}
+
 message CreateApplicationCallbackResp {
     ApplicationCallback application_callback = 1 [(gogoproto.jsontag) = "application_callback"];
 }

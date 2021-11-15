@@ -1,12 +1,6 @@
 -- add mock data
-insert into bb3.ocpp_application (
-    id,
-    name
-    )
-values (
-        'cde0496a',
-        'busways'
-    );
+insert into bb3.ocpp_application (id, name)
+values ('cde0496a', 'busways');
 insert into bb3.ocpp_charge_point (
         application_id,
         entity_code,
@@ -23,7 +17,7 @@ insert into bb3.ocpp_charge_point (
         ocpp_protocol,
         charge_point_identifier,
         connector_count
-    ) 
+    )
 values (
         'cde0496a',
         'C6155373',
@@ -40,3 +34,16 @@ values (
         'SUTD_TEST',
         0
     );
+-- hash corresponds to APIKEY
+insert into bb3.ocpp_application_api_key (
+        api_key_hash,
+        application_id,
+        description,
+        is_active
+    )
+values (
+        'WPmgiCa3OQJoRkkldcTynvvaX5oAM1lxYup0SSOWc9g=',
+        'cde0496a',
+        '',
+        true
+    )

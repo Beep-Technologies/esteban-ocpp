@@ -21,16 +21,22 @@ func NewApplicationsAPI(aS *application.Service) *ApplicationsAPI {
 	}
 }
 
-// CreateApplication creates an application
-// @Summary Create an Application
+// SetApplicationCallback sets the callback url for an application
+// @Summary Set Callback URL for Application
 // @Tags Applications
 // @Accept json
 // @Produce json
-// @Param Body body rpc.CreateApplicationReq true "Post CreateApplicationReq body"
-// @Success 200 {object} rpc.CreateApplicationResp
-// @Router /v2/ocpp/applications/ [post]
-func (api *ApplicationsAPI) CreateApplication(c *gin.Context) {
-	req := &rpc.CreateApplicationReq{}
+// @Security ApiKeyAuth
+// @Param Body body rpc.CreateApplicationCallbackReqPublic true "Post CreateApplicationCallbackReq body"
+// @Success 200 {object} rpc.CreateApplicationCallbackResp
+// @Router /v2/ocpp/applications/callbacks [post]
+func (api *ApplicationsAPI) SetApplicationCallback(c *gin.Context) {
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, constants.CtxKey("gin"), c)
+
+	applicationId := c.GetString("application_id")
+
+	req := &rpc.CreateApplicationCallbackReqPublic{}
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		c.Error(err).SetType(gin.ErrorTypeBind)
@@ -42,10 +48,11 @@ func (api *ApplicationsAPI) CreateApplication(c *gin.Context) {
 		return
 	}
 
-	ctx := context.Background()
-	ctx = context.WithValue(ctx, constants.CtxKey("gin"), c)
-
-	res, err := api.applicationService.CreateApplication(ctx, req)
+	res, err := api.applicationService.SetApplicationCallback(ctx, &rpc.CreateApplicationCallbackReq{
+		ApplicationId: applicationId,
+		CallbackEvent: req.CallbackEvent,
+		CallbackUrl:   req.CallbackUrl,
+	})
 
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
@@ -63,32 +70,23 @@ func (api *ApplicationsAPI) CreateApplication(c *gin.Context) {
 	})
 }
 
-// SetApplicationCallback sets the callback url for an application
-// @Summary Set Callback URL for Application
+// GetApplicationCallbacks gets the callback urls for an application
+// @Summary Get Callback URL for Application
 // @Tags Applications
 // @Accept json
 // @Produce json
-// @Param Body body rpc.CreateApplicationCallbackReq true "Post CreateApplicationCallbackReq body"
-// @Success 200 {object} rpc.CreateApplicationCallbackResp
-// @Router /v2/ocpp/applications/callbacks [post]
-func (api *ApplicationsAPI) SetApplicationCallback(c *gin.Context) {
-	req := &rpc.CreateApplicationCallbackReq{}
-	err := c.ShouldBindJSON(&req)
-	if err != nil {
-		c.Error(err).SetType(gin.ErrorTypeBind)
-		c.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{
-			"status":  http.StatusUnprocessableEntity,
-			"message": err.Error(),
-			"data":    nil,
-		})
-		return
-	}
-
+// @Security ApiKeyAuth
+// @Success 200 {object} rpc.GetApplicationCallbacksResp
+// @Router /v2/ocpp/applications/callbacks [get]
+func (api *ApplicationsAPI) GetApplicationCallbacks(c *gin.Context) {
 	ctx := context.Background()
 	ctx = context.WithValue(ctx, constants.CtxKey("gin"), c)
 
-	res, err := api.applicationService.SetApplicationCallback(ctx, req)
+	applicationId := c.GetString("application_id")
 
+	res, err := api.applicationService.GetApplicationCallbacks(ctx, &rpc.GetApplicationCallbacksReq{
+		ApplicationId: applicationId,
+	})
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"status":  http.StatusBadRequest,

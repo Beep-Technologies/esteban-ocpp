@@ -44,6 +44,12 @@ message CreateChargePointReq {
     string ocpp_protocol = 4;
 }
 
+message CreateChargePointReqPublic {
+    string charge_point_identifier = 1;
+    string entity_code = 2;
+    string ocpp_protocol = 3;
+}
+
 message CreateChargePointResp {
     ChargePoint charge_point = 1 [(gogoproto.jsontag) = "charge_point"];
 }
@@ -86,6 +92,11 @@ message CreateChargePointIdTagReq {
     string charge_point_identifier = 1;
     string application_id = 2;
     string id_tag = 3;
+}
+
+message CreateChargePointIdTagReqPublic {
+    string charge_point_identifier = 1;
+    string id_tag = 2;
 }
 
 message CreateChargePointIdTagResp {
