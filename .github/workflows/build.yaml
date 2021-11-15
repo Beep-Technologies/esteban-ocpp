@@ -47,13 +47,12 @@ jobs:
         IMAGE_TAG: git-${{ github.sha }}
         GITHUB_TOKEN: ${{secrets.GO_GITHUB_TOKEN}}
       run: |
-        docker buildx build -t $ECR_REPOSITORY:$IMAGE_TAG \
+        docker buildx build \
+          -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
           --build-arg GITHUB_TOKEN=$GITHUB_TOKEN \
           --cache-from type=local,src=/tmp/.buildx-cache \
           --cache-to type=local,dest=/tmp/.buildx-cache-new \
-          -f ./Dockerfile.bb3-ocpp-ws .
-        docker tag $ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        docker push -a $ECR_REGISTRY/$ECR_REPOSITORY
+          --push -f ./Dockerfile.bb3-ocpp-ws .
 
     - name: Logout of Amazon ECR
       if: always()
