@@ -43,8 +43,8 @@ jobs:
     - name: Build, tag, and push image to Amazon ECR
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: beepbeep3-ocpp
-        IMAGE_TAG: git-${{ github.sha }}
+        ECR_REPOSITORY: bb3-ocpp
+        IMAGE_TAG: ${{ github.sha }}
         GITHUB_TOKEN: ${{secrets.GO_GITHUB_TOKEN}}
       run: |
         docker buildx build \
@@ -70,4 +70,4 @@ jobs:
         token: ${{ secrets.DEV_TELEGRAM_TOKEN }}
         message: |
           beepbeep3-ocpp build [${{ job.status }}]
-          git-${{ github.sha }}
+          ${{ github.sha }}
