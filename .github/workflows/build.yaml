@@ -71,9 +71,8 @@ jobs:
         with:
           to: ${{ secrets.DEV_TELEGRAM_TO }}
           token: ${{ secrets.DEV_TELEGRAM_TOKEN }}
-          format: markdown
           message: |
             🛠️ Build Complete:
-            Image: beepbeep3-ocpp:${SHORT_SHA}
-            __${{ github.event.head_commit.message }}__
+            Image: beepbeep3-ocpp:${{ env.SHORT_SHA }}
+            Commit Message: ${{ github.event.head_commit.message }}
             Build Status: ${{ job.status }}
