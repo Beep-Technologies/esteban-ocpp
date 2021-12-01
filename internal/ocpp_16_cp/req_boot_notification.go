@@ -65,7 +65,7 @@ func (c *OCPP16ChargePoint) bootNotification(req *msg.OCPP16CallMessage) (*msg.O
 	rb := &ocpp16.BootNotificationResponse{
 		Status:      "Accepted",
 		CurrentTime: getCurrentTime(),
-		Interval:    300,
+		Interval:    20,
 	}
 
 	return &msg.OCPP16CallResult{
