@@ -3,6 +3,7 @@ package ocpp16cp
 import (
 	"context"
 	"encoding/json"
+	"time"
 
 	"github.com/Beep-Technologies/beepbeep3-ocpp/api/rpc"
 	msg "github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_16_messaging"
@@ -132,6 +133,9 @@ func (c *OCPP16ChargePoint) startTransaction(req *msg.OCPP16CallMessage) (*msg.O
 		}
 	}
 
+	RFC3339Milli := "2006-01-02T15:04:05.000Z07:00"
+	expiryDate := time.Now().AddDate(1, 0, 0).UTC().Format(RFC3339Milli)
+
 	// check if the idTags match, reject if they dont
 	if b.IdTag != tRes.Transaction.IdTag {
 		return &msg.OCPP16CallResult{
@@ -139,7 +143,9 @@ func (c *OCPP16ChargePoint) startTransaction(req *msg.OCPP16CallMessage) (*msg.O
 			UniqueID:      req.UniqueID,
 			Payload: &ocpp16.StartTransactionResponse{
 				IdTagInfo: &ocpp16.IdTagInfo{
-					Status: "Rejected",
+					Status:      "Rejected",
+					ExpiryDate:  expiryDate,
+					ParentIdTag: "PARENT_ID_TAG",
 				},
 			},
 		}, nil
