@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	ginzap "github.com/gin-contrib/zap"
@@ -123,7 +124,11 @@ func main() {
 	rt.Apply(r)
 
 	host := "0.0.0.0"
-	port := 80
+	port := 8060
+	if hostPortStr := os.Getenv("HOST_PORT"); hostPortStr != "" {
+		port, _ = strconv.Atoi(hostPortStr)
+	}
+
 	addr := fmt.Sprintf("%s:%d", host, port)
 
 	s := &http.Server{

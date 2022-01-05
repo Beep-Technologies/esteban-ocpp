@@ -1,7 +1,9 @@
 package router
 
 import (
+	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -47,8 +49,13 @@ func (rt *Router) Apply(r *gin.Engine) *gin.Engine {
 
 	// for swagger
 	hostUrl := os.Getenv("HOST_URL")
-	if hostUrl == "" || hostUrl == "localhost:8060" {
-		docs.SwaggerInfo.Host = "localhost:8060"
+	port := 8060
+	if hostPortStr := os.Getenv("HOST_PORT"); hostPortStr != "" {
+		port, _ = strconv.Atoi(hostPortStr)
+	}
+
+	if hostUrl == "" || hostUrl == "localhost" {
+		docs.SwaggerInfo.Host = fmt.Sprintf("%s:%d", hostUrl, port)
 		docs.SwaggerInfo.Schemes = []string{"http"}
 	} else {
 		docs.SwaggerInfo.Host = hostUrl
