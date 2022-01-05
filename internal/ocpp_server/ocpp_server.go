@@ -9,7 +9,6 @@ import (
 	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
 
-	"github.com/Beep-Technologies/beepbeep3-iam/pkg/logger"
 	ocpp16 "github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_16"
 )
 
@@ -30,7 +29,7 @@ type OCPPWebSocketServer struct {
 }
 
 func NewOCPPWebSocketServer(l *zap.Logger, o16cs ocpp16.CentralSystem) (s *OCPPWebSocketServer) {
-	wsServerLogger := logger.With(
+	wsServerLogger := l.With(
 		zap.String("source", "ocpp_ws_server"),
 	)
 
@@ -119,6 +118,7 @@ func (s *OCPPWebSocketServer) HttpUpgradeHandler(c *gin.Context) {
 				err.Error(),
 				zap.String("event", "connect_charge_point_error"),
 			)
+			conn.Close()
 		}
 	case "":
 		conn.Close()

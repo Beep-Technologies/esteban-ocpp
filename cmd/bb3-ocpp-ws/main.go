@@ -15,7 +15,6 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	"github.com/Beep-Technologies/beepbeep3-iam/pkg/db"
 	"github.com/Beep-Technologies/beepbeep3-ocpp/api/rest/controller"
 	"github.com/Beep-Technologies/beepbeep3-ocpp/api/rest/router"
 	ocpp16cs "github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_16/central_system"
@@ -95,7 +94,7 @@ func main() {
 	)
 
 	operationService := operationsrv.NewService(
-		db.ORM,
+		ORM,
 		chargePointService,
 		transactionService,
 		ocpp16CentralSystem,
