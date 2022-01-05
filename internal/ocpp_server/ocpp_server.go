@@ -1,15 +1,16 @@
 package ocppserver
 
 import (
-	"log"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"go.uber.org/zap"
 
-	ocpp16cs "github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_16_cs"
+	"github.com/Beep-Technologies/beepbeep3-iam/pkg/logger"
+	ocpp16 "github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_16"
 )
 
 var upgrader = websocket.Upgrader{
@@ -24,13 +25,17 @@ var upgrader = websocket.Upgrader{
 }
 
 type OCPPWebSocketServer struct {
-	logger              *log.Logger
-	ocpp16centralSystem *ocpp16cs.OCPP16CentralSystem
+	logger              *zap.Logger
+	ocpp16centralSystem ocpp16.CentralSystem
 }
 
-func NewOCPPWebSocketServer(l *log.Logger, o16cs *ocpp16cs.OCPP16CentralSystem) (s *OCPPWebSocketServer) {
+func NewOCPPWebSocketServer(l *zap.Logger, o16cs ocpp16.CentralSystem) (s *OCPPWebSocketServer) {
+	wsServerLogger := logger.With(
+		zap.String("source", "ocpp_ws_server"),
+	)
+
 	return &OCPPWebSocketServer{
-		logger:              l,
+		logger:              wsServerLogger,
 		ocpp16centralSystem: o16cs,
 	}
 }
@@ -40,9 +45,6 @@ func NewOCPPWebSocketServer(l *log.Logger, o16cs *ocpp16cs.OCPP16CentralSystem) 
 // after which, it passes the WebSocket connection to the protocol's corresponding handler
 func (s *OCPPWebSocketServer) HttpUpgradeHandler(c *gin.Context) {
 	w, r := c.Writer, c.Request
-
-	// get the application uuid
-	applicationId := c.Param("applicationId")
 
 	// get the entity code
 	entityCode := c.Param("entityCode")
@@ -89,26 +91,34 @@ func (s *OCPPWebSocketServer) HttpUpgradeHandler(c *gin.Context) {
 		h = nil
 	}
 
-	s.logger.Printf("Client connecting with identifier \"%+v\" and protocol \"%+v\"\n",
-		chargePointIdentifier,
-		selectedProtocol,
+	s.logger.Info(
+		"Client connecting",
+		zap.String("event", "ws_client_connect"),
+		zap.String("charge_point_identifier", chargePointIdentifier),
+		zap.String("protocol", selectedProtocol),
 	)
 
 	conn, err := upgrader.Upgrade(w, r, h)
 	if err != nil {
-		s.logger.Printf("[ERROR] %+v\n", err.Error())
+		s.logger.Error(
+			err.Error(),
+			zap.String("event", "ws_upgrade_error"),
+		)
 		return
 	}
 
 	switch selectedProtocol {
 	case "ocpp1.6":
 		err := s.ocpp16centralSystem.ConnectChargePoint(
-			applicationId,
 			entityCode,
 			chargePointIdentifier,
-			conn)
+			conn,
+		)
 		if err != nil {
-			s.logger.Printf("[ERROR] %+v\n", err.Error())
+			s.logger.Error(
+				err.Error(),
+				zap.String("event", "connect_charge_point_error"),
+			)
 		}
 	case "":
 		conn.Close()

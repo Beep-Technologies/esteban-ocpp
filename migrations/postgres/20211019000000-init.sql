@@ -12,9 +12,14 @@ create table bb3.ocpp_application_callback (
     unique (application_id, callback_event),
     foreign key (application_id) references bb3.ocpp_application(id)
 );
+create table bb3.ocpp_application_entity (
+    application_id varchar(255) not null,
+    entity_code varchar(255) not null,
+    unique (application_id, entity_code),
+    foreign key (application_id) references bb3.ocpp_application(id)
+);
 create table bb3.ocpp_charge_point (
     id serial primary key,
-    application_id varchar(255) not null,
     entity_code varchar(255) not null,
     /* fixed to charge point */
     charge_point_vendor varchar(20) not null,

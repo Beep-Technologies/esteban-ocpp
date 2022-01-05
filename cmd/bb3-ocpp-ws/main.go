@@ -2,25 +2,24 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"time"
 
+	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"go.uber.org/zap"
 
 	"github.com/Beep-Technologies/beepbeep3-iam/pkg/db"
 
 	"github.com/Beep-Technologies/beepbeep3-ocpp/api/rest/controller"
 	"github.com/Beep-Technologies/beepbeep3-ocpp/api/rest/router"
-
 	middleware "github.com/Beep-Technologies/beepbeep3-ocpp/internal/middleware"
-	ocpp16cs "github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_16_cs"
+	ocpp16cs "github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_16/central_system"
 	ocppserver "github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_server"
 	applicationsrv "github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/application"
 	chargepointsrv "github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/charge_point"
-	operationsrv "github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/operation"
 	statusnotificationsrv "github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/status_notification"
 	transactionsrv "github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/transaction"
 )
@@ -32,7 +31,7 @@ import (
 // @contact.name Lowen
 // @contact.email lowen@beepbeep.tech
 
-// @host ocpp-dev.beepbeep.tech:8060
+// @host ocpp-dev.chargegowhere.sg:8060
 // @schemes http
 
 // @securityDefinitions.apikey ApiKeyAuth
@@ -44,7 +43,14 @@ func main() {
 
 	db.ConnectDataBase()
 
-	l := log.New(os.Stdout, "", 0)
+	var l *zap.Logger
+	if os.Getenv("ENVIRONMENT") == "production" {
+		os.Setenv("GIN_MODE", "release")
+		l, _ = zap.NewProduction()
+	} else {
+		l, _ = zap.NewDevelopment()
+	}
+	defer l.Sync()
 
 	applicationService := applicationsrv.NewService(db.ORM)
 	chargePointService := chargepointsrv.NewService(db.ORM)
@@ -59,35 +65,39 @@ func main() {
 		statusNotificationService,
 	)
 
-	operationService := operationsrv.NewService(
-		db.ORM,
-		chargePointService,
-		transactionService,
-		ocpp16CentralSystem,
-	)
+	// operationService := operationsrv.NewService(
+	// 	db.ORM,
+	// 	chargePointService,
+	// 	transactionService,
+	// 	ocpp16CentralSystem,
+	// )
 
 	ocppWebSocketServer := ocppserver.NewOCPPWebSocketServer(l, ocpp16CentralSystem)
-	operationController := controller.NewOperationsAPI(
-		operationService,
-		statusNotificationService,
-	)
+	// operationController := controller.NewOperationsAPI(
+	// 	operationService,
+	// 	statusNotificationService,
+	// )
 	applicationController := controller.NewApplicationsAPI(applicationService)
 	chargepointController := controller.NewChargePointsAPI(chargePointService)
 
 	rt := router.NewRouter(
 		ocppWebSocketServer,
-		operationController,
 		applicationController,
 		chargepointController,
 		middleware.NewMiddleware(db.ORM),
 	)
 
+	// set up gin
 	r := gin.New()
-	r.Use(gin.LoggerWithWriter(l.Writer()))
+	// use ginzap middleware
+	gl := l.With(zap.String("source", "gin"))
+	r.Use(ginzap.Ginzap(gl, time.RFC3339, true))
+	r.Use(ginzap.RecoveryWithZap(l, true))
+	// apply router
 	rt.Apply(r)
 
 	host := "0.0.0.0"
-	port := 8060
+	port := 80
 	addr := fmt.Sprintf("%s:%d", host, port)
 
 	s := &http.Server{
@@ -97,9 +107,8 @@ func main() {
 		WriteTimeout: 60 * time.Second,
 	}
 
-	l.Printf("starting server at %s ...\n", addr)
-
+	l.Info("Starting server at " + addr + "...")
 	if err := s.ListenAndServe(); err != nil {
-		l.Printf("%v\n", err)
+		l.Error("Server error", zap.String("error", err.Error()))
 	}
 }

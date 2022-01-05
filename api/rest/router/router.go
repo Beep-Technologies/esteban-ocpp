@@ -16,7 +16,6 @@ import (
 
 type Router struct {
 	ocppWebSocketServer *ocppserver.OCPPWebSocketServer
-	operationsAPI       *controller.OperationsAPI
 	applicationsAPI     *controller.ApplicationsAPI
 	chargepointsAPI     *controller.ChargePointsAPI
 	middleware          *middleware.Middleware
@@ -24,14 +23,12 @@ type Router struct {
 
 func NewRouter(
 	s *ocppserver.OCPPWebSocketServer,
-	oa *controller.OperationsAPI,
 	aa *controller.ApplicationsAPI,
 	ca *controller.ChargePointsAPI,
 	m *middleware.Middleware,
 ) (rt *Router) {
 	return &Router{
 		ocppWebSocketServer: s,
-		operationsAPI:       oa,
 		applicationsAPI:     aa,
 		chargepointsAPI:     ca,
 		middleware:          m,
@@ -48,7 +45,7 @@ func (rt *Router) Apply(r *gin.Engine) *gin.Engine {
 	}))
 
 	// set up websocket server endpoint
-	r.GET("/ocpp-central-system/:applicationId/:entityCode/:chargePointIdentifier", rt.ocppWebSocketServer.HttpUpgradeHandler)
+	r.GET("/ocpp-central-system//:entityCode/:chargePointIdentifier", rt.ocppWebSocketServer.HttpUpgradeHandler)
 
 	rg := r.Group("v2/ocpp")
 
@@ -59,15 +56,10 @@ func (rt *Router) Apply(r *gin.Engine) *gin.Engine {
 		docs.SwaggerInfo.Schemes = []string{"http"}
 	} else {
 		docs.SwaggerInfo.Host = hostUrl
-		docs.SwaggerInfo.Schemes = []string{"https"}
+		docs.SwaggerInfo.Schemes = []string{"https", "http"}
 	}
 
 	rg.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-
-	// set up APIs
-	rg.POST("/operations/remote-start-transaction", rt.middleware.APIKeyMiddleware(), rt.operationsAPI.RemoteStartTransaction)
-	rg.POST("/operations/remote-stop-transaction", rt.middleware.APIKeyMiddleware(), rt.operationsAPI.RemoteStopTransaction)
-	rg.POST("/operations/get-latest-status", rt.middleware.APIKeyMiddleware(), rt.operationsAPI.GetLatestStatus)
 
 	rg.POST("/charge_points", rt.middleware.APIKeyMiddleware(), rt.chargepointsAPI.CreateChargePoint)
 	rg.POST("/charge_points/id_tags", rt.middleware.APIKeyMiddleware(), rt.chargepointsAPI.CreateChargePointIdTag)
