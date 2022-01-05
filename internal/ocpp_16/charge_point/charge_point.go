@@ -63,6 +63,7 @@ func NewOCPP16ChargePoint(
 		zap.String("source", "charge_point"),
 		zap.String("entity_code", entityCode),
 		zap.String("charge_point_identifier", chargePointIdentifier),
+		zap.String("charge_point_key", entityCode+"/"+chargePointIdentifier),
 	)
 
 	return &OCPP16ChargePoint{

@@ -52,8 +52,9 @@ func (srv Service) GetChargePointIdTags(ctx context.Context, req *rpc.GetChargeP
 
 	resIdTags := make([]*rpc.ChargePointIdTag, 0)
 	for _, it := range its {
-		resIdTag := &rpc.ChargePointIdTag{}
-		util.ConvertCopyStruct(resIdTag, it, map[string]util.ConverterFunc{})
+		resIdTag := rpc.ChargePointIdTag{}
+		util.ConvertCopyStruct(&resIdTag, &it, map[string]util.ConverterFunc{})
+		resIdTags = append(resIdTags, &resIdTag)
 	}
 
 	res := &rpc.GetChargePointIdTagsResp{
