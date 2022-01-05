@@ -56,7 +56,7 @@ jobs:
             --build-arg GITHUB_TOKEN=$GITHUB_TOKEN \
             --cache-from type=local,src=/tmp/.buildx-cache \
             --cache-to type=local,dest=/tmp/.buildx-cache-new \
-            --push -f ./Dockerfile.bb3-ocpp-ws .
+            --push -f ./Dockerfile.bb3-ocpp .
 
       - name: Logout of Amazon ECR
         if: always()
@@ -67,13 +67,13 @@ jobs:
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
-      - name: Send messages to telegram chat
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.DEV_TELEGRAM_TO }}
-          token: ${{ secrets.DEV_TELEGRAM_TOKEN }}
-          message: |
-            🛠️ Build Complete:
-            Image: beepbeep3-ocpp:${{ env.SHORT_SHA }}
-            Commit Message: ${{ github.event.head_commit.message }}
-            Build Status: ${{ job.status }}
+      # - name: Send messages to telegram chat
+      #   uses: appleboy/telegram-action@master
+      #   with:
+      #     to: ${{ secrets.DEV_TELEGRAM_TO }}
+      #     token: ${{ secrets.DEV_TELEGRAM_TOKEN }}
+      #     message: |
+      #       🛠️ Build Complete:
+      #       Image: beepbeep3-ocpp:${{ env.SHORT_SHA }}
+      #       Commit Message: ${{ github.event.head_commit.message }}
+      #       Build Status: ${{ job.status }}
