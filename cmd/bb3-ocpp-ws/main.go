@@ -73,7 +73,7 @@ func main() {
 
 	var l *zap.Logger
 	if os.Getenv("ENVIRONMENT") == "production" {
-		os.Setenv("GIN_MODE", "release")
+		gin.SetMode(gin.ReleaseMode)
 		l, _ = zap.NewProduction()
 	} else {
 		l, _ = zap.NewDevelopment()
