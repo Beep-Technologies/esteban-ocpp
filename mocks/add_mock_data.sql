@@ -1,49 +1,38 @@
 -- add mock data
 insert into bb3.ocpp_application (id, name)
-values ('cde0496a', 'busways');
-insert into bb3.ocpp_charge_point (
+values ('cgw', 'chargegowhere');
+insert into bb3.ocpp_application_callback (
         application_id,
-        entity_code,
-        charge_point_vendor,
-        charge_point_model,
-        charge_point_serial_number,
-        charge_box_serial_number,
-        iccid,
-        imsi,
-        meter_type,
-        meter_serial_number,
-        firmware_version,
+        callback_event,
+        callback_url
+    )
+values (
+        'cgw',
+        'StartTransaction',
+        'http://cgw-adapter/callbacks/ocpp/StartTransaction'
+    ),
+    (
+        'cgw',
+        'StopTransaction',
+        'http://cgw-adapter/callbacks/ocpp/StopTransaction'
+    ),
+    (
+        'cgw',
+        'StatusNotification',
+        'http://cgw-adapter/callbacks/ocpp/StatusNotification'
+    );
+insert into bb3.ocpp_application_entity (application_id, entity_code)
+values ('cgw', 'L0332137');
+insert into bb3.ocpp_charge_point (
         /* user-set */
+        entity_code,
         ocpp_protocol,
         charge_point_identifier,
         connector_count
     )
 values (
-        'cde0496a',
-        'C6155373',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
+        'L0332137',
         'ocpp1.6J',
-        'SUTD_TEST',
+        'TACW745020G0274',
         0
     );
--- hash corresponds to APIKEY
-insert into bb3.ocpp_application_api_key (
-        api_key_hash,
-        application_id,
-        description,
-        is_active
-    )
-values (
-        'WPmgiCa3OQJoRkkldcTynvvaX5oAM1lxYup0SSOWc9g=',
-        'cde0496a',
-        '',
-        true
-    )

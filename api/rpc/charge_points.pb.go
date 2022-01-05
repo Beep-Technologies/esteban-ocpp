@@ -4,10 +4,14 @@
 package rpc
 
 import (
+	context "context"
 	fmt "fmt"
 	_ "github.com/gogo/protobuf/gogoproto"
 	github_com_gogo_protobuf_proto "github.com/gogo/protobuf/proto"
 	proto "github.com/gogo/protobuf/proto"
+	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	io "io"
 	math "math"
 	math_bits "math/bits"
@@ -26,20 +30,19 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type ChargePoint struct {
 	Id                      int32    `protobuf:"varint,1,opt,name=id,proto3" json:"id"`
-	ApplicationId           string   `protobuf:"bytes,2,opt,name=application_id,json=applicationId,proto3" json:"application_id"`
-	EntityCode              string   `protobuf:"bytes,3,opt,name=entity_code,json=entityCode,proto3" json:"entity_code"`
-	ChargePointIdentifier   string   `protobuf:"bytes,4,opt,name=charge_point_identifier,json=chargePointIdentifier,proto3" json:"charge_point_identifier"`
-	ChargePointVendor       string   `protobuf:"bytes,5,opt,name=charge_point_vendor,json=chargePointVendor,proto3" json:"charge_point_vendor"`
-	ChargePointModel        string   `protobuf:"bytes,6,opt,name=charge_point_model,json=chargePointModel,proto3" json:"charge_point_model"`
-	ChargePointSerialNumber string   `protobuf:"bytes,7,opt,name=charge_point_serial_number,json=chargePointSerialNumber,proto3" json:"charge_point_serial_number"`
-	ChargeBoxSerialNumber   string   `protobuf:"bytes,8,opt,name=charge_box_serial_number,json=chargeBoxSerialNumber,proto3" json:"charge_box_serial_number"`
-	Iccid                   string   `protobuf:"bytes,9,opt,name=iccid,proto3" json:"iccid"`
-	Imsi                    string   `protobuf:"bytes,10,opt,name=imsi,proto3" json:"imsi"`
-	MeterType               string   `protobuf:"bytes,11,opt,name=meter_type,json=meterType,proto3" json:"meter_type"`
-	MeterSerialNumber       string   `protobuf:"bytes,12,opt,name=meter_serial_number,json=meterSerialNumber,proto3" json:"meter_serial_number"`
-	FirmwareVersion         string   `protobuf:"bytes,13,opt,name=firmware_version,json=firmwareVersion,proto3" json:"firmware_version"`
-	ConnectorCount          int32    `protobuf:"varint,14,opt,name=connector_count,json=connectorCount,proto3" json:"connector_count"`
-	OcppProtocol            string   `protobuf:"bytes,15,opt,name=ocpp_protocol,json=ocppProtocol,proto3" json:"ocpp_protocol"`
+	EntityCode              string   `protobuf:"bytes,2,opt,name=entity_code,json=entityCode,proto3" json:"entity_code"`
+	ChargePointIdentifier   string   `protobuf:"bytes,3,opt,name=charge_point_identifier,json=chargePointIdentifier,proto3" json:"charge_point_identifier"`
+	ChargePointVendor       string   `protobuf:"bytes,4,opt,name=charge_point_vendor,json=chargePointVendor,proto3" json:"charge_point_vendor"`
+	ChargePointModel        string   `protobuf:"bytes,5,opt,name=charge_point_model,json=chargePointModel,proto3" json:"charge_point_model"`
+	ChargePointSerialNumber string   `protobuf:"bytes,6,opt,name=charge_point_serial_number,json=chargePointSerialNumber,proto3" json:"charge_point_serial_number"`
+	ChargeBoxSerialNumber   string   `protobuf:"bytes,7,opt,name=charge_box_serial_number,json=chargeBoxSerialNumber,proto3" json:"charge_box_serial_number"`
+	Iccid                   string   `protobuf:"bytes,8,opt,name=iccid,proto3" json:"iccid"`
+	Imsi                    string   `protobuf:"bytes,9,opt,name=imsi,proto3" json:"imsi"`
+	MeterType               string   `protobuf:"bytes,10,opt,name=meter_type,json=meterType,proto3" json:"meter_type"`
+	MeterSerialNumber       string   `protobuf:"bytes,11,opt,name=meter_serial_number,json=meterSerialNumber,proto3" json:"meter_serial_number"`
+	FirmwareVersion         string   `protobuf:"bytes,12,opt,name=firmware_version,json=firmwareVersion,proto3" json:"firmware_version"`
+	ConnectorCount          int32    `protobuf:"varint,13,opt,name=connector_count,json=connectorCount,proto3" json:"connector_count"`
+	OcppProtocol            string   `protobuf:"bytes,14,opt,name=ocpp_protocol,json=ocppProtocol,proto3" json:"ocpp_protocol"`
 	XXX_NoUnkeyedLiteral    struct{} `json:"-"`
 	XXX_unrecognized        []byte   `json:"-"`
 	XXX_sizecache           int32    `json:"-"`
@@ -121,7 +124,6 @@ func (m *ChargePointIdTag) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ChargePointIdTag proto.InternalMessageInfo
 
-// for exposed services
 type CreateChargePointReq struct {
 	ApplicationId         string   `protobuf:"bytes,1,opt,name=application_id,json=applicationId,proto3" json:"application_id,omitempty"`
 	ChargePointIdentifier string   `protobuf:"bytes,2,opt,name=charge_point_identifier,json=chargePointIdentifier,proto3" json:"charge_point_identifier,omitempty"`
@@ -165,48 +167,6 @@ func (m *CreateChargePointReq) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_CreateChargePointReq proto.InternalMessageInfo
 
-type CreateChargePointReqPublic struct {
-	ChargePointIdentifier string   `protobuf:"bytes,1,opt,name=charge_point_identifier,json=chargePointIdentifier,proto3" json:"charge_point_identifier,omitempty"`
-	EntityCode            string   `protobuf:"bytes,2,opt,name=entity_code,json=entityCode,proto3" json:"entity_code,omitempty"`
-	OcppProtocol          string   `protobuf:"bytes,3,opt,name=ocpp_protocol,json=ocppProtocol,proto3" json:"ocpp_protocol,omitempty"`
-	XXX_NoUnkeyedLiteral  struct{} `json:"-"`
-	XXX_unrecognized      []byte   `json:"-"`
-	XXX_sizecache         int32    `json:"-"`
-}
-
-func (m *CreateChargePointReqPublic) Reset()         { *m = CreateChargePointReqPublic{} }
-func (m *CreateChargePointReqPublic) String() string { return proto.CompactTextString(m) }
-func (*CreateChargePointReqPublic) ProtoMessage()    {}
-func (*CreateChargePointReqPublic) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8f92b1fd075ed707, []int{3}
-}
-func (m *CreateChargePointReqPublic) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *CreateChargePointReqPublic) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_CreateChargePointReqPublic.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *CreateChargePointReqPublic) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CreateChargePointReqPublic.Merge(m, src)
-}
-func (m *CreateChargePointReqPublic) XXX_Size() int {
-	return m.Size()
-}
-func (m *CreateChargePointReqPublic) XXX_DiscardUnknown() {
-	xxx_messageInfo_CreateChargePointReqPublic.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_CreateChargePointReqPublic proto.InternalMessageInfo
-
 type CreateChargePointResp struct {
 	ChargePoint          *ChargePoint `protobuf:"bytes,1,opt,name=charge_point,json=chargePoint,proto3" json:"charge_point"`
 	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
@@ -218,7 +178,7 @@ func (m *CreateChargePointResp) Reset()         { *m = CreateChargePointResp{} }
 func (m *CreateChargePointResp) String() string { return proto.CompactTextString(m) }
 func (*CreateChargePointResp) ProtoMessage()    {}
 func (*CreateChargePointResp) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8f92b1fd075ed707, []int{4}
+	return fileDescriptor_8f92b1fd075ed707, []int{3}
 }
 func (m *CreateChargePointResp) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -248,7 +208,7 @@ func (m *CreateChargePointResp) XXX_DiscardUnknown() {
 var xxx_messageInfo_CreateChargePointResp proto.InternalMessageInfo
 
 type GetChargePointsReq struct {
-	ApplicationId        string   `protobuf:"bytes,1,opt,name=application_id,json=applicationId,proto3" json:"application_id,omitempty"`
+	EntityCode           string   `protobuf:"bytes,1,opt,name=entity_code,json=entityCode,proto3" json:"entity_code,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -258,7 +218,7 @@ func (m *GetChargePointsReq) Reset()         { *m = GetChargePointsReq{} }
 func (m *GetChargePointsReq) String() string { return proto.CompactTextString(m) }
 func (*GetChargePointsReq) ProtoMessage()    {}
 func (*GetChargePointsReq) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8f92b1fd075ed707, []int{5}
+	return fileDescriptor_8f92b1fd075ed707, []int{4}
 }
 func (m *GetChargePointsReq) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -298,7 +258,7 @@ func (m *GetChargePointsResp) Reset()         { *m = GetChargePointsResp{} }
 func (m *GetChargePointsResp) String() string { return proto.CompactTextString(m) }
 func (*GetChargePointsResp) ProtoMessage()    {}
 func (*GetChargePointsResp) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8f92b1fd075ed707, []int{6}
+	return fileDescriptor_8f92b1fd075ed707, []int{5}
 }
 func (m *GetChargePointsResp) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -327,26 +287,26 @@ func (m *GetChargePointsResp) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_GetChargePointsResp proto.InternalMessageInfo
 
-type GetChargePointByIdentifierReq struct {
-	ChargePointIdentifier string   `protobuf:"bytes,1,opt,name=charge_point_identifier,json=chargePointIdentifier,proto3" json:"charge_point_identifier,omitempty"`
-	ApplicationId         string   `protobuf:"bytes,2,opt,name=application_id,json=applicationId,proto3" json:"application_id,omitempty"`
+type GetChargePointReq struct {
+	EntityCode            string   `protobuf:"bytes,1,opt,name=entity_code,json=entityCode,proto3" json:"entity_code,omitempty"`
+	ChargePointIdentifier string   `protobuf:"bytes,2,opt,name=charge_point_identifier,json=chargePointIdentifier,proto3" json:"charge_point_identifier,omitempty"`
 	XXX_NoUnkeyedLiteral  struct{} `json:"-"`
 	XXX_unrecognized      []byte   `json:"-"`
 	XXX_sizecache         int32    `json:"-"`
 }
 
-func (m *GetChargePointByIdentifierReq) Reset()         { *m = GetChargePointByIdentifierReq{} }
-func (m *GetChargePointByIdentifierReq) String() string { return proto.CompactTextString(m) }
-func (*GetChargePointByIdentifierReq) ProtoMessage()    {}
-func (*GetChargePointByIdentifierReq) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8f92b1fd075ed707, []int{7}
+func (m *GetChargePointReq) Reset()         { *m = GetChargePointReq{} }
+func (m *GetChargePointReq) String() string { return proto.CompactTextString(m) }
+func (*GetChargePointReq) ProtoMessage()    {}
+func (*GetChargePointReq) Descriptor() ([]byte, []int) {
+	return fileDescriptor_8f92b1fd075ed707, []int{6}
 }
-func (m *GetChargePointByIdentifierReq) XXX_Unmarshal(b []byte) error {
+func (m *GetChargePointReq) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *GetChargePointByIdentifierReq) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *GetChargePointReq) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_GetChargePointByIdentifierReq.Marshal(b, m, deterministic)
+		return xxx_messageInfo_GetChargePointReq.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -356,37 +316,37 @@ func (m *GetChargePointByIdentifierReq) XXX_Marshal(b []byte, deterministic bool
 		return b[:n], nil
 	}
 }
-func (m *GetChargePointByIdentifierReq) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetChargePointByIdentifierReq.Merge(m, src)
+func (m *GetChargePointReq) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetChargePointReq.Merge(m, src)
 }
-func (m *GetChargePointByIdentifierReq) XXX_Size() int {
+func (m *GetChargePointReq) XXX_Size() int {
 	return m.Size()
 }
-func (m *GetChargePointByIdentifierReq) XXX_DiscardUnknown() {
-	xxx_messageInfo_GetChargePointByIdentifierReq.DiscardUnknown(m)
+func (m *GetChargePointReq) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetChargePointReq.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_GetChargePointByIdentifierReq proto.InternalMessageInfo
+var xxx_messageInfo_GetChargePointReq proto.InternalMessageInfo
 
-type GetChargePointByIdentifierResp struct {
-	ChargePoint          *ChargePoint `protobuf:"bytes,1,opt,name=charge_point,json=chargePoint,proto3" json:"charge_point,omitempty"`
+type GetChargePointResp struct {
+	ChargePoint          *ChargePoint `protobuf:"bytes,1,opt,name=charge_point,json=chargePoint,proto3" json:"charge_point"`
 	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
 	XXX_unrecognized     []byte       `json:"-"`
 	XXX_sizecache        int32        `json:"-"`
 }
 
-func (m *GetChargePointByIdentifierResp) Reset()         { *m = GetChargePointByIdentifierResp{} }
-func (m *GetChargePointByIdentifierResp) String() string { return proto.CompactTextString(m) }
-func (*GetChargePointByIdentifierResp) ProtoMessage()    {}
-func (*GetChargePointByIdentifierResp) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8f92b1fd075ed707, []int{8}
+func (m *GetChargePointResp) Reset()         { *m = GetChargePointResp{} }
+func (m *GetChargePointResp) String() string { return proto.CompactTextString(m) }
+func (*GetChargePointResp) ProtoMessage()    {}
+func (*GetChargePointResp) Descriptor() ([]byte, []int) {
+	return fileDescriptor_8f92b1fd075ed707, []int{7}
 }
-func (m *GetChargePointByIdentifierResp) XXX_Unmarshal(b []byte) error {
+func (m *GetChargePointResp) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *GetChargePointByIdentifierResp) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *GetChargePointResp) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_GetChargePointByIdentifierResp.Marshal(b, m, deterministic)
+		return xxx_messageInfo_GetChargePointResp.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -396,29 +356,30 @@ func (m *GetChargePointByIdentifierResp) XXX_Marshal(b []byte, deterministic boo
 		return b[:n], nil
 	}
 }
-func (m *GetChargePointByIdentifierResp) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetChargePointByIdentifierResp.Merge(m, src)
+func (m *GetChargePointResp) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetChargePointResp.Merge(m, src)
 }
-func (m *GetChargePointByIdentifierResp) XXX_Size() int {
+func (m *GetChargePointResp) XXX_Size() int {
 	return m.Size()
 }
-func (m *GetChargePointByIdentifierResp) XXX_DiscardUnknown() {
-	xxx_messageInfo_GetChargePointByIdentifierResp.DiscardUnknown(m)
+func (m *GetChargePointResp) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetChargePointResp.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_GetChargePointByIdentifierResp proto.InternalMessageInfo
+var xxx_messageInfo_GetChargePointResp proto.InternalMessageInfo
 
 type UpdateChargePointDetailsReq struct {
-	ChargePointId           int32    `protobuf:"varint,1,opt,name=charge_point_id,json=chargePointId,proto3" json:"id"`
-	ChargePointVendor       string   `protobuf:"bytes,2,opt,name=charge_point_vendor,json=chargePointVendor,proto3" json:"charge_point_vendor"`
-	ChargePointModel        string   `protobuf:"bytes,3,opt,name=charge_point_model,json=chargePointModel,proto3" json:"charge_point_model"`
-	ChargePointSerialNumber string   `protobuf:"bytes,4,opt,name=charge_point_serial_number,json=chargePointSerialNumber,proto3" json:"charge_point_serial_number"`
-	ChargeBoxSerialNumber   string   `protobuf:"bytes,5,opt,name=charge_box_serial_number,json=chargeBoxSerialNumber,proto3" json:"charge_box_serial_number"`
-	Iccid                   string   `protobuf:"bytes,6,opt,name=iccid,proto3" json:"iccid"`
-	Imsi                    string   `protobuf:"bytes,7,opt,name=imsi,proto3" json:"imsi"`
-	MeterType               string   `protobuf:"bytes,8,opt,name=meter_type,json=meterType,proto3" json:"meter_type"`
-	MeterSerialNumber       string   `protobuf:"bytes,9,opt,name=meter_serial_number,json=meterSerialNumber,proto3" json:"meter_serial_number"`
-	FirmwareVersion         string   `protobuf:"bytes,10,opt,name=firmware_version,json=firmwareVersion,proto3" json:"firmware_version"`
+	EntityCode              string   `protobuf:"bytes,1,opt,name=entity_code,json=entityCode,proto3" json:"entity_code"`
+	ChargePointIdentifier   string   `protobuf:"bytes,2,opt,name=charge_point_identifier,json=chargePointIdentifier,proto3" json:"charge_point_identifier"`
+	ChargePointVendor       string   `protobuf:"bytes,3,opt,name=charge_point_vendor,json=chargePointVendor,proto3" json:"charge_point_vendor"`
+	ChargePointModel        string   `protobuf:"bytes,4,opt,name=charge_point_model,json=chargePointModel,proto3" json:"charge_point_model"`
+	ChargePointSerialNumber string   `protobuf:"bytes,5,opt,name=charge_point_serial_number,json=chargePointSerialNumber,proto3" json:"charge_point_serial_number"`
+	ChargeBoxSerialNumber   string   `protobuf:"bytes,6,opt,name=charge_box_serial_number,json=chargeBoxSerialNumber,proto3" json:"charge_box_serial_number"`
+	Iccid                   string   `protobuf:"bytes,7,opt,name=iccid,proto3" json:"iccid"`
+	Imsi                    string   `protobuf:"bytes,8,opt,name=imsi,proto3" json:"imsi"`
+	MeterType               string   `protobuf:"bytes,9,opt,name=meter_type,json=meterType,proto3" json:"meter_type"`
+	MeterSerialNumber       string   `protobuf:"bytes,10,opt,name=meter_serial_number,json=meterSerialNumber,proto3" json:"meter_serial_number"`
+	FirmwareVersion         string   `protobuf:"bytes,11,opt,name=firmware_version,json=firmwareVersion,proto3" json:"firmware_version"`
 	XXX_NoUnkeyedLiteral    struct{} `json:"-"`
 	XXX_unrecognized        []byte   `json:"-"`
 	XXX_sizecache           int32    `json:"-"`
@@ -428,7 +389,7 @@ func (m *UpdateChargePointDetailsReq) Reset()         { *m = UpdateChargePointDe
 func (m *UpdateChargePointDetailsReq) String() string { return proto.CompactTextString(m) }
 func (*UpdateChargePointDetailsReq) ProtoMessage()    {}
 func (*UpdateChargePointDetailsReq) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8f92b1fd075ed707, []int{9}
+	return fileDescriptor_8f92b1fd075ed707, []int{8}
 }
 func (m *UpdateChargePointDetailsReq) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -458,7 +419,7 @@ func (m *UpdateChargePointDetailsReq) XXX_DiscardUnknown() {
 var xxx_messageInfo_UpdateChargePointDetailsReq proto.InternalMessageInfo
 
 type UpdateChargePointDetailsResp struct {
-	ChargePoint          *ChargePoint `protobuf:"bytes,1,opt,name=charge_point,json=chargePoint,proto3" json:"charge_point,omitempty"`
+	ChargePoint          *ChargePoint `protobuf:"bytes,1,opt,name=charge_point,json=chargePoint,proto3" json:"charge_point"`
 	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
 	XXX_unrecognized     []byte       `json:"-"`
 	XXX_sizecache        int32        `json:"-"`
@@ -468,7 +429,7 @@ func (m *UpdateChargePointDetailsResp) Reset()         { *m = UpdateChargePointD
 func (m *UpdateChargePointDetailsResp) String() string { return proto.CompactTextString(m) }
 func (*UpdateChargePointDetailsResp) ProtoMessage()    {}
 func (*UpdateChargePointDetailsResp) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8f92b1fd075ed707, []int{10}
+	return fileDescriptor_8f92b1fd075ed707, []int{9}
 }
 func (m *UpdateChargePointDetailsResp) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -498,8 +459,8 @@ func (m *UpdateChargePointDetailsResp) XXX_DiscardUnknown() {
 var xxx_messageInfo_UpdateChargePointDetailsResp proto.InternalMessageInfo
 
 type CreateChargePointIdTagReq struct {
-	ChargePointIdentifier string   `protobuf:"bytes,1,opt,name=charge_point_identifier,json=chargePointIdentifier,proto3" json:"charge_point_identifier,omitempty"`
-	ApplicationId         string   `protobuf:"bytes,2,opt,name=application_id,json=applicationId,proto3" json:"application_id,omitempty"`
+	EntityCode            string   `protobuf:"bytes,1,opt,name=entity_code,json=entityCode,proto3" json:"entity_code,omitempty"`
+	ChargePointIdentifier string   `protobuf:"bytes,2,opt,name=charge_point_identifier,json=chargePointIdentifier,proto3" json:"charge_point_identifier,omitempty"`
 	IdTag                 string   `protobuf:"bytes,3,opt,name=id_tag,json=idTag,proto3" json:"id_tag,omitempty"`
 	XXX_NoUnkeyedLiteral  struct{} `json:"-"`
 	XXX_unrecognized      []byte   `json:"-"`
@@ -510,7 +471,7 @@ func (m *CreateChargePointIdTagReq) Reset()         { *m = CreateChargePointIdTa
 func (m *CreateChargePointIdTagReq) String() string { return proto.CompactTextString(m) }
 func (*CreateChargePointIdTagReq) ProtoMessage()    {}
 func (*CreateChargePointIdTagReq) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8f92b1fd075ed707, []int{11}
+	return fileDescriptor_8f92b1fd075ed707, []int{10}
 }
 func (m *CreateChargePointIdTagReq) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -539,47 +500,6 @@ func (m *CreateChargePointIdTagReq) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_CreateChargePointIdTagReq proto.InternalMessageInfo
 
-type CreateChargePointIdTagReqPublic struct {
-	ChargePointIdentifier string   `protobuf:"bytes,1,opt,name=charge_point_identifier,json=chargePointIdentifier,proto3" json:"charge_point_identifier,omitempty"`
-	IdTag                 string   `protobuf:"bytes,2,opt,name=id_tag,json=idTag,proto3" json:"id_tag,omitempty"`
-	XXX_NoUnkeyedLiteral  struct{} `json:"-"`
-	XXX_unrecognized      []byte   `json:"-"`
-	XXX_sizecache         int32    `json:"-"`
-}
-
-func (m *CreateChargePointIdTagReqPublic) Reset()         { *m = CreateChargePointIdTagReqPublic{} }
-func (m *CreateChargePointIdTagReqPublic) String() string { return proto.CompactTextString(m) }
-func (*CreateChargePointIdTagReqPublic) ProtoMessage()    {}
-func (*CreateChargePointIdTagReqPublic) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8f92b1fd075ed707, []int{12}
-}
-func (m *CreateChargePointIdTagReqPublic) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *CreateChargePointIdTagReqPublic) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_CreateChargePointIdTagReqPublic.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *CreateChargePointIdTagReqPublic) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CreateChargePointIdTagReqPublic.Merge(m, src)
-}
-func (m *CreateChargePointIdTagReqPublic) XXX_Size() int {
-	return m.Size()
-}
-func (m *CreateChargePointIdTagReqPublic) XXX_DiscardUnknown() {
-	xxx_messageInfo_CreateChargePointIdTagReqPublic.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_CreateChargePointIdTagReqPublic proto.InternalMessageInfo
-
 type CreateChargePointIdTagResp struct {
 	ChargePointIdTag     *ChargePointIdTag `protobuf:"bytes,1,opt,name=charge_point_id_tag,json=chargePointIdTag,proto3" json:"charge_point_id_tag"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
@@ -591,7 +511,7 @@ func (m *CreateChargePointIdTagResp) Reset()         { *m = CreateChargePointIdT
 func (m *CreateChargePointIdTagResp) String() string { return proto.CompactTextString(m) }
 func (*CreateChargePointIdTagResp) ProtoMessage()    {}
 func (*CreateChargePointIdTagResp) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8f92b1fd075ed707, []int{13}
+	return fileDescriptor_8f92b1fd075ed707, []int{11}
 }
 func (m *CreateChargePointIdTagResp) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -621,8 +541,8 @@ func (m *CreateChargePointIdTagResp) XXX_DiscardUnknown() {
 var xxx_messageInfo_CreateChargePointIdTagResp proto.InternalMessageInfo
 
 type GetChargePointIdTagsReq struct {
-	ChargePointIdentifier string   `protobuf:"bytes,1,opt,name=charge_point_identifier,json=chargePointIdentifier,proto3" json:"charge_point_identifier,omitempty"`
-	ApplicationId         string   `protobuf:"bytes,2,opt,name=application_id,json=applicationId,proto3" json:"application_id,omitempty"`
+	EntityCode            string   `protobuf:"bytes,1,opt,name=entity_code,json=entityCode,proto3" json:"entity_code,omitempty"`
+	ChargePointIdentifier string   `protobuf:"bytes,2,opt,name=charge_point_identifier,json=chargePointIdentifier,proto3" json:"charge_point_identifier,omitempty"`
 	XXX_NoUnkeyedLiteral  struct{} `json:"-"`
 	XXX_unrecognized      []byte   `json:"-"`
 	XXX_sizecache         int32    `json:"-"`
@@ -632,7 +552,7 @@ func (m *GetChargePointIdTagsReq) Reset()         { *m = GetChargePointIdTagsReq
 func (m *GetChargePointIdTagsReq) String() string { return proto.CompactTextString(m) }
 func (*GetChargePointIdTagsReq) ProtoMessage()    {}
 func (*GetChargePointIdTagsReq) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8f92b1fd075ed707, []int{14}
+	return fileDescriptor_8f92b1fd075ed707, []int{12}
 }
 func (m *GetChargePointIdTagsReq) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -672,7 +592,7 @@ func (m *GetChargePointIdTagsResp) Reset()         { *m = GetChargePointIdTagsRe
 func (m *GetChargePointIdTagsResp) String() string { return proto.CompactTextString(m) }
 func (*GetChargePointIdTagsResp) ProtoMessage()    {}
 func (*GetChargePointIdTagsResp) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8f92b1fd075ed707, []int{15}
+	return fileDescriptor_8f92b1fd075ed707, []int{13}
 }
 func (m *GetChargePointIdTagsResp) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -701,265 +621,94 @@ func (m *GetChargePointIdTagsResp) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_GetChargePointIdTagsResp proto.InternalMessageInfo
 
-type GetChargePointIdTagReq struct {
-	ChargePointIdentifier string   `protobuf:"bytes,1,opt,name=charge_point_identifier,json=chargePointIdentifier,proto3" json:"charge_point_identifier,omitempty"`
-	ApplicationId         string   `protobuf:"bytes,2,opt,name=application_id,json=applicationId,proto3" json:"application_id,omitempty"`
-	IdTag                 string   `protobuf:"bytes,3,opt,name=id_tag,json=idTag,proto3" json:"id_tag,omitempty"`
-	XXX_NoUnkeyedLiteral  struct{} `json:"-"`
-	XXX_unrecognized      []byte   `json:"-"`
-	XXX_sizecache         int32    `json:"-"`
-}
-
-func (m *GetChargePointIdTagReq) Reset()         { *m = GetChargePointIdTagReq{} }
-func (m *GetChargePointIdTagReq) String() string { return proto.CompactTextString(m) }
-func (*GetChargePointIdTagReq) ProtoMessage()    {}
-func (*GetChargePointIdTagReq) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8f92b1fd075ed707, []int{16}
-}
-func (m *GetChargePointIdTagReq) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *GetChargePointIdTagReq) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_GetChargePointIdTagReq.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *GetChargePointIdTagReq) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetChargePointIdTagReq.Merge(m, src)
-}
-func (m *GetChargePointIdTagReq) XXX_Size() int {
-	return m.Size()
-}
-func (m *GetChargePointIdTagReq) XXX_DiscardUnknown() {
-	xxx_messageInfo_GetChargePointIdTagReq.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_GetChargePointIdTagReq proto.InternalMessageInfo
-
-type GetChargePointIdTagResp struct {
-	ChargePointIdTag     *ChargePointIdTag `protobuf:"bytes,1,opt,name=charge_point_id_tag,json=chargePointIdTag,proto3" json:"charge_point_id_tag"`
-	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
-	XXX_unrecognized     []byte            `json:"-"`
-	XXX_sizecache        int32             `json:"-"`
-}
-
-func (m *GetChargePointIdTagResp) Reset()         { *m = GetChargePointIdTagResp{} }
-func (m *GetChargePointIdTagResp) String() string { return proto.CompactTextString(m) }
-func (*GetChargePointIdTagResp) ProtoMessage()    {}
-func (*GetChargePointIdTagResp) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8f92b1fd075ed707, []int{17}
-}
-func (m *GetChargePointIdTagResp) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *GetChargePointIdTagResp) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_GetChargePointIdTagResp.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *GetChargePointIdTagResp) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetChargePointIdTagResp.Merge(m, src)
-}
-func (m *GetChargePointIdTagResp) XXX_Size() int {
-	return m.Size()
-}
-func (m *GetChargePointIdTagResp) XXX_DiscardUnknown() {
-	xxx_messageInfo_GetChargePointIdTagResp.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_GetChargePointIdTagResp proto.InternalMessageInfo
-
-// for internal services
-type GetChargePointByIDReq struct {
-	Id                   int32    `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	ApplicationId        string   `protobuf:"bytes,2,opt,name=application_id,json=applicationId,proto3" json:"application_id,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *GetChargePointByIDReq) Reset()         { *m = GetChargePointByIDReq{} }
-func (m *GetChargePointByIDReq) String() string { return proto.CompactTextString(m) }
-func (*GetChargePointByIDReq) ProtoMessage()    {}
-func (*GetChargePointByIDReq) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8f92b1fd075ed707, []int{18}
-}
-func (m *GetChargePointByIDReq) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *GetChargePointByIDReq) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_GetChargePointByIDReq.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *GetChargePointByIDReq) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetChargePointByIDReq.Merge(m, src)
-}
-func (m *GetChargePointByIDReq) XXX_Size() int {
-	return m.Size()
-}
-func (m *GetChargePointByIDReq) XXX_DiscardUnknown() {
-	xxx_messageInfo_GetChargePointByIDReq.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_GetChargePointByIDReq proto.InternalMessageInfo
-
-type GetChargePointByIDResp struct {
-	ChargePoint          *ChargePoint `protobuf:"bytes,1,opt,name=charge_point,json=chargePoint,proto3" json:"charge_point,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
-	XXX_unrecognized     []byte       `json:"-"`
-	XXX_sizecache        int32        `json:"-"`
-}
-
-func (m *GetChargePointByIDResp) Reset()         { *m = GetChargePointByIDResp{} }
-func (m *GetChargePointByIDResp) String() string { return proto.CompactTextString(m) }
-func (*GetChargePointByIDResp) ProtoMessage()    {}
-func (*GetChargePointByIDResp) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8f92b1fd075ed707, []int{19}
-}
-func (m *GetChargePointByIDResp) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *GetChargePointByIDResp) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_GetChargePointByIDResp.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *GetChargePointByIDResp) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetChargePointByIDResp.Merge(m, src)
-}
-func (m *GetChargePointByIDResp) XXX_Size() int {
-	return m.Size()
-}
-func (m *GetChargePointByIDResp) XXX_DiscardUnknown() {
-	xxx_messageInfo_GetChargePointByIDResp.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_GetChargePointByIDResp proto.InternalMessageInfo
-
 func init() {
 	proto.RegisterType((*ChargePoint)(nil), "ocpp.ChargePoint")
 	proto.RegisterType((*ChargePointIdTag)(nil), "ocpp.ChargePointIdTag")
 	proto.RegisterType((*CreateChargePointReq)(nil), "ocpp.CreateChargePointReq")
-	proto.RegisterType((*CreateChargePointReqPublic)(nil), "ocpp.CreateChargePointReqPublic")
 	proto.RegisterType((*CreateChargePointResp)(nil), "ocpp.CreateChargePointResp")
 	proto.RegisterType((*GetChargePointsReq)(nil), "ocpp.GetChargePointsReq")
 	proto.RegisterType((*GetChargePointsResp)(nil), "ocpp.GetChargePointsResp")
-	proto.RegisterType((*GetChargePointByIdentifierReq)(nil), "ocpp.GetChargePointByIdentifierReq")
-	proto.RegisterType((*GetChargePointByIdentifierResp)(nil), "ocpp.GetChargePointByIdentifierResp")
+	proto.RegisterType((*GetChargePointReq)(nil), "ocpp.GetChargePointReq")
+	proto.RegisterType((*GetChargePointResp)(nil), "ocpp.GetChargePointResp")
 	proto.RegisterType((*UpdateChargePointDetailsReq)(nil), "ocpp.UpdateChargePointDetailsReq")
 	proto.RegisterType((*UpdateChargePointDetailsResp)(nil), "ocpp.UpdateChargePointDetailsResp")
 	proto.RegisterType((*CreateChargePointIdTagReq)(nil), "ocpp.CreateChargePointIdTagReq")
-	proto.RegisterType((*CreateChargePointIdTagReqPublic)(nil), "ocpp.CreateChargePointIdTagReqPublic")
 	proto.RegisterType((*CreateChargePointIdTagResp)(nil), "ocpp.CreateChargePointIdTagResp")
 	proto.RegisterType((*GetChargePointIdTagsReq)(nil), "ocpp.GetChargePointIdTagsReq")
 	proto.RegisterType((*GetChargePointIdTagsResp)(nil), "ocpp.GetChargePointIdTagsResp")
-	proto.RegisterType((*GetChargePointIdTagReq)(nil), "ocpp.GetChargePointIdTagReq")
-	proto.RegisterType((*GetChargePointIdTagResp)(nil), "ocpp.GetChargePointIdTagResp")
-	proto.RegisterType((*GetChargePointByIDReq)(nil), "ocpp.GetChargePointByIDReq")
-	proto.RegisterType((*GetChargePointByIDResp)(nil), "ocpp.GetChargePointByIDResp")
 }
 
 func init() { proto.RegisterFile("charge_points.proto", fileDescriptor_8f92b1fd075ed707) }
 
 var fileDescriptor_8f92b1fd075ed707 = []byte{
-	// 988 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xc4, 0x56, 0x4f, 0x6f, 0x1b, 0x45,
-	0x14, 0x67, 0xed, 0xd8, 0x89, 0x9f, 0xe3, 0x3f, 0x99, 0xfc, 0xdb, 0xa6, 0xc1, 0x13, 0x8c, 0x2a,
-	0xf5, 0x52, 0x17, 0x01, 0xaa, 0x84, 0x8a, 0x84, 0x64, 0x47, 0x54, 0x39, 0x10, 0x45, 0xd3, 0x34,
-	0x07, 0x90, 0x58, 0xd6, 0xbb, 0x13, 0x77, 0x24, 0xdb, 0xb3, 0xec, 0xae, 0x4b, 0x2c, 0x01, 0x67,
-	0x4e, 0x48, 0xdc, 0x10, 0x5f, 0x85, 0x2f, 0xd0, 0x23, 0x9f, 0x60, 0xa1, 0x39, 0xa1, 0xfd, 0x14,
-	0x68, 0xdf, 0x3a, 0xf1, 0xce, 0x7a, 0x9d, 0xa6, 0x26, 0x4d, 0x2f, 0x89, 0xe7, 0xfd, 0xfd, 0xcd,
-	0x7b, 0xf3, 0xde, 0x6f, 0x61, 0xdd, 0x7a, 0x6e, 0xba, 0x3d, 0x6e, 0x38, 0x52, 0x0c, 0x7d, 0xaf,
-	0xe5, 0xb8, 0xd2, 0x97, 0x64, 0x49, 0x5a, 0x8e, 0xb3, 0xf3, 0xa0, 0x27, 0xfc, 0xe7, 0xa3, 0x6e,
-	0xcb, 0x92, 0x83, 0x87, 0x3d, 0xd9, 0x93, 0x0f, 0x51, 0xd9, 0x1d, 0x9d, 0xe2, 0x09, 0x0f, 0xf8,
-	0x2b, 0x76, 0x6a, 0xfe, 0xbe, 0x0c, 0xe5, 0x0e, 0x06, 0x3b, 0x8a, 0x62, 0x91, 0x2d, 0xc8, 0x09,
-	0x5b, 0xd7, 0xf6, 0xb4, 0xfb, 0x85, 0x76, 0x31, 0x0c, 0x68, 0x4e, 0xd8, 0x2c, 0x27, 0x6c, 0xf2,
-	0x19, 0x54, 0x4d, 0xc7, 0xe9, 0x0b, 0xcb, 0xf4, 0x85, 0x1c, 0x1a, 0xc2, 0xd6, 0x73, 0x7b, 0xda,
-	0xfd, 0x52, 0x9b, 0x84, 0x01, 0x4d, 0x69, 0x58, 0x25, 0x71, 0x3e, 0xb0, 0xc9, 0x47, 0x50, 0xe6,
-	0x43, 0x5f, 0xf8, 0x63, 0xc3, 0x92, 0x36, 0xd7, 0xf3, 0xe8, 0x57, 0x0b, 0x03, 0x9a, 0x14, 0x33,
-	0x88, 0x0f, 0x1d, 0x69, 0x73, 0xf2, 0x14, 0xb6, 0x93, 0x17, 0x34, 0x84, 0x1d, 0x29, 0x4f, 0x05,
-	0x77, 0xf5, 0x25, 0xf4, 0xbe, 0x1b, 0x06, 0x74, 0x9e, 0x09, 0xdb, 0xb4, 0xa6, 0xf7, 0x39, 0xb8,
-	0x14, 0x93, 0x27, 0x6a, 0xd5, 0x8c, 0x17, 0x7c, 0x68, 0x4b, 0x57, 0x2f, 0x60, 0xc0, 0xed, 0x30,
-	0xa0, 0x59, 0x6a, 0xb6, 0x96, 0x08, 0x76, 0x82, 0x22, 0xb2, 0x0f, 0x44, 0xb1, 0x1c, 0x48, 0x9b,
-	0xf7, 0xf5, 0x22, 0xc6, 0xd9, 0x0a, 0x03, 0x9a, 0xa1, 0x65, 0xf5, 0x44, 0x98, 0xaf, 0x22, 0x09,
-	0xf9, 0x06, 0x76, 0x14, 0x3b, 0x8f, 0xbb, 0xc2, 0xec, 0x1b, 0xc3, 0xd1, 0xa0, 0xcb, 0x5d, 0x7d,
-	0x19, 0xa3, 0x35, 0xc2, 0x80, 0x5e, 0x61, 0xc5, 0xb6, 0x13, 0x51, 0x9f, 0xa2, 0xe6, 0x10, 0x15,
-	0xe4, 0x19, 0xe8, 0x13, 0xb7, 0xae, 0x3c, 0x4b, 0x85, 0x5e, 0xc1, 0xd0, 0xbb, 0x61, 0x40, 0xe7,
-	0xda, 0x5c, 0x94, 0xb0, 0x2d, 0xcf, 0x94, 0xb0, 0x14, 0x0a, 0xc2, 0xb2, 0x84, 0xad, 0x97, 0x30,
-	0x46, 0x29, 0x0c, 0x68, 0x2c, 0x60, 0xf1, 0x3f, 0xb2, 0x0b, 0x4b, 0x62, 0xe0, 0x09, 0x1d, 0x50,
-	0xbf, 0x12, 0x06, 0x14, 0xcf, 0x0c, 0xff, 0x92, 0x07, 0x00, 0x03, 0xee, 0x73, 0xd7, 0xf0, 0xc7,
-	0x0e, 0xd7, 0xcb, 0x68, 0x53, 0x0d, 0x03, 0x9a, 0x90, 0xb2, 0x12, 0xfe, 0x3e, 0x1e, 0x3b, 0x3c,
-	0x6a, 0x58, 0xac, 0x50, 0xf1, 0xaf, 0x4e, 0x1b, 0x96, 0xa1, 0x66, 0x6b, 0x28, 0x54, 0x60, 0x7f,
-	0x01, 0xf5, 0x53, 0xe1, 0x0e, 0x7e, 0x30, 0x5d, 0x6e, 0xbc, 0xe0, 0xae, 0x27, 0xe4, 0x50, 0xaf,
-	0x60, 0x94, 0x8d, 0x30, 0xa0, 0x33, 0x3a, 0x56, 0xbb, 0x90, 0x9c, 0xc4, 0x02, 0xf2, 0x39, 0xd4,
-	0x2c, 0x39, 0x1c, 0x72, 0xcb, 0x97, 0xae, 0x61, 0xc9, 0xd1, 0xd0, 0xd7, 0xab, 0x38, 0x21, 0xeb,
-	0x61, 0x40, 0xd3, 0x2a, 0x56, 0xbd, 0x14, 0x74, 0xa2, 0x33, 0x79, 0x04, 0x95, 0x68, 0x32, 0x0d,
-	0x1c, 0x38, 0x4b, 0xf6, 0xf5, 0x1a, 0xe6, 0x5e, 0x0b, 0x03, 0xaa, 0x2a, 0xd8, 0x6a, 0x74, 0x3c,
-	0x9a, 0x9c, 0x9a, 0x7f, 0x6b, 0x50, 0xef, 0x24, 0x9f, 0xf2, 0xb1, 0xd9, 0x9b, 0x3b, 0x9f, 0x8f,
-	0xa1, 0x96, 0x9a, 0x07, 0x1c, 0xd0, 0x0b, 0x88, 0xaa, 0x8a, 0x55, 0x94, 0x11, 0xb9, 0x6a, 0xde,
-	0xf2, 0x0b, 0xcf, 0xdb, 0x07, 0x50, 0x14, 0xb6, 0xe1, 0x9b, 0xbd, 0xc9, 0xcc, 0x42, 0x18, 0xd0,
-	0x89, 0x84, 0x15, 0x44, 0x74, 0x99, 0xe6, 0x9f, 0x1a, 0x6c, 0x74, 0x5c, 0x6e, 0xfa, 0x3c, 0x71,
-	0x4f, 0xc6, 0xbf, 0x27, 0xf7, 0x66, 0xb6, 0x4d, 0x74, 0xe3, 0x52, 0x7a, 0xb3, 0x3c, 0x9a, 0x8f,
-	0x1b, 0xb7, 0xd3, 0x3c, 0x68, 0x34, 0x63, 0x23, 0x29, 0x0b, 0xe8, 0xc3, 0x74, 0xcb, 0xf0, 0x0a,
-	0xa9, 0xfe, 0xfc, 0xa1, 0xc1, 0x4e, 0x16, 0xfa, 0xa3, 0x51, 0xb7, 0x2f, 0xac, 0xab, 0xc0, 0x69,
-	0x6f, 0x00, 0x2e, 0xf7, 0x7a, 0x70, 0xf9, 0x0c, 0x70, 0x06, 0x6c, 0x66, 0x60, 0xf3, 0x1c, 0xf2,
-	0x25, 0xac, 0x26, 0x61, 0x21, 0x96, 0xf2, 0xc7, 0x6b, 0xad, 0xc8, 0xbb, 0x95, 0x30, 0x6e, 0xd7,
-	0xc3, 0x80, 0x2a, 0xa6, 0xac, 0x9c, 0x00, 0xdc, 0x7c, 0x0c, 0xe4, 0x09, 0xf7, 0x13, 0x0e, 0xde,
-	0xf5, 0x1b, 0xd7, 0xfc, 0x0e, 0xd6, 0x67, 0x9c, 0x3d, 0x87, 0x1c, 0x40, 0x45, 0x21, 0x36, 0x5d,
-	0xdb, 0xcb, 0x67, 0x83, 0xc3, 0xe1, 0x51, 0x6c, 0xd9, 0x6a, 0x02, 0x9d, 0xd7, 0xfc, 0x19, 0xde,
-	0x57, 0x33, 0xb4, 0xc7, 0xd3, 0x1a, 0x47, 0x48, 0x17, 0x6d, 0xcf, 0xbd, 0x6c, 0x22, 0x4c, 0xdf,
-	0xf0, 0x04, 0x1a, 0x57, 0xe5, 0xf7, 0x1c, 0xf2, 0xe9, 0x35, 0x1b, 0xa1, 0x96, 0xfd, 0x97, 0x02,
-	0xdc, 0x7d, 0xe6, 0xd8, 0x6a, 0x63, 0xf7, 0xb9, 0x6f, 0x8a, 0x3e, 0x36, 0xa0, 0x35, 0xbb, 0x07,
-	0xd4, 0x65, 0x91, 0x1a, 0xfd, 0x39, 0xac, 0x98, 0xbb, 0x21, 0x56, 0xcc, 0xdf, 0x28, 0x2b, 0x2e,
-	0xbd, 0x3d, 0x56, 0x2c, 0xdc, 0x00, 0x2b, 0x16, 0x5f, 0xc3, 0x8a, 0xcb, 0xd7, 0x60, 0xc5, 0x95,
-	0x05, 0x59, 0xb1, 0x74, 0x23, 0xac, 0x08, 0x6f, 0xc0, 0x8a, 0xcd, 0x63, 0xd8, 0x9d, 0xff, 0x12,
-	0x17, 0x7e, 0xe0, 0xbf, 0x69, 0x70, 0x67, 0x66, 0x73, 0x21, 0xf7, 0xbd, 0xfd, 0xa9, 0x25, 0x9b,
-	0x97, 0x9c, 0x15, 0xef, 0xd4, 0x09, 0x4f, 0x39, 0x40, 0xe7, 0x42, 0xfa, 0x9f, 0xdb, 0x7e, 0x9a,
-	0x31, 0x97, 0xcc, 0xf8, 0x63, 0x06, 0xb5, 0x4c, 0x32, 0x7a, 0x0e, 0xf9, 0x36, 0x35, 0xb4, 0x93,
-	0x08, 0x71, 0x81, 0xb7, 0x66, 0x0a, 0x8c, 0x8e, 0x19, 0xc3, 0x3c, 0x21, 0xe3, 0xba, 0x95, 0x32,
-	0x6d, 0x9e, 0xc1, 0xb6, 0xba, 0xbc, 0x50, 0xec, 0xdd, 0xc2, 0xda, 0xfc, 0x09, 0xf4, 0xec, 0xcc,
-	0x9e, 0x43, 0x4c, 0xd8, 0xc8, 0x80, 0x7f, 0x41, 0x12, 0xf3, 0xae, 0xad, 0x87, 0x01, 0xcd, 0xf4,
-	0x53, 0x96, 0x58, 0x9c, 0xa6, 0xf9, 0xab, 0x06, 0x5b, 0x19, 0xf9, 0xdf, 0xdd, 0xcb, 0x1b, 0x67,
-	0x76, 0xe2, 0x56, 0x1e, 0xc1, 0x21, 0x6c, 0xce, 0x30, 0xd8, 0x7e, 0x54, 0x89, 0xea, 0xf4, 0x13,
-	0x14, 0x3f, 0x3d, 0xaf, 0xd9, 0xda, 0xc3, 0x74, 0x69, 0xe3, 0x78, 0x8b, 0x2e, 0x8a, 0xf6, 0x9d,
-	0x97, 0xaf, 0x1a, 0xef, 0xfd, 0xfb, 0xaa, 0xa1, 0xbd, 0x3c, 0x6f, 0x68, 0x7f, 0x9d, 0x37, 0xb4,
-	0x7f, 0xce, 0x1b, 0xda, 0xd7, 0x79, 0xd7, 0xb1, 0xba, 0x45, 0xfc, 0x34, 0xfa, 0xe4, 0xbf, 0x00,
-	0x00, 0x00, 0xff, 0xff, 0x30, 0xb1, 0x71, 0xe3, 0x27, 0x0f, 0x00, 0x00,
+	// 986 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x56, 0xcb, 0x6e, 0xdb, 0x46,
+	0x14, 0x0d, 0x65, 0x49, 0x89, 0xae, 0xac, 0xd7, 0xf8, 0x21, 0x5a, 0x76, 0x35, 0x0e, 0x8b, 0x02,
+	0xd9, 0xc4, 0x09, 0x52, 0x34, 0x9b, 0x16, 0x28, 0x20, 0xa5, 0x4d, 0xbd, 0x68, 0x10, 0x4c, 0x1e,
+	0x05, 0xfa, 0x62, 0x29, 0x72, 0xac, 0x0c, 0x20, 0x69, 0x58, 0x92, 0x76, 0x63, 0xa0, 0xfd, 0x82,
+	0xee, 0xfa, 0x3b, 0xfd, 0x81, 0x2c, 0xfb, 0x03, 0x65, 0x1a, 0xaf, 0x0a, 0x7e, 0x45, 0xc1, 0x4b,
+	0xc9, 0xe1, 0x50, 0xa4, 0x93, 0x1a, 0xf2, 0xc6, 0xe6, 0xdc, 0xc7, 0x99, 0x73, 0x67, 0xe6, 0xde,
+	0x23, 0xd8, 0xb0, 0x5f, 0x58, 0xde, 0x98, 0x9b, 0xae, 0x14, 0xb3, 0xc0, 0x3f, 0x70, 0x3d, 0x19,
+	0x48, 0x52, 0x96, 0xb6, 0xeb, 0xf6, 0x6e, 0x8f, 0x45, 0xf0, 0xe2, 0x78, 0x74, 0x60, 0xcb, 0xe9,
+	0x9d, 0xb1, 0x1c, 0xcb, 0x3b, 0xe8, 0x1c, 0x1d, 0x1f, 0xe1, 0x0a, 0x17, 0xf8, 0x95, 0x24, 0x19,
+	0x7f, 0x57, 0xa1, 0x3e, 0x44, 0xb0, 0xc7, 0x31, 0x16, 0xd9, 0x86, 0x92, 0x70, 0x74, 0x6d, 0x5f,
+	0xbb, 0x55, 0x19, 0x54, 0xa3, 0x90, 0x96, 0x84, 0xc3, 0x4a, 0xc2, 0x21, 0x77, 0xa1, 0xce, 0x67,
+	0x81, 0x08, 0x4e, 0x4d, 0x5b, 0x3a, 0x5c, 0x2f, 0xed, 0x6b, 0xb7, 0x6a, 0x83, 0x56, 0x14, 0xd2,
+	0xb4, 0x99, 0x41, 0xb2, 0x18, 0x4a, 0x87, 0x93, 0x27, 0xd0, 0x4d, 0xb3, 0x34, 0x85, 0x13, 0x3b,
+	0x8f, 0x04, 0xf7, 0xf4, 0x35, 0xcc, 0xde, 0x8d, 0x42, 0x5a, 0x14, 0xc2, 0xb6, 0xec, 0xb7, 0xa4,
+	0x0e, 0xcf, 0xcd, 0xe4, 0xa1, 0x5a, 0xba, 0x79, 0xc2, 0x67, 0x8e, 0xf4, 0xf4, 0x32, 0x02, 0x76,
+	0xa3, 0x90, 0xe6, 0xb9, 0x59, 0x27, 0x05, 0xf6, 0x1c, 0x4d, 0xe4, 0x01, 0x10, 0x25, 0x72, 0x2a,
+	0x1d, 0x3e, 0xd1, 0x2b, 0x88, 0xb3, 0x1d, 0x85, 0x34, 0xc7, 0xcb, 0xda, 0x29, 0x98, 0xaf, 0x63,
+	0x0b, 0xf9, 0x0e, 0x7a, 0x4a, 0x9c, 0xcf, 0x3d, 0x61, 0x4d, 0xcc, 0xd9, 0xf1, 0x74, 0xc4, 0x3d,
+	0xbd, 0x8a, 0x68, 0xfd, 0x28, 0xa4, 0x17, 0x44, 0xb1, 0x6e, 0x0a, 0xf5, 0x09, 0x7a, 0x1e, 0xa1,
+	0x83, 0x3c, 0x03, 0x7d, 0x9e, 0x36, 0x92, 0x2f, 0x33, 0xd0, 0xd7, 0x11, 0x7a, 0x2f, 0x0a, 0x69,
+	0x61, 0xcc, 0xe2, 0x08, 0x07, 0xf2, 0xa5, 0x02, 0x4b, 0xa1, 0x22, 0x6c, 0x5b, 0x38, 0xfa, 0x0d,
+	0xc4, 0xa8, 0x45, 0x21, 0x4d, 0x0c, 0x2c, 0xf9, 0x47, 0xf6, 0xa0, 0x2c, 0xa6, 0xbe, 0xd0, 0x6b,
+	0xe8, 0xbf, 0x11, 0x85, 0x14, 0xd7, 0x0c, 0xff, 0x92, 0xdb, 0x00, 0x53, 0x1e, 0x70, 0xcf, 0x0c,
+	0x4e, 0x5d, 0xae, 0x03, 0xc6, 0x34, 0xa3, 0x90, 0xa6, 0xac, 0xac, 0x86, 0xdf, 0x4f, 0x4f, 0x5d,
+	0x1e, 0x5f, 0x58, 0xe2, 0x50, 0xf9, 0xd7, 0xdf, 0x5e, 0x58, 0x8e, 0x9b, 0x75, 0xd0, 0xa8, 0xd0,
+	0xfe, 0x1c, 0xda, 0x47, 0xc2, 0x9b, 0xfe, 0x62, 0x79, 0xdc, 0x3c, 0xe1, 0x9e, 0x2f, 0xe4, 0x4c,
+	0x5f, 0x47, 0x94, 0xcd, 0x28, 0xa4, 0x4b, 0x3e, 0xd6, 0x5a, 0x58, 0x9e, 0x27, 0x06, 0xf2, 0x19,
+	0xb4, 0x6c, 0x39, 0x9b, 0x71, 0x3b, 0x90, 0x9e, 0x69, 0xcb, 0xe3, 0x59, 0xa0, 0x37, 0xf0, 0x99,
+	0x6f, 0x44, 0x21, 0xcd, 0xba, 0x58, 0xf3, 0xdc, 0x30, 0x8c, 0xd7, 0xe4, 0x3e, 0x34, 0xe2, 0xf6,
+	0x32, 0xb1, 0x6b, 0x6c, 0x39, 0xd1, 0x9b, 0xb8, 0x77, 0x27, 0x0a, 0xa9, 0xea, 0x60, 0xeb, 0xf1,
+	0xf2, 0xf1, 0x7c, 0x65, 0xbc, 0xd6, 0xa0, 0x3d, 0x4c, 0x3f, 0xe5, 0xa7, 0xd6, 0xb8, 0xb0, 0xc9,
+	0x3e, 0x85, 0x56, 0xa6, 0x1f, 0xb0, 0xd1, 0x16, 0x14, 0x55, 0x17, 0x6b, 0x28, 0x2d, 0x72, 0x35,
+	0xfd, 0x76, 0x13, 0xaa, 0xc2, 0x31, 0x03, 0x6b, 0x3c, 0x6f, 0x31, 0x88, 0x42, 0x3a, 0xb7, 0xb0,
+	0x8a, 0x88, 0x8b, 0x31, 0xfe, 0xd4, 0x60, 0x73, 0xe8, 0x71, 0x2b, 0xe0, 0xa9, 0x3a, 0x19, 0xff,
+	0x99, 0x7c, 0x04, 0x4d, 0xcb, 0x75, 0x27, 0xc2, 0xb6, 0x02, 0x21, 0x67, 0xe6, 0xbc, 0xe2, 0x1a,
+	0x6b, 0xa4, 0xac, 0x87, 0x0e, 0xb9, 0x5f, 0xcc, 0x1b, 0xa7, 0x4c, 0x11, 0x35, 0xaa, 0x4e, 0x24,
+	0xac, 0x51, 0x19, 0x40, 0x1f, 0x66, 0xaf, 0x0c, 0x4b, 0xc8, 0xdc, 0x8f, 0x09, 0x5b, 0x39, 0xe4,
+	0x7d, 0x97, 0x7c, 0x09, 0xeb, 0x69, 0x5a, 0xc8, 0xbd, 0x7e, 0xaf, 0x73, 0x10, 0x67, 0x1f, 0xa4,
+	0x82, 0x07, 0xed, 0x28, 0xa4, 0x4a, 0x28, 0xab, 0xa7, 0x08, 0x1b, 0x9f, 0x00, 0x79, 0xc8, 0x83,
+	0x54, 0x82, 0x1f, 0x9f, 0x4d, 0x86, 0xbc, 0x96, 0x25, 0x6f, 0xfc, 0x04, 0x1b, 0x4b, 0x69, 0xbe,
+	0x4b, 0x0e, 0xa1, 0xa1, 0x8c, 0x7e, 0x5d, 0xdb, 0x5f, 0xcb, 0xa7, 0x85, 0x2f, 0x53, 0x89, 0x65,
+	0xeb, 0x29, 0x5e, 0xbe, 0x31, 0x81, 0x8e, 0xba, 0xc3, 0xfb, 0xf0, 0xba, 0xec, 0x6d, 0x19, 0xdf,
+	0x67, 0x8f, 0x61, 0xa5, 0x87, 0xfc, 0xba, 0x02, 0xbb, 0xcf, 0x5c, 0x47, 0xbd, 0xc6, 0x07, 0x3c,
+	0xb0, 0xc4, 0x04, 0x8f, 0xfb, 0x6e, 0x4e, 0x59, 0x97, 0x56, 0xaf, 0xd2, 0xaa, 0xd5, 0x6b, 0x6d,
+	0x45, 0xea, 0x55, 0x5e, 0xa9, 0x7a, 0x55, 0xae, 0x4e, 0xbd, 0xaa, 0x2b, 0x50, 0xaf, 0xeb, 0xef,
+	0x50, 0xaf, 0x1b, 0xef, 0xa1, 0x5e, 0xb5, 0x4b, 0xaa, 0x17, 0xac, 0x44, 0xbd, 0xea, 0xff, 0x43,
+	0xbd, 0x8c, 0x23, 0xd8, 0x2b, 0x7e, 0xe0, 0x2b, 0xec, 0xa4, 0xdf, 0x35, 0xd8, 0x59, 0x1a, 0x88,
+	0xa8, 0x5a, 0x57, 0x39, 0x1e, 0xc8, 0xd6, 0xb9, 0xce, 0x24, 0x73, 0x7c, 0xae, 0x2d, 0xbf, 0x42,
+	0xaf, 0x88, 0x8c, 0xef, 0x92, 0x1f, 0x33, 0xed, 0x34, 0x47, 0x48, 0x4a, 0xdf, 0x5e, 0x2a, 0x1d,
+	0x13, 0x73, 0xda, 0x6c, 0x2e, 0x67, 0x6d, 0x3b, 0x13, 0x6a, 0x78, 0xd0, 0x55, 0x67, 0x16, 0x9a,
+	0xfd, 0x2b, 0x9d, 0x93, 0xbf, 0x81, 0x9e, 0xbf, 0xa7, 0xef, 0x12, 0x0b, 0x36, 0x73, 0x88, 0x2f,
+	0x34, 0xa0, 0xa8, 0x60, 0x3d, 0x0a, 0x69, 0x6e, 0x9e, 0x32, 0x58, 0x92, 0x6d, 0xee, 0xfd, 0x51,
+	0x06, 0x32, 0x54, 0x3a, 0xfa, 0x44, 0xd8, 0x9c, 0x3c, 0x82, 0xce, 0xd2, 0x3d, 0x90, 0xde, 0x7c,
+	0xc3, 0x1c, 0xed, 0xef, 0xed, 0x16, 0xfa, 0x7c, 0xd7, 0xb8, 0x46, 0xbe, 0x82, 0x56, 0x46, 0xdd,
+	0x88, 0x9e, 0x64, 0x2c, 0x6b, 0x65, 0x6f, 0xa7, 0xc0, 0x83, 0x48, 0x5f, 0x40, 0x53, 0x75, 0x90,
+	0x6e, 0x5e, 0x78, 0x8c, 0xa3, 0xe7, 0x3b, 0x10, 0xc6, 0x06, 0xbd, 0xa8, 0xbd, 0xc8, 0xcd, 0x24,
+	0xef, 0x02, 0x7d, 0xe9, 0x19, 0xef, 0x0a, 0xc1, 0x4d, 0x7e, 0x80, 0xed, 0xfc, 0xd7, 0x4c, 0x68,
+	0xc1, 0x71, 0x2d, 0x1a, 0xaf, 0xb7, 0x7f, 0x71, 0x00, 0xc2, 0x7f, 0x03, 0x9b, 0x79, 0x4f, 0x87,
+	0x7c, 0x90, 0x57, 0xf7, 0xf9, 0x53, 0xee, 0xf5, 0x2f, 0x72, 0xc7, 0xc0, 0x83, 0x9d, 0x57, 0x6f,
+	0xfa, 0xd7, 0xfe, 0x7d, 0xd3, 0xd7, 0x5e, 0x9d, 0xf5, 0xb5, 0xbf, 0xce, 0xfa, 0xda, 0x3f, 0x67,
+	0x7d, 0xed, 0xdb, 0x35, 0xcf, 0xb5, 0x47, 0x55, 0xfc, 0x71, 0xf5, 0xf1, 0x7f, 0x01, 0x00, 0x00,
+	0xff, 0xff, 0xb5, 0x8a, 0x67, 0x0d, 0x91, 0x0e, 0x00, 0x00,
 }
 
 type ChargePointFace interface {
 	Proto() github_com_gogo_protobuf_proto.Message
 	GetId() int32
-	GetApplicationId() string
 	GetEntityCode() string
 	GetChargePointIdentifier() string
 	GetChargePointVendor() string
@@ -985,10 +734,6 @@ func (this *ChargePoint) TestProto() github_com_gogo_protobuf_proto.Message {
 
 func (this *ChargePoint) GetId() int32 {
 	return this.Id
-}
-
-func (this *ChargePoint) GetApplicationId() string {
-	return this.ApplicationId
 }
 
 func (this *ChargePoint) GetEntityCode() string {
@@ -1046,7 +791,6 @@ func (this *ChargePoint) GetOcppProtocol() string {
 func NewChargePointFromFace(that ChargePointFace) *ChargePoint {
 	this := &ChargePoint{}
 	this.Id = that.GetId()
-	this.ApplicationId = that.GetApplicationId()
 	this.EntityCode = that.GetEntityCode()
 	this.ChargePointIdentifier = that.GetChargePointIdentifier()
 	this.ChargePointVendor = that.GetChargePointVendor()
@@ -1145,41 +889,6 @@ func NewCreateChargePointReqFromFace(that CreateChargePointReqFace) *CreateCharg
 	return this
 }
 
-type CreateChargePointReqPublicFace interface {
-	Proto() github_com_gogo_protobuf_proto.Message
-	GetChargePointIdentifier() string
-	GetEntityCode() string
-	GetOcppProtocol() string
-}
-
-func (this *CreateChargePointReqPublic) Proto() github_com_gogo_protobuf_proto.Message {
-	return this
-}
-
-func (this *CreateChargePointReqPublic) TestProto() github_com_gogo_protobuf_proto.Message {
-	return NewCreateChargePointReqPublicFromFace(this)
-}
-
-func (this *CreateChargePointReqPublic) GetChargePointIdentifier() string {
-	return this.ChargePointIdentifier
-}
-
-func (this *CreateChargePointReqPublic) GetEntityCode() string {
-	return this.EntityCode
-}
-
-func (this *CreateChargePointReqPublic) GetOcppProtocol() string {
-	return this.OcppProtocol
-}
-
-func NewCreateChargePointReqPublicFromFace(that CreateChargePointReqPublicFace) *CreateChargePointReqPublic {
-	this := &CreateChargePointReqPublic{}
-	this.ChargePointIdentifier = that.GetChargePointIdentifier()
-	this.EntityCode = that.GetEntityCode()
-	this.OcppProtocol = that.GetOcppProtocol()
-	return this
-}
-
 type CreateChargePointRespFace interface {
 	Proto() github_com_gogo_protobuf_proto.Message
 	GetChargePoint() *ChargePoint
@@ -1205,7 +914,7 @@ func NewCreateChargePointRespFromFace(that CreateChargePointRespFace) *CreateCha
 
 type GetChargePointsReqFace interface {
 	Proto() github_com_gogo_protobuf_proto.Message
-	GetApplicationId() string
+	GetEntityCode() string
 }
 
 func (this *GetChargePointsReq) Proto() github_com_gogo_protobuf_proto.Message {
@@ -1216,13 +925,13 @@ func (this *GetChargePointsReq) TestProto() github_com_gogo_protobuf_proto.Messa
 	return NewGetChargePointsReqFromFace(this)
 }
 
-func (this *GetChargePointsReq) GetApplicationId() string {
-	return this.ApplicationId
+func (this *GetChargePointsReq) GetEntityCode() string {
+	return this.EntityCode
 }
 
 func NewGetChargePointsReqFromFace(that GetChargePointsReqFace) *GetChargePointsReq {
 	this := &GetChargePointsReq{}
-	this.ApplicationId = that.GetApplicationId()
+	this.EntityCode = that.GetEntityCode()
 	return this
 }
 
@@ -1249,61 +958,62 @@ func NewGetChargePointsRespFromFace(that GetChargePointsRespFace) *GetChargePoin
 	return this
 }
 
-type GetChargePointByIdentifierReqFace interface {
+type GetChargePointReqFace interface {
 	Proto() github_com_gogo_protobuf_proto.Message
+	GetEntityCode() string
 	GetChargePointIdentifier() string
-	GetApplicationId() string
 }
 
-func (this *GetChargePointByIdentifierReq) Proto() github_com_gogo_protobuf_proto.Message {
+func (this *GetChargePointReq) Proto() github_com_gogo_protobuf_proto.Message {
 	return this
 }
 
-func (this *GetChargePointByIdentifierReq) TestProto() github_com_gogo_protobuf_proto.Message {
-	return NewGetChargePointByIdentifierReqFromFace(this)
+func (this *GetChargePointReq) TestProto() github_com_gogo_protobuf_proto.Message {
+	return NewGetChargePointReqFromFace(this)
 }
 
-func (this *GetChargePointByIdentifierReq) GetChargePointIdentifier() string {
+func (this *GetChargePointReq) GetEntityCode() string {
+	return this.EntityCode
+}
+
+func (this *GetChargePointReq) GetChargePointIdentifier() string {
 	return this.ChargePointIdentifier
 }
 
-func (this *GetChargePointByIdentifierReq) GetApplicationId() string {
-	return this.ApplicationId
-}
-
-func NewGetChargePointByIdentifierReqFromFace(that GetChargePointByIdentifierReqFace) *GetChargePointByIdentifierReq {
-	this := &GetChargePointByIdentifierReq{}
+func NewGetChargePointReqFromFace(that GetChargePointReqFace) *GetChargePointReq {
+	this := &GetChargePointReq{}
+	this.EntityCode = that.GetEntityCode()
 	this.ChargePointIdentifier = that.GetChargePointIdentifier()
-	this.ApplicationId = that.GetApplicationId()
 	return this
 }
 
-type GetChargePointByIdentifierRespFace interface {
+type GetChargePointRespFace interface {
 	Proto() github_com_gogo_protobuf_proto.Message
 	GetChargePoint() *ChargePoint
 }
 
-func (this *GetChargePointByIdentifierResp) Proto() github_com_gogo_protobuf_proto.Message {
+func (this *GetChargePointResp) Proto() github_com_gogo_protobuf_proto.Message {
 	return this
 }
 
-func (this *GetChargePointByIdentifierResp) TestProto() github_com_gogo_protobuf_proto.Message {
-	return NewGetChargePointByIdentifierRespFromFace(this)
+func (this *GetChargePointResp) TestProto() github_com_gogo_protobuf_proto.Message {
+	return NewGetChargePointRespFromFace(this)
 }
 
-func (this *GetChargePointByIdentifierResp) GetChargePoint() *ChargePoint {
+func (this *GetChargePointResp) GetChargePoint() *ChargePoint {
 	return this.ChargePoint
 }
 
-func NewGetChargePointByIdentifierRespFromFace(that GetChargePointByIdentifierRespFace) *GetChargePointByIdentifierResp {
-	this := &GetChargePointByIdentifierResp{}
+func NewGetChargePointRespFromFace(that GetChargePointRespFace) *GetChargePointResp {
+	this := &GetChargePointResp{}
 	this.ChargePoint = that.GetChargePoint()
 	return this
 }
 
 type UpdateChargePointDetailsReqFace interface {
 	Proto() github_com_gogo_protobuf_proto.Message
-	GetChargePointId() int32
+	GetEntityCode() string
+	GetChargePointIdentifier() string
 	GetChargePointVendor() string
 	GetChargePointModel() string
 	GetChargePointSerialNumber() string
@@ -1323,8 +1033,12 @@ func (this *UpdateChargePointDetailsReq) TestProto() github_com_gogo_protobuf_pr
 	return NewUpdateChargePointDetailsReqFromFace(this)
 }
 
-func (this *UpdateChargePointDetailsReq) GetChargePointId() int32 {
-	return this.ChargePointId
+func (this *UpdateChargePointDetailsReq) GetEntityCode() string {
+	return this.EntityCode
+}
+
+func (this *UpdateChargePointDetailsReq) GetChargePointIdentifier() string {
+	return this.ChargePointIdentifier
 }
 
 func (this *UpdateChargePointDetailsReq) GetChargePointVendor() string {
@@ -1365,7 +1079,8 @@ func (this *UpdateChargePointDetailsReq) GetFirmwareVersion() string {
 
 func NewUpdateChargePointDetailsReqFromFace(that UpdateChargePointDetailsReqFace) *UpdateChargePointDetailsReq {
 	this := &UpdateChargePointDetailsReq{}
-	this.ChargePointId = that.GetChargePointId()
+	this.EntityCode = that.GetEntityCode()
+	this.ChargePointIdentifier = that.GetChargePointIdentifier()
 	this.ChargePointVendor = that.GetChargePointVendor()
 	this.ChargePointModel = that.GetChargePointModel()
 	this.ChargePointSerialNumber = that.GetChargePointSerialNumber()
@@ -1403,8 +1118,8 @@ func NewUpdateChargePointDetailsRespFromFace(that UpdateChargePointDetailsRespFa
 
 type CreateChargePointIdTagReqFace interface {
 	Proto() github_com_gogo_protobuf_proto.Message
+	GetEntityCode() string
 	GetChargePointIdentifier() string
-	GetApplicationId() string
 	GetIdTag() string
 }
 
@@ -1416,12 +1131,12 @@ func (this *CreateChargePointIdTagReq) TestProto() github_com_gogo_protobuf_prot
 	return NewCreateChargePointIdTagReqFromFace(this)
 }
 
-func (this *CreateChargePointIdTagReq) GetChargePointIdentifier() string {
-	return this.ChargePointIdentifier
+func (this *CreateChargePointIdTagReq) GetEntityCode() string {
+	return this.EntityCode
 }
 
-func (this *CreateChargePointIdTagReq) GetApplicationId() string {
-	return this.ApplicationId
+func (this *CreateChargePointIdTagReq) GetChargePointIdentifier() string {
+	return this.ChargePointIdentifier
 }
 
 func (this *CreateChargePointIdTagReq) GetIdTag() string {
@@ -1430,36 +1145,7 @@ func (this *CreateChargePointIdTagReq) GetIdTag() string {
 
 func NewCreateChargePointIdTagReqFromFace(that CreateChargePointIdTagReqFace) *CreateChargePointIdTagReq {
 	this := &CreateChargePointIdTagReq{}
-	this.ChargePointIdentifier = that.GetChargePointIdentifier()
-	this.ApplicationId = that.GetApplicationId()
-	this.IdTag = that.GetIdTag()
-	return this
-}
-
-type CreateChargePointIdTagReqPublicFace interface {
-	Proto() github_com_gogo_protobuf_proto.Message
-	GetChargePointIdentifier() string
-	GetIdTag() string
-}
-
-func (this *CreateChargePointIdTagReqPublic) Proto() github_com_gogo_protobuf_proto.Message {
-	return this
-}
-
-func (this *CreateChargePointIdTagReqPublic) TestProto() github_com_gogo_protobuf_proto.Message {
-	return NewCreateChargePointIdTagReqPublicFromFace(this)
-}
-
-func (this *CreateChargePointIdTagReqPublic) GetChargePointIdentifier() string {
-	return this.ChargePointIdentifier
-}
-
-func (this *CreateChargePointIdTagReqPublic) GetIdTag() string {
-	return this.IdTag
-}
-
-func NewCreateChargePointIdTagReqPublicFromFace(that CreateChargePointIdTagReqPublicFace) *CreateChargePointIdTagReqPublic {
-	this := &CreateChargePointIdTagReqPublic{}
+	this.EntityCode = that.GetEntityCode()
 	this.ChargePointIdentifier = that.GetChargePointIdentifier()
 	this.IdTag = that.GetIdTag()
 	return this
@@ -1490,8 +1176,8 @@ func NewCreateChargePointIdTagRespFromFace(that CreateChargePointIdTagRespFace) 
 
 type GetChargePointIdTagsReqFace interface {
 	Proto() github_com_gogo_protobuf_proto.Message
+	GetEntityCode() string
 	GetChargePointIdentifier() string
-	GetApplicationId() string
 }
 
 func (this *GetChargePointIdTagsReq) Proto() github_com_gogo_protobuf_proto.Message {
@@ -1502,18 +1188,18 @@ func (this *GetChargePointIdTagsReq) TestProto() github_com_gogo_protobuf_proto.
 	return NewGetChargePointIdTagsReqFromFace(this)
 }
 
+func (this *GetChargePointIdTagsReq) GetEntityCode() string {
+	return this.EntityCode
+}
+
 func (this *GetChargePointIdTagsReq) GetChargePointIdentifier() string {
 	return this.ChargePointIdentifier
 }
 
-func (this *GetChargePointIdTagsReq) GetApplicationId() string {
-	return this.ApplicationId
-}
-
 func NewGetChargePointIdTagsReqFromFace(that GetChargePointIdTagsReqFace) *GetChargePointIdTagsReq {
 	this := &GetChargePointIdTagsReq{}
+	this.EntityCode = that.GetEntityCode()
 	this.ChargePointIdentifier = that.GetChargePointIdentifier()
-	this.ApplicationId = that.GetApplicationId()
 	return this
 }
 
@@ -1540,114 +1226,264 @@ func NewGetChargePointIdTagsRespFromFace(that GetChargePointIdTagsRespFace) *Get
 	return this
 }
 
-type GetChargePointIdTagReqFace interface {
-	Proto() github_com_gogo_protobuf_proto.Message
-	GetChargePointIdentifier() string
-	GetApplicationId() string
-	GetIdTag() string
+// Reference imports to suppress errors if they are not otherwise used.
+var _ context.Context
+var _ grpc.ClientConn
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the grpc package it is being compiled against.
+const _ = grpc.SupportPackageIsVersion4
+
+// ChargePointServiceClient is the client API for ChargePointService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+type ChargePointServiceClient interface {
+	CreateChargePoint(ctx context.Context, in *CreateChargePointReq, opts ...grpc.CallOption) (*CreateChargePointResp, error)
+	GetChargePoints(ctx context.Context, in *GetChargePointsReq, opts ...grpc.CallOption) (*GetChargePointsResp, error)
+	GetChargePoint(ctx context.Context, in *GetChargePointReq, opts ...grpc.CallOption) (*GetChargePointResp, error)
+	UpdateChargePointDetails(ctx context.Context, in *UpdateChargePointDetailsReq, opts ...grpc.CallOption) (*UpdateChargePointDetailsResp, error)
+	CreateChargePointIdTag(ctx context.Context, in *CreateChargePointIdTagReq, opts ...grpc.CallOption) (*CreateChargePointIdTagResp, error)
+	GetChargePointIdTags(ctx context.Context, in *GetChargePointIdTagsReq, opts ...grpc.CallOption) (*GetChargePointIdTagsResp, error)
 }
 
-func (this *GetChargePointIdTagReq) Proto() github_com_gogo_protobuf_proto.Message {
-	return this
+type chargePointServiceClient struct {
+	cc *grpc.ClientConn
 }
 
-func (this *GetChargePointIdTagReq) TestProto() github_com_gogo_protobuf_proto.Message {
-	return NewGetChargePointIdTagReqFromFace(this)
+func NewChargePointServiceClient(cc *grpc.ClientConn) ChargePointServiceClient {
+	return &chargePointServiceClient{cc}
 }
 
-func (this *GetChargePointIdTagReq) GetChargePointIdentifier() string {
-	return this.ChargePointIdentifier
+func (c *chargePointServiceClient) CreateChargePoint(ctx context.Context, in *CreateChargePointReq, opts ...grpc.CallOption) (*CreateChargePointResp, error) {
+	out := new(CreateChargePointResp)
+	err := c.cc.Invoke(ctx, "/ocpp.ChargePointService/CreateChargePoint", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
-func (this *GetChargePointIdTagReq) GetApplicationId() string {
-	return this.ApplicationId
+func (c *chargePointServiceClient) GetChargePoints(ctx context.Context, in *GetChargePointsReq, opts ...grpc.CallOption) (*GetChargePointsResp, error) {
+	out := new(GetChargePointsResp)
+	err := c.cc.Invoke(ctx, "/ocpp.ChargePointService/GetChargePoints", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
-func (this *GetChargePointIdTagReq) GetIdTag() string {
-	return this.IdTag
+func (c *chargePointServiceClient) GetChargePoint(ctx context.Context, in *GetChargePointReq, opts ...grpc.CallOption) (*GetChargePointResp, error) {
+	out := new(GetChargePointResp)
+	err := c.cc.Invoke(ctx, "/ocpp.ChargePointService/GetChargePoint", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
-func NewGetChargePointIdTagReqFromFace(that GetChargePointIdTagReqFace) *GetChargePointIdTagReq {
-	this := &GetChargePointIdTagReq{}
-	this.ChargePointIdentifier = that.GetChargePointIdentifier()
-	this.ApplicationId = that.GetApplicationId()
-	this.IdTag = that.GetIdTag()
-	return this
+func (c *chargePointServiceClient) UpdateChargePointDetails(ctx context.Context, in *UpdateChargePointDetailsReq, opts ...grpc.CallOption) (*UpdateChargePointDetailsResp, error) {
+	out := new(UpdateChargePointDetailsResp)
+	err := c.cc.Invoke(ctx, "/ocpp.ChargePointService/UpdateChargePointDetails", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
-type GetChargePointIdTagRespFace interface {
-	Proto() github_com_gogo_protobuf_proto.Message
-	GetChargePointIdTag() *ChargePointIdTag
+func (c *chargePointServiceClient) CreateChargePointIdTag(ctx context.Context, in *CreateChargePointIdTagReq, opts ...grpc.CallOption) (*CreateChargePointIdTagResp, error) {
+	out := new(CreateChargePointIdTagResp)
+	err := c.cc.Invoke(ctx, "/ocpp.ChargePointService/CreateChargePointIdTag", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
-func (this *GetChargePointIdTagResp) Proto() github_com_gogo_protobuf_proto.Message {
-	return this
+func (c *chargePointServiceClient) GetChargePointIdTags(ctx context.Context, in *GetChargePointIdTagsReq, opts ...grpc.CallOption) (*GetChargePointIdTagsResp, error) {
+	out := new(GetChargePointIdTagsResp)
+	err := c.cc.Invoke(ctx, "/ocpp.ChargePointService/GetChargePointIdTags", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
-func (this *GetChargePointIdTagResp) TestProto() github_com_gogo_protobuf_proto.Message {
-	return NewGetChargePointIdTagRespFromFace(this)
+// ChargePointServiceServer is the server API for ChargePointService service.
+type ChargePointServiceServer interface {
+	CreateChargePoint(context.Context, *CreateChargePointReq) (*CreateChargePointResp, error)
+	GetChargePoints(context.Context, *GetChargePointsReq) (*GetChargePointsResp, error)
+	GetChargePoint(context.Context, *GetChargePointReq) (*GetChargePointResp, error)
+	UpdateChargePointDetails(context.Context, *UpdateChargePointDetailsReq) (*UpdateChargePointDetailsResp, error)
+	CreateChargePointIdTag(context.Context, *CreateChargePointIdTagReq) (*CreateChargePointIdTagResp, error)
+	GetChargePointIdTags(context.Context, *GetChargePointIdTagsReq) (*GetChargePointIdTagsResp, error)
 }
 
-func (this *GetChargePointIdTagResp) GetChargePointIdTag() *ChargePointIdTag {
-	return this.ChargePointIdTag
+// UnimplementedChargePointServiceServer can be embedded to have forward compatible implementations.
+type UnimplementedChargePointServiceServer struct {
 }
 
-func NewGetChargePointIdTagRespFromFace(that GetChargePointIdTagRespFace) *GetChargePointIdTagResp {
-	this := &GetChargePointIdTagResp{}
-	this.ChargePointIdTag = that.GetChargePointIdTag()
-	return this
+func (*UnimplementedChargePointServiceServer) CreateChargePoint(ctx context.Context, req *CreateChargePointReq) (*CreateChargePointResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateChargePoint not implemented")
+}
+func (*UnimplementedChargePointServiceServer) GetChargePoints(ctx context.Context, req *GetChargePointsReq) (*GetChargePointsResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetChargePoints not implemented")
+}
+func (*UnimplementedChargePointServiceServer) GetChargePoint(ctx context.Context, req *GetChargePointReq) (*GetChargePointResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetChargePoint not implemented")
+}
+func (*UnimplementedChargePointServiceServer) UpdateChargePointDetails(ctx context.Context, req *UpdateChargePointDetailsReq) (*UpdateChargePointDetailsResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateChargePointDetails not implemented")
+}
+func (*UnimplementedChargePointServiceServer) CreateChargePointIdTag(ctx context.Context, req *CreateChargePointIdTagReq) (*CreateChargePointIdTagResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateChargePointIdTag not implemented")
+}
+func (*UnimplementedChargePointServiceServer) GetChargePointIdTags(ctx context.Context, req *GetChargePointIdTagsReq) (*GetChargePointIdTagsResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetChargePointIdTags not implemented")
 }
 
-type GetChargePointByIDReqFace interface {
-	Proto() github_com_gogo_protobuf_proto.Message
-	GetId() int32
-	GetApplicationId() string
+func RegisterChargePointServiceServer(s *grpc.Server, srv ChargePointServiceServer) {
+	s.RegisterService(&_ChargePointService_serviceDesc, srv)
 }
 
-func (this *GetChargePointByIDReq) Proto() github_com_gogo_protobuf_proto.Message {
-	return this
+func _ChargePointService_CreateChargePoint_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateChargePointReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChargePointServiceServer).CreateChargePoint(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ocpp.ChargePointService/CreateChargePoint",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChargePointServiceServer).CreateChargePoint(ctx, req.(*CreateChargePointReq))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
-func (this *GetChargePointByIDReq) TestProto() github_com_gogo_protobuf_proto.Message {
-	return NewGetChargePointByIDReqFromFace(this)
+func _ChargePointService_GetChargePoints_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetChargePointsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChargePointServiceServer).GetChargePoints(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ocpp.ChargePointService/GetChargePoints",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChargePointServiceServer).GetChargePoints(ctx, req.(*GetChargePointsReq))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
-func (this *GetChargePointByIDReq) GetId() int32 {
-	return this.Id
+func _ChargePointService_GetChargePoint_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetChargePointReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChargePointServiceServer).GetChargePoint(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ocpp.ChargePointService/GetChargePoint",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChargePointServiceServer).GetChargePoint(ctx, req.(*GetChargePointReq))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
-func (this *GetChargePointByIDReq) GetApplicationId() string {
-	return this.ApplicationId
+func _ChargePointService_UpdateChargePointDetails_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateChargePointDetailsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChargePointServiceServer).UpdateChargePointDetails(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ocpp.ChargePointService/UpdateChargePointDetails",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChargePointServiceServer).UpdateChargePointDetails(ctx, req.(*UpdateChargePointDetailsReq))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
-func NewGetChargePointByIDReqFromFace(that GetChargePointByIDReqFace) *GetChargePointByIDReq {
-	this := &GetChargePointByIDReq{}
-	this.Id = that.GetId()
-	this.ApplicationId = that.GetApplicationId()
-	return this
+func _ChargePointService_CreateChargePointIdTag_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateChargePointIdTagReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChargePointServiceServer).CreateChargePointIdTag(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ocpp.ChargePointService/CreateChargePointIdTag",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChargePointServiceServer).CreateChargePointIdTag(ctx, req.(*CreateChargePointIdTagReq))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
-type GetChargePointByIDRespFace interface {
-	Proto() github_com_gogo_protobuf_proto.Message
-	GetChargePoint() *ChargePoint
+func _ChargePointService_GetChargePointIdTags_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetChargePointIdTagsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChargePointServiceServer).GetChargePointIdTags(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ocpp.ChargePointService/GetChargePointIdTags",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChargePointServiceServer).GetChargePointIdTags(ctx, req.(*GetChargePointIdTagsReq))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
-func (this *GetChargePointByIDResp) Proto() github_com_gogo_protobuf_proto.Message {
-	return this
-}
-
-func (this *GetChargePointByIDResp) TestProto() github_com_gogo_protobuf_proto.Message {
-	return NewGetChargePointByIDRespFromFace(this)
-}
-
-func (this *GetChargePointByIDResp) GetChargePoint() *ChargePoint {
-	return this.ChargePoint
-}
-
-func NewGetChargePointByIDRespFromFace(that GetChargePointByIDRespFace) *GetChargePointByIDResp {
-	this := &GetChargePointByIDResp{}
-	this.ChargePoint = that.GetChargePoint()
-	return this
+var _ChargePointService_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "ocpp.ChargePointService",
+	HandlerType: (*ChargePointServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "CreateChargePoint",
+			Handler:    _ChargePointService_CreateChargePoint_Handler,
+		},
+		{
+			MethodName: "GetChargePoints",
+			Handler:    _ChargePointService_GetChargePoints_Handler,
+		},
+		{
+			MethodName: "GetChargePoint",
+			Handler:    _ChargePointService_GetChargePoint_Handler,
+		},
+		{
+			MethodName: "UpdateChargePointDetails",
+			Handler:    _ChargePointService_UpdateChargePointDetails_Handler,
+		},
+		{
+			MethodName: "CreateChargePointIdTag",
+			Handler:    _ChargePointService_CreateChargePointIdTag_Handler,
+		},
+		{
+			MethodName: "GetChargePointIdTags",
+			Handler:    _ChargePointService_GetChargePointIdTags_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "charge_points.proto",
 }
 
 func (m *ChargePoint) Marshal() (dAtA []byte, err error) {
@@ -1679,94 +1515,87 @@ func (m *ChargePoint) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		copy(dAtA[i:], m.OcppProtocol)
 		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.OcppProtocol)))
 		i--
-		dAtA[i] = 0x7a
+		dAtA[i] = 0x72
 	}
 	if m.ConnectorCount != 0 {
 		i = encodeVarintChargePoints(dAtA, i, uint64(m.ConnectorCount))
 		i--
-		dAtA[i] = 0x70
+		dAtA[i] = 0x68
 	}
 	if len(m.FirmwareVersion) > 0 {
 		i -= len(m.FirmwareVersion)
 		copy(dAtA[i:], m.FirmwareVersion)
 		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.FirmwareVersion)))
 		i--
-		dAtA[i] = 0x6a
+		dAtA[i] = 0x62
 	}
 	if len(m.MeterSerialNumber) > 0 {
 		i -= len(m.MeterSerialNumber)
 		copy(dAtA[i:], m.MeterSerialNumber)
 		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.MeterSerialNumber)))
 		i--
-		dAtA[i] = 0x62
+		dAtA[i] = 0x5a
 	}
 	if len(m.MeterType) > 0 {
 		i -= len(m.MeterType)
 		copy(dAtA[i:], m.MeterType)
 		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.MeterType)))
 		i--
-		dAtA[i] = 0x5a
+		dAtA[i] = 0x52
 	}
 	if len(m.Imsi) > 0 {
 		i -= len(m.Imsi)
 		copy(dAtA[i:], m.Imsi)
 		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.Imsi)))
 		i--
-		dAtA[i] = 0x52
+		dAtA[i] = 0x4a
 	}
 	if len(m.Iccid) > 0 {
 		i -= len(m.Iccid)
 		copy(dAtA[i:], m.Iccid)
 		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.Iccid)))
 		i--
-		dAtA[i] = 0x4a
+		dAtA[i] = 0x42
 	}
 	if len(m.ChargeBoxSerialNumber) > 0 {
 		i -= len(m.ChargeBoxSerialNumber)
 		copy(dAtA[i:], m.ChargeBoxSerialNumber)
 		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.ChargeBoxSerialNumber)))
 		i--
-		dAtA[i] = 0x42
+		dAtA[i] = 0x3a
 	}
 	if len(m.ChargePointSerialNumber) > 0 {
 		i -= len(m.ChargePointSerialNumber)
 		copy(dAtA[i:], m.ChargePointSerialNumber)
 		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.ChargePointSerialNumber)))
 		i--
-		dAtA[i] = 0x3a
+		dAtA[i] = 0x32
 	}
 	if len(m.ChargePointModel) > 0 {
 		i -= len(m.ChargePointModel)
 		copy(dAtA[i:], m.ChargePointModel)
 		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.ChargePointModel)))
 		i--
-		dAtA[i] = 0x32
+		dAtA[i] = 0x2a
 	}
 	if len(m.ChargePointVendor) > 0 {
 		i -= len(m.ChargePointVendor)
 		copy(dAtA[i:], m.ChargePointVendor)
 		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.ChargePointVendor)))
 		i--
-		dAtA[i] = 0x2a
+		dAtA[i] = 0x22
 	}
 	if len(m.ChargePointIdentifier) > 0 {
 		i -= len(m.ChargePointIdentifier)
 		copy(dAtA[i:], m.ChargePointIdentifier)
 		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.ChargePointIdentifier)))
 		i--
-		dAtA[i] = 0x22
+		dAtA[i] = 0x1a
 	}
 	if len(m.EntityCode) > 0 {
 		i -= len(m.EntityCode)
 		copy(dAtA[i:], m.EntityCode)
 		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.EntityCode)))
-		i--
-		dAtA[i] = 0x1a
-	}
-	if len(m.ApplicationId) > 0 {
-		i -= len(m.ApplicationId)
-		copy(dAtA[i:], m.ApplicationId)
-		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.ApplicationId)))
 		i--
 		dAtA[i] = 0x12
 	}
@@ -1884,54 +1713,6 @@ func (m *CreateChargePointReq) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *CreateChargePointReqPublic) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *CreateChargePointReqPublic) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *CreateChargePointReqPublic) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.XXX_unrecognized != nil {
-		i -= len(m.XXX_unrecognized)
-		copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	if len(m.OcppProtocol) > 0 {
-		i -= len(m.OcppProtocol)
-		copy(dAtA[i:], m.OcppProtocol)
-		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.OcppProtocol)))
-		i--
-		dAtA[i] = 0x1a
-	}
-	if len(m.EntityCode) > 0 {
-		i -= len(m.EntityCode)
-		copy(dAtA[i:], m.EntityCode)
-		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.EntityCode)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.ChargePointIdentifier) > 0 {
-		i -= len(m.ChargePointIdentifier)
-		copy(dAtA[i:], m.ChargePointIdentifier)
-		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.ChargePointIdentifier)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
 func (m *CreateChargePointResp) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1995,10 +1776,10 @@ func (m *GetChargePointsReq) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i -= len(m.XXX_unrecognized)
 		copy(dAtA[i:], m.XXX_unrecognized)
 	}
-	if len(m.ApplicationId) > 0 {
-		i -= len(m.ApplicationId)
-		copy(dAtA[i:], m.ApplicationId)
-		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.ApplicationId)))
+	if len(m.EntityCode) > 0 {
+		i -= len(m.EntityCode)
+		copy(dAtA[i:], m.EntityCode)
+		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.EntityCode)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -2046,7 +1827,7 @@ func (m *GetChargePointsResp) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *GetChargePointByIdentifierReq) Marshal() (dAtA []byte, err error) {
+func (m *GetChargePointReq) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -2056,12 +1837,12 @@ func (m *GetChargePointByIdentifierReq) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *GetChargePointByIdentifierReq) MarshalTo(dAtA []byte) (int, error) {
+func (m *GetChargePointReq) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *GetChargePointByIdentifierReq) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *GetChargePointReq) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -2070,24 +1851,24 @@ func (m *GetChargePointByIdentifierReq) MarshalToSizedBuffer(dAtA []byte) (int, 
 		i -= len(m.XXX_unrecognized)
 		copy(dAtA[i:], m.XXX_unrecognized)
 	}
-	if len(m.ApplicationId) > 0 {
-		i -= len(m.ApplicationId)
-		copy(dAtA[i:], m.ApplicationId)
-		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.ApplicationId)))
-		i--
-		dAtA[i] = 0x12
-	}
 	if len(m.ChargePointIdentifier) > 0 {
 		i -= len(m.ChargePointIdentifier)
 		copy(dAtA[i:], m.ChargePointIdentifier)
 		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.ChargePointIdentifier)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.EntityCode) > 0 {
+		i -= len(m.EntityCode)
+		copy(dAtA[i:], m.EntityCode)
+		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.EntityCode)))
 		i--
 		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
 
-func (m *GetChargePointByIdentifierResp) Marshal() (dAtA []byte, err error) {
+func (m *GetChargePointResp) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -2097,12 +1878,12 @@ func (m *GetChargePointByIdentifierResp) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *GetChargePointByIdentifierResp) MarshalTo(dAtA []byte) (int, error) {
+func (m *GetChargePointResp) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *GetChargePointByIdentifierResp) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *GetChargePointResp) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -2155,68 +1936,77 @@ func (m *UpdateChargePointDetailsReq) MarshalToSizedBuffer(dAtA []byte) (int, er
 		copy(dAtA[i:], m.FirmwareVersion)
 		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.FirmwareVersion)))
 		i--
-		dAtA[i] = 0x52
+		dAtA[i] = 0x5a
 	}
 	if len(m.MeterSerialNumber) > 0 {
 		i -= len(m.MeterSerialNumber)
 		copy(dAtA[i:], m.MeterSerialNumber)
 		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.MeterSerialNumber)))
 		i--
-		dAtA[i] = 0x4a
+		dAtA[i] = 0x52
 	}
 	if len(m.MeterType) > 0 {
 		i -= len(m.MeterType)
 		copy(dAtA[i:], m.MeterType)
 		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.MeterType)))
 		i--
-		dAtA[i] = 0x42
+		dAtA[i] = 0x4a
 	}
 	if len(m.Imsi) > 0 {
 		i -= len(m.Imsi)
 		copy(dAtA[i:], m.Imsi)
 		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.Imsi)))
 		i--
-		dAtA[i] = 0x3a
+		dAtA[i] = 0x42
 	}
 	if len(m.Iccid) > 0 {
 		i -= len(m.Iccid)
 		copy(dAtA[i:], m.Iccid)
 		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.Iccid)))
 		i--
-		dAtA[i] = 0x32
+		dAtA[i] = 0x3a
 	}
 	if len(m.ChargeBoxSerialNumber) > 0 {
 		i -= len(m.ChargeBoxSerialNumber)
 		copy(dAtA[i:], m.ChargeBoxSerialNumber)
 		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.ChargeBoxSerialNumber)))
 		i--
-		dAtA[i] = 0x2a
+		dAtA[i] = 0x32
 	}
 	if len(m.ChargePointSerialNumber) > 0 {
 		i -= len(m.ChargePointSerialNumber)
 		copy(dAtA[i:], m.ChargePointSerialNumber)
 		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.ChargePointSerialNumber)))
 		i--
-		dAtA[i] = 0x22
+		dAtA[i] = 0x2a
 	}
 	if len(m.ChargePointModel) > 0 {
 		i -= len(m.ChargePointModel)
 		copy(dAtA[i:], m.ChargePointModel)
 		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.ChargePointModel)))
 		i--
-		dAtA[i] = 0x1a
+		dAtA[i] = 0x22
 	}
 	if len(m.ChargePointVendor) > 0 {
 		i -= len(m.ChargePointVendor)
 		copy(dAtA[i:], m.ChargePointVendor)
 		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.ChargePointVendor)))
 		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.ChargePointIdentifier) > 0 {
+		i -= len(m.ChargePointIdentifier)
+		copy(dAtA[i:], m.ChargePointIdentifier)
+		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.ChargePointIdentifier)))
+		i--
 		dAtA[i] = 0x12
 	}
-	if m.ChargePointId != 0 {
-		i = encodeVarintChargePoints(dAtA, i, uint64(m.ChargePointId))
+	if len(m.EntityCode) > 0 {
+		i -= len(m.EntityCode)
+		copy(dAtA[i:], m.EntityCode)
+		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.EntityCode)))
 		i--
-		dAtA[i] = 0x8
+		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
@@ -2291,58 +2081,17 @@ func (m *CreateChargePointIdTagReq) MarshalToSizedBuffer(dAtA []byte) (int, erro
 		i--
 		dAtA[i] = 0x1a
 	}
-	if len(m.ApplicationId) > 0 {
-		i -= len(m.ApplicationId)
-		copy(dAtA[i:], m.ApplicationId)
-		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.ApplicationId)))
-		i--
-		dAtA[i] = 0x12
-	}
 	if len(m.ChargePointIdentifier) > 0 {
 		i -= len(m.ChargePointIdentifier)
 		copy(dAtA[i:], m.ChargePointIdentifier)
 		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.ChargePointIdentifier)))
 		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *CreateChargePointIdTagReqPublic) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *CreateChargePointIdTagReqPublic) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *CreateChargePointIdTagReqPublic) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.XXX_unrecognized != nil {
-		i -= len(m.XXX_unrecognized)
-		copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	if len(m.IdTag) > 0 {
-		i -= len(m.IdTag)
-		copy(dAtA[i:], m.IdTag)
-		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.IdTag)))
-		i--
 		dAtA[i] = 0x12
 	}
-	if len(m.ChargePointIdentifier) > 0 {
-		i -= len(m.ChargePointIdentifier)
-		copy(dAtA[i:], m.ChargePointIdentifier)
-		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.ChargePointIdentifier)))
+	if len(m.EntityCode) > 0 {
+		i -= len(m.EntityCode)
+		copy(dAtA[i:], m.EntityCode)
+		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.EntityCode)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -2412,17 +2161,17 @@ func (m *GetChargePointIdTagsReq) MarshalToSizedBuffer(dAtA []byte) (int, error)
 		i -= len(m.XXX_unrecognized)
 		copy(dAtA[i:], m.XXX_unrecognized)
 	}
-	if len(m.ApplicationId) > 0 {
-		i -= len(m.ApplicationId)
-		copy(dAtA[i:], m.ApplicationId)
-		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.ApplicationId)))
-		i--
-		dAtA[i] = 0x12
-	}
 	if len(m.ChargePointIdentifier) > 0 {
 		i -= len(m.ChargePointIdentifier)
 		copy(dAtA[i:], m.ChargePointIdentifier)
 		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.ChargePointIdentifier)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.EntityCode) > 0 {
+		i -= len(m.EntityCode)
+		copy(dAtA[i:], m.EntityCode)
+		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.EntityCode)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -2470,171 +2219,6 @@ func (m *GetChargePointIdTagsResp) MarshalToSizedBuffer(dAtA []byte) (int, error
 	return len(dAtA) - i, nil
 }
 
-func (m *GetChargePointIdTagReq) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *GetChargePointIdTagReq) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *GetChargePointIdTagReq) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.XXX_unrecognized != nil {
-		i -= len(m.XXX_unrecognized)
-		copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	if len(m.IdTag) > 0 {
-		i -= len(m.IdTag)
-		copy(dAtA[i:], m.IdTag)
-		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.IdTag)))
-		i--
-		dAtA[i] = 0x1a
-	}
-	if len(m.ApplicationId) > 0 {
-		i -= len(m.ApplicationId)
-		copy(dAtA[i:], m.ApplicationId)
-		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.ApplicationId)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.ChargePointIdentifier) > 0 {
-		i -= len(m.ChargePointIdentifier)
-		copy(dAtA[i:], m.ChargePointIdentifier)
-		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.ChargePointIdentifier)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *GetChargePointIdTagResp) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *GetChargePointIdTagResp) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *GetChargePointIdTagResp) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.XXX_unrecognized != nil {
-		i -= len(m.XXX_unrecognized)
-		copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	if m.ChargePointIdTag != nil {
-		{
-			size, err := m.ChargePointIdTag.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintChargePoints(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *GetChargePointByIDReq) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *GetChargePointByIDReq) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *GetChargePointByIDReq) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.XXX_unrecognized != nil {
-		i -= len(m.XXX_unrecognized)
-		copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	if len(m.ApplicationId) > 0 {
-		i -= len(m.ApplicationId)
-		copy(dAtA[i:], m.ApplicationId)
-		i = encodeVarintChargePoints(dAtA, i, uint64(len(m.ApplicationId)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if m.Id != 0 {
-		i = encodeVarintChargePoints(dAtA, i, uint64(m.Id))
-		i--
-		dAtA[i] = 0x8
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *GetChargePointByIDResp) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *GetChargePointByIDResp) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *GetChargePointByIDResp) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.XXX_unrecognized != nil {
-		i -= len(m.XXX_unrecognized)
-		copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	if m.ChargePoint != nil {
-		{
-			size, err := m.ChargePoint.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintChargePoints(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
 func encodeVarintChargePoints(dAtA []byte, offset int, v uint64) int {
 	offset -= sovChargePoints(v)
 	base := offset
@@ -2654,10 +2238,6 @@ func (m *ChargePoint) Size() (n int) {
 	_ = l
 	if m.Id != 0 {
 		n += 1 + sovChargePoints(uint64(m.Id))
-	}
-	l = len(m.ApplicationId)
-	if l > 0 {
-		n += 1 + l + sovChargePoints(uint64(l))
 	}
 	l = len(m.EntityCode)
 	if l > 0 {
@@ -2770,30 +2350,6 @@ func (m *CreateChargePointReq) Size() (n int) {
 	return n
 }
 
-func (m *CreateChargePointReqPublic) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.ChargePointIdentifier)
-	if l > 0 {
-		n += 1 + l + sovChargePoints(uint64(l))
-	}
-	l = len(m.EntityCode)
-	if l > 0 {
-		n += 1 + l + sovChargePoints(uint64(l))
-	}
-	l = len(m.OcppProtocol)
-	if l > 0 {
-		n += 1 + l + sovChargePoints(uint64(l))
-	}
-	if m.XXX_unrecognized != nil {
-		n += len(m.XXX_unrecognized)
-	}
-	return n
-}
-
 func (m *CreateChargePointResp) Size() (n int) {
 	if m == nil {
 		return 0
@@ -2816,7 +2372,7 @@ func (m *GetChargePointsReq) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.ApplicationId)
+	l = len(m.EntityCode)
 	if l > 0 {
 		n += 1 + l + sovChargePoints(uint64(l))
 	}
@@ -2844,17 +2400,17 @@ func (m *GetChargePointsResp) Size() (n int) {
 	return n
 }
 
-func (m *GetChargePointByIdentifierReq) Size() (n int) {
+func (m *GetChargePointReq) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.ChargePointIdentifier)
+	l = len(m.EntityCode)
 	if l > 0 {
 		n += 1 + l + sovChargePoints(uint64(l))
 	}
-	l = len(m.ApplicationId)
+	l = len(m.ChargePointIdentifier)
 	if l > 0 {
 		n += 1 + l + sovChargePoints(uint64(l))
 	}
@@ -2864,7 +2420,7 @@ func (m *GetChargePointByIdentifierReq) Size() (n int) {
 	return n
 }
 
-func (m *GetChargePointByIdentifierResp) Size() (n int) {
+func (m *GetChargePointResp) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -2886,8 +2442,13 @@ func (m *UpdateChargePointDetailsReq) Size() (n int) {
 	}
 	var l int
 	_ = l
-	if m.ChargePointId != 0 {
-		n += 1 + sovChargePoints(uint64(m.ChargePointId))
+	l = len(m.EntityCode)
+	if l > 0 {
+		n += 1 + l + sovChargePoints(uint64(l))
+	}
+	l = len(m.ChargePointIdentifier)
+	if l > 0 {
+		n += 1 + l + sovChargePoints(uint64(l))
 	}
 	l = len(m.ChargePointVendor)
 	if l > 0 {
@@ -2953,30 +2514,10 @@ func (m *CreateChargePointIdTagReq) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.ChargePointIdentifier)
+	l = len(m.EntityCode)
 	if l > 0 {
 		n += 1 + l + sovChargePoints(uint64(l))
 	}
-	l = len(m.ApplicationId)
-	if l > 0 {
-		n += 1 + l + sovChargePoints(uint64(l))
-	}
-	l = len(m.IdTag)
-	if l > 0 {
-		n += 1 + l + sovChargePoints(uint64(l))
-	}
-	if m.XXX_unrecognized != nil {
-		n += len(m.XXX_unrecognized)
-	}
-	return n
-}
-
-func (m *CreateChargePointIdTagReqPublic) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
 	l = len(m.ChargePointIdentifier)
 	if l > 0 {
 		n += 1 + l + sovChargePoints(uint64(l))
@@ -3013,11 +2554,11 @@ func (m *GetChargePointIdTagsReq) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.ChargePointIdentifier)
+	l = len(m.EntityCode)
 	if l > 0 {
 		n += 1 + l + sovChargePoints(uint64(l))
 	}
-	l = len(m.ApplicationId)
+	l = len(m.ChargePointIdentifier)
 	if l > 0 {
 		n += 1 + l + sovChargePoints(uint64(l))
 	}
@@ -3038,81 +2579,6 @@ func (m *GetChargePointIdTagsResp) Size() (n int) {
 			l = e.Size()
 			n += 1 + l + sovChargePoints(uint64(l))
 		}
-	}
-	if m.XXX_unrecognized != nil {
-		n += len(m.XXX_unrecognized)
-	}
-	return n
-}
-
-func (m *GetChargePointIdTagReq) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.ChargePointIdentifier)
-	if l > 0 {
-		n += 1 + l + sovChargePoints(uint64(l))
-	}
-	l = len(m.ApplicationId)
-	if l > 0 {
-		n += 1 + l + sovChargePoints(uint64(l))
-	}
-	l = len(m.IdTag)
-	if l > 0 {
-		n += 1 + l + sovChargePoints(uint64(l))
-	}
-	if m.XXX_unrecognized != nil {
-		n += len(m.XXX_unrecognized)
-	}
-	return n
-}
-
-func (m *GetChargePointIdTagResp) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.ChargePointIdTag != nil {
-		l = m.ChargePointIdTag.Size()
-		n += 1 + l + sovChargePoints(uint64(l))
-	}
-	if m.XXX_unrecognized != nil {
-		n += len(m.XXX_unrecognized)
-	}
-	return n
-}
-
-func (m *GetChargePointByIDReq) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.Id != 0 {
-		n += 1 + sovChargePoints(uint64(m.Id))
-	}
-	l = len(m.ApplicationId)
-	if l > 0 {
-		n += 1 + l + sovChargePoints(uint64(l))
-	}
-	if m.XXX_unrecognized != nil {
-		n += len(m.XXX_unrecognized)
-	}
-	return n
-}
-
-func (m *GetChargePointByIDResp) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.ChargePoint != nil {
-		l = m.ChargePoint.Size()
-		n += 1 + l + sovChargePoints(uint64(l))
 	}
 	if m.XXX_unrecognized != nil {
 		n += len(m.XXX_unrecognized)
@@ -3176,38 +2642,6 @@ func (m *ChargePoint) Unmarshal(dAtA []byte) error {
 			}
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ApplicationId", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowChargePoints
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ApplicationId = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field EntityCode", wireType)
 			}
 			var stringLen uint64
@@ -3238,7 +2672,7 @@ func (m *ChargePoint) Unmarshal(dAtA []byte) error {
 			}
 			m.EntityCode = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 4:
+		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ChargePointIdentifier", wireType)
 			}
@@ -3270,7 +2704,7 @@ func (m *ChargePoint) Unmarshal(dAtA []byte) error {
 			}
 			m.ChargePointIdentifier = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 5:
+		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ChargePointVendor", wireType)
 			}
@@ -3302,7 +2736,7 @@ func (m *ChargePoint) Unmarshal(dAtA []byte) error {
 			}
 			m.ChargePointVendor = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 6:
+		case 5:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ChargePointModel", wireType)
 			}
@@ -3334,7 +2768,7 @@ func (m *ChargePoint) Unmarshal(dAtA []byte) error {
 			}
 			m.ChargePointModel = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 7:
+		case 6:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ChargePointSerialNumber", wireType)
 			}
@@ -3366,7 +2800,7 @@ func (m *ChargePoint) Unmarshal(dAtA []byte) error {
 			}
 			m.ChargePointSerialNumber = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 8:
+		case 7:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ChargeBoxSerialNumber", wireType)
 			}
@@ -3398,7 +2832,7 @@ func (m *ChargePoint) Unmarshal(dAtA []byte) error {
 			}
 			m.ChargeBoxSerialNumber = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 9:
+		case 8:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Iccid", wireType)
 			}
@@ -3430,7 +2864,7 @@ func (m *ChargePoint) Unmarshal(dAtA []byte) error {
 			}
 			m.Iccid = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 10:
+		case 9:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Imsi", wireType)
 			}
@@ -3462,7 +2896,7 @@ func (m *ChargePoint) Unmarshal(dAtA []byte) error {
 			}
 			m.Imsi = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 11:
+		case 10:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field MeterType", wireType)
 			}
@@ -3494,7 +2928,7 @@ func (m *ChargePoint) Unmarshal(dAtA []byte) error {
 			}
 			m.MeterType = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 12:
+		case 11:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field MeterSerialNumber", wireType)
 			}
@@ -3526,7 +2960,7 @@ func (m *ChargePoint) Unmarshal(dAtA []byte) error {
 			}
 			m.MeterSerialNumber = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 13:
+		case 12:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field FirmwareVersion", wireType)
 			}
@@ -3558,7 +2992,7 @@ func (m *ChargePoint) Unmarshal(dAtA []byte) error {
 			}
 			m.FirmwareVersion = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 14:
+		case 13:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ConnectorCount", wireType)
 			}
@@ -3577,7 +3011,7 @@ func (m *ChargePoint) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 15:
+		case 14:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field OcppProtocol", wireType)
 			}
@@ -3963,153 +3397,6 @@ func (m *CreateChargePointReq) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *CreateChargePointReqPublic) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowChargePoints
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: CreateChargePointReqPublic: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: CreateChargePointReqPublic: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ChargePointIdentifier", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowChargePoints
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ChargePointIdentifier = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field EntityCode", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowChargePoints
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.EntityCode = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field OcppProtocol", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowChargePoints
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.OcppProtocol = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipChargePoints(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
 func (m *CreateChargePointResp) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -4228,7 +3515,7 @@ func (m *GetChargePointsReq) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ApplicationId", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field EntityCode", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -4256,7 +3543,7 @@ func (m *GetChargePointsReq) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.ApplicationId = string(dAtA[iNdEx:postIndex])
+			m.EntityCode = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -4365,7 +3652,7 @@ func (m *GetChargePointsResp) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *GetChargePointByIdentifierReq) Unmarshal(dAtA []byte) error {
+func (m *GetChargePointReq) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -4388,13 +3675,45 @@ func (m *GetChargePointByIdentifierReq) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: GetChargePointByIdentifierReq: wiretype end group for non-group")
+			return fmt.Errorf("proto: GetChargePointReq: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: GetChargePointByIdentifierReq: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: GetChargePointReq: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EntityCode", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowChargePoints
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthChargePoints
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthChargePoints
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.EntityCode = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ChargePointIdentifier", wireType)
 			}
@@ -4426,38 +3745,6 @@ func (m *GetChargePointByIdentifierReq) Unmarshal(dAtA []byte) error {
 			}
 			m.ChargePointIdentifier = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ApplicationId", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowChargePoints
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ApplicationId = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipChargePoints(dAtA[iNdEx:])
@@ -4480,7 +3767,7 @@ func (m *GetChargePointByIdentifierReq) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *GetChargePointByIdentifierResp) Unmarshal(dAtA []byte) error {
+func (m *GetChargePointResp) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -4503,10 +3790,10 @@ func (m *GetChargePointByIdentifierResp) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: GetChargePointByIdentifierResp: wiretype end group for non-group")
+			return fmt.Errorf("proto: GetChargePointResp: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: GetChargePointByIdentifierResp: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: GetChargePointResp: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -4597,10 +3884,10 @@ func (m *UpdateChargePointDetailsReq) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ChargePointId", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EntityCode", wireType)
 			}
-			m.ChargePointId = 0
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowChargePoints
@@ -4610,12 +3897,57 @@ func (m *UpdateChargePointDetailsReq) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ChargePointId |= int32(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthChargePoints
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthChargePoints
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.EntityCode = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
 		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ChargePointIdentifier", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowChargePoints
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthChargePoints
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthChargePoints
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ChargePointIdentifier = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ChargePointVendor", wireType)
 			}
@@ -4647,7 +3979,7 @@ func (m *UpdateChargePointDetailsReq) Unmarshal(dAtA []byte) error {
 			}
 			m.ChargePointVendor = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 3:
+		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ChargePointModel", wireType)
 			}
@@ -4679,7 +4011,7 @@ func (m *UpdateChargePointDetailsReq) Unmarshal(dAtA []byte) error {
 			}
 			m.ChargePointModel = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 4:
+		case 5:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ChargePointSerialNumber", wireType)
 			}
@@ -4711,7 +4043,7 @@ func (m *UpdateChargePointDetailsReq) Unmarshal(dAtA []byte) error {
 			}
 			m.ChargePointSerialNumber = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 5:
+		case 6:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ChargeBoxSerialNumber", wireType)
 			}
@@ -4743,7 +4075,7 @@ func (m *UpdateChargePointDetailsReq) Unmarshal(dAtA []byte) error {
 			}
 			m.ChargeBoxSerialNumber = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 6:
+		case 7:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Iccid", wireType)
 			}
@@ -4775,7 +4107,7 @@ func (m *UpdateChargePointDetailsReq) Unmarshal(dAtA []byte) error {
 			}
 			m.Iccid = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 7:
+		case 8:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Imsi", wireType)
 			}
@@ -4807,7 +4139,7 @@ func (m *UpdateChargePointDetailsReq) Unmarshal(dAtA []byte) error {
 			}
 			m.Imsi = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 8:
+		case 9:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field MeterType", wireType)
 			}
@@ -4839,7 +4171,7 @@ func (m *UpdateChargePointDetailsReq) Unmarshal(dAtA []byte) error {
 			}
 			m.MeterType = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 9:
+		case 10:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field MeterSerialNumber", wireType)
 			}
@@ -4871,7 +4203,7 @@ func (m *UpdateChargePointDetailsReq) Unmarshal(dAtA []byte) error {
 			}
 			m.MeterSerialNumber = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 10:
+		case 11:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field FirmwareVersion", wireType)
 			}
@@ -5043,6 +4375,38 @@ func (m *CreateChargePointIdTagReq) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EntityCode", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowChargePoints
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthChargePoints
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthChargePoints
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.EntityCode = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ChargePointIdentifier", wireType)
 			}
 			var stringLen uint64
@@ -5072,155 +4436,8 @@ func (m *CreateChargePointIdTagReq) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.ChargePointIdentifier = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ApplicationId", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowChargePoints
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ApplicationId = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field IdTag", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowChargePoints
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.IdTag = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipChargePoints(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *CreateChargePointIdTagReqPublic) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowChargePoints
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: CreateChargePointIdTagReqPublic: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: CreateChargePointIdTagReqPublic: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ChargePointIdentifier", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowChargePoints
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ChargePointIdentifier = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field IdTag", wireType)
 			}
@@ -5392,6 +4609,38 @@ func (m *GetChargePointIdTagsReq) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EntityCode", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowChargePoints
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthChargePoints
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthChargePoints
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.EntityCode = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ChargePointIdentifier", wireType)
 			}
 			var stringLen uint64
@@ -5421,38 +4670,6 @@ func (m *GetChargePointIdTagsReq) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.ChargePointIdentifier = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ApplicationId", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowChargePoints
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ApplicationId = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -5536,429 +4753,6 @@ func (m *GetChargePointIdTagsResp) Unmarshal(dAtA []byte) error {
 			}
 			m.ChargePointIdTags = append(m.ChargePointIdTags, &ChargePointIdTag{})
 			if err := m.ChargePointIdTags[len(m.ChargePointIdTags)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipChargePoints(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *GetChargePointIdTagReq) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowChargePoints
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: GetChargePointIdTagReq: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: GetChargePointIdTagReq: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ChargePointIdentifier", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowChargePoints
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ChargePointIdentifier = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ApplicationId", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowChargePoints
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ApplicationId = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field IdTag", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowChargePoints
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.IdTag = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipChargePoints(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *GetChargePointIdTagResp) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowChargePoints
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: GetChargePointIdTagResp: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: GetChargePointIdTagResp: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ChargePointIdTag", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowChargePoints
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if m.ChargePointIdTag == nil {
-				m.ChargePointIdTag = &ChargePointIdTag{}
-			}
-			if err := m.ChargePointIdTag.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipChargePoints(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *GetChargePointByIDReq) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowChargePoints
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: GetChargePointByIDReq: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: GetChargePointByIDReq: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
-			}
-			m.Id = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowChargePoints
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Id |= int32(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ApplicationId", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowChargePoints
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ApplicationId = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipChargePoints(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *GetChargePointByIDResp) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowChargePoints
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: GetChargePointByIDResp: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: GetChargePointByIDResp: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ChargePoint", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowChargePoints
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthChargePoints
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if m.ChargePoint == nil {
-				m.ChargePoint = &ChargePoint{}
-			}
-			if err := m.ChargePoint.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

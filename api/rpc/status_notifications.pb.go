@@ -4,10 +4,14 @@
 package rpc
 
 import (
+	context "context"
 	fmt "fmt"
 	_ "github.com/gogo/protobuf/gogoproto"
 	github_com_gogo_protobuf_proto "github.com/gogo/protobuf/proto"
 	proto "github.com/gogo/protobuf/proto"
+	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	io "io"
 	math "math"
 	math_bits "math/bits"
@@ -26,15 +30,14 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type StatusNotification struct {
 	Id                   int32    `protobuf:"varint,1,opt,name=id,proto3" json:"id"`
-	ChargePointId        int32    `protobuf:"varint,2,opt,name=charge_point_id,json=chargePointId,proto3" json:"charge_point_id"`
-	ConnectorId          int32    `protobuf:"varint,3,opt,name=connector_id,json=connectorId,proto3" json:"connector_id"`
-	ErrorCode            string   `protobuf:"bytes,4,opt,name=error_code,json=errorCode,proto3" json:"error_code"`
-	Info                 string   `protobuf:"bytes,5,opt,name=info,proto3" json:"info"`
-	Status               string   `protobuf:"bytes,6,opt,name=status,proto3" json:"status"`
-	VendorId             string   `protobuf:"bytes,7,opt,name=vendor_id,json=vendorId,proto3" json:"vendor_id"`
-	VendorErrorCode      string   `protobuf:"bytes,8,opt,name=vendor_error_code,json=vendorErrorCode,proto3" json:"vendor_error_code"`
-	Timestamp            string   `protobuf:"bytes,9,opt,name=timestamp,proto3" json:"timestamp"`
-	ReportedTimestamp    string   `protobuf:"bytes,10,opt,name=reported_timestamp,json=reportedTimestamp,proto3" json:"reported_timestamp"`
+	ConnectorId          int32    `protobuf:"varint,2,opt,name=connector_id,json=connectorId,proto3" json:"connector_id"`
+	ErrorCode            string   `protobuf:"bytes,3,opt,name=error_code,json=errorCode,proto3" json:"error_code"`
+	Info                 string   `protobuf:"bytes,4,opt,name=info,proto3" json:"info"`
+	Status               string   `protobuf:"bytes,5,opt,name=status,proto3" json:"status"`
+	VendorId             string   `protobuf:"bytes,6,opt,name=vendor_id,json=vendorId,proto3" json:"vendor_id"`
+	VendorErrorCode      string   `protobuf:"bytes,7,opt,name=vendor_error_code,json=vendorErrorCode,proto3" json:"vendor_error_code"`
+	Timestamp            string   `protobuf:"bytes,8,opt,name=timestamp,proto3" json:"timestamp"`
+	ReportedTimestamp    string   `protobuf:"bytes,9,opt,name=reported_timestamp,json=reportedTimestamp,proto3" json:"reported_timestamp"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -73,9 +76,8 @@ func (m *StatusNotification) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_StatusNotification proto.InternalMessageInfo
 
-// for exposed services
 type GetLatestStatusNotificationsReq struct {
-	ApplicationId         string   `protobuf:"bytes,1,opt,name=application_id,json=applicationId,proto3" json:"application_id,omitempty"`
+	EntityCode            string   `protobuf:"bytes,1,opt,name=entity_code,json=entityCode,proto3" json:"entity_code,omitempty"`
 	ChargePointIdentifier string   `protobuf:"bytes,2,opt,name=charge_point_identifier,json=chargePointIdentifier,proto3" json:"charge_point_identifier,omitempty"`
 	XXX_NoUnkeyedLiteral  struct{} `json:"-"`
 	XXX_unrecognized      []byte   `json:"-"`
@@ -115,46 +117,6 @@ func (m *GetLatestStatusNotificationsReq) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_GetLatestStatusNotificationsReq proto.InternalMessageInfo
 
-type GetLatestStatusNotificationsReqPublic struct {
-	ChargePointIdentifier string   `protobuf:"bytes,1,opt,name=charge_point_identifier,json=chargePointIdentifier,proto3" json:"charge_point_identifier,omitempty"`
-	XXX_NoUnkeyedLiteral  struct{} `json:"-"`
-	XXX_unrecognized      []byte   `json:"-"`
-	XXX_sizecache         int32    `json:"-"`
-}
-
-func (m *GetLatestStatusNotificationsReqPublic) Reset()         { *m = GetLatestStatusNotificationsReqPublic{} }
-func (m *GetLatestStatusNotificationsReqPublic) String() string { return proto.CompactTextString(m) }
-func (*GetLatestStatusNotificationsReqPublic) ProtoMessage()    {}
-func (*GetLatestStatusNotificationsReqPublic) Descriptor() ([]byte, []int) {
-	return fileDescriptor_a9ddc45ac0e19661, []int{2}
-}
-func (m *GetLatestStatusNotificationsReqPublic) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *GetLatestStatusNotificationsReqPublic) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_GetLatestStatusNotificationsReqPublic.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *GetLatestStatusNotificationsReqPublic) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetLatestStatusNotificationsReqPublic.Merge(m, src)
-}
-func (m *GetLatestStatusNotificationsReqPublic) XXX_Size() int {
-	return m.Size()
-}
-func (m *GetLatestStatusNotificationsReqPublic) XXX_DiscardUnknown() {
-	xxx_messageInfo_GetLatestStatusNotificationsReqPublic.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_GetLatestStatusNotificationsReqPublic proto.InternalMessageInfo
-
 type GetLatestStatusNotificationsResp struct {
 	ConnectorStatus      []*StatusNotification `protobuf:"bytes,1,rep,name=connector_status,json=connectorStatus,proto3" json:"connector_status"`
 	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
@@ -166,7 +128,7 @@ func (m *GetLatestStatusNotificationsResp) Reset()         { *m = GetLatestStatu
 func (m *GetLatestStatusNotificationsResp) String() string { return proto.CompactTextString(m) }
 func (*GetLatestStatusNotificationsResp) ProtoMessage()    {}
 func (*GetLatestStatusNotificationsResp) Descriptor() ([]byte, []int) {
-	return fileDescriptor_a9ddc45ac0e19661, []int{3}
+	return fileDescriptor_a9ddc45ac0e19661, []int{2}
 }
 func (m *GetLatestStatusNotificationsResp) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -195,26 +157,26 @@ func (m *GetLatestStatusNotificationsResp) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_GetLatestStatusNotificationsResp proto.InternalMessageInfo
 
-// for internal services
 type CreateStatusNotificationReq struct {
-	ChargePointId        int32    `protobuf:"varint,1,opt,name=charge_point_id,json=chargePointId,proto3" json:"charge_point_id,omitempty"`
-	ConnectorId          int32    `protobuf:"varint,2,opt,name=connector_id,json=connectorId,proto3" json:"connector_id,omitempty"`
-	ErrorCode            string   `protobuf:"bytes,3,opt,name=error_code,json=errorCode,proto3" json:"error_code,omitempty"`
-	Info                 string   `protobuf:"bytes,4,opt,name=info,proto3" json:"info,omitempty"`
-	Status               string   `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`
-	Timestamp            string   `protobuf:"bytes,6,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
-	VendorId             string   `protobuf:"bytes,7,opt,name=vendor_id,json=vendorId,proto3" json:"vendor_id,omitempty"`
-	VendorErrorCode      string   `protobuf:"bytes,8,opt,name=vendor_error_code,json=vendorErrorCode,proto3" json:"vendor_error_code,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+	EntityCode            string   `protobuf:"bytes,1,opt,name=entity_code,json=entityCode,proto3" json:"entity_code,omitempty"`
+	ChargePointIdentifier string   `protobuf:"bytes,2,opt,name=charge_point_identifier,json=chargePointIdentifier,proto3" json:"charge_point_identifier,omitempty"`
+	ConnectorId           int32    `protobuf:"varint,3,opt,name=connector_id,json=connectorId,proto3" json:"connector_id,omitempty"`
+	ErrorCode             string   `protobuf:"bytes,4,opt,name=error_code,json=errorCode,proto3" json:"error_code,omitempty"`
+	Info                  string   `protobuf:"bytes,5,opt,name=info,proto3" json:"info,omitempty"`
+	Status                string   `protobuf:"bytes,6,opt,name=status,proto3" json:"status,omitempty"`
+	Timestamp             string   `protobuf:"bytes,7,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	VendorId              string   `protobuf:"bytes,8,opt,name=vendor_id,json=vendorId,proto3" json:"vendor_id,omitempty"`
+	VendorErrorCode       string   `protobuf:"bytes,9,opt,name=vendor_error_code,json=vendorErrorCode,proto3" json:"vendor_error_code,omitempty"`
+	XXX_NoUnkeyedLiteral  struct{} `json:"-"`
+	XXX_unrecognized      []byte   `json:"-"`
+	XXX_sizecache         int32    `json:"-"`
 }
 
 func (m *CreateStatusNotificationReq) Reset()         { *m = CreateStatusNotificationReq{} }
 func (m *CreateStatusNotificationReq) String() string { return proto.CompactTextString(m) }
 func (*CreateStatusNotificationReq) ProtoMessage()    {}
 func (*CreateStatusNotificationReq) Descriptor() ([]byte, []int) {
-	return fileDescriptor_a9ddc45ac0e19661, []int{4}
+	return fileDescriptor_a9ddc45ac0e19661, []int{3}
 }
 func (m *CreateStatusNotificationReq) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -254,7 +216,7 @@ func (m *CreateStatusNotificationResp) Reset()         { *m = CreateStatusNotifi
 func (m *CreateStatusNotificationResp) String() string { return proto.CompactTextString(m) }
 func (*CreateStatusNotificationResp) ProtoMessage()    {}
 func (*CreateStatusNotificationResp) Descriptor() ([]byte, []int) {
-	return fileDescriptor_a9ddc45ac0e19661, []int{5}
+	return fileDescriptor_a9ddc45ac0e19661, []int{4}
 }
 func (m *CreateStatusNotificationResp) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -286,7 +248,6 @@ var xxx_messageInfo_CreateStatusNotificationResp proto.InternalMessageInfo
 func init() {
 	proto.RegisterType((*StatusNotification)(nil), "ocpp.StatusNotification")
 	proto.RegisterType((*GetLatestStatusNotificationsReq)(nil), "ocpp.GetLatestStatusNotificationsReq")
-	proto.RegisterType((*GetLatestStatusNotificationsReqPublic)(nil), "ocpp.GetLatestStatusNotificationsReqPublic")
 	proto.RegisterType((*GetLatestStatusNotificationsResp)(nil), "ocpp.GetLatestStatusNotificationsResp")
 	proto.RegisterType((*CreateStatusNotificationReq)(nil), "ocpp.CreateStatusNotificationReq")
 	proto.RegisterType((*CreateStatusNotificationResp)(nil), "ocpp.CreateStatusNotificationResp")
@@ -295,51 +256,51 @@ func init() {
 func init() { proto.RegisterFile("status_notifications.proto", fileDescriptor_a9ddc45ac0e19661) }
 
 var fileDescriptor_a9ddc45ac0e19661 = []byte{
-	// 600 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x94, 0x41, 0x6f, 0xd3, 0x30,
-	0x14, 0xc7, 0x49, 0xbb, 0x95, 0xe6, 0x8d, 0xae, 0x9b, 0xc7, 0xba, 0xb0, 0x95, 0xba, 0x44, 0x1a,
-	0xaa, 0x86, 0xd6, 0x49, 0x4c, 0xe2, 0xc2, 0x89, 0x4e, 0x13, 0xaa, 0x84, 0xd0, 0x64, 0xb8, 0xc0,
-	0x25, 0x4a, 0x63, 0xb7, 0xb3, 0xb4, 0xc6, 0x21, 0x71, 0xb9, 0x21, 0x21, 0x3e, 0x06, 0x9f, 0x68,
-	0x47, 0x3e, 0x41, 0xc4, 0x7a, 0x42, 0x39, 0xf2, 0x09, 0x50, 0x9d, 0x34, 0x49, 0x9b, 0xae, 0x5c,
-	0x5a, 0xbf, 0xff, 0xf3, 0xff, 0xd9, 0x7a, 0x7e, 0xbf, 0xc0, 0x61, 0x20, 0x6d, 0x39, 0x09, 0x2c,
-	0x57, 0x48, 0x3e, 0xe4, 0x8e, 0x2d, 0xb9, 0x70, 0x83, 0xae, 0xe7, 0x0b, 0x29, 0xd0, 0x86, 0x70,
-	0x3c, 0xef, 0xf0, 0x74, 0xc4, 0xe5, 0xf5, 0x64, 0xd0, 0x75, 0xc4, 0xf8, 0x6c, 0x24, 0x46, 0xe2,
-	0x4c, 0x25, 0x07, 0x93, 0xa1, 0x8a, 0x54, 0xa0, 0x56, 0xb1, 0xc9, 0xfc, 0x5b, 0x06, 0xf4, 0x41,
-	0xd5, 0x7c, 0x9f, 0x2b, 0x89, 0x1a, 0x50, 0xe2, 0xd4, 0xd0, 0xda, 0x5a, 0x67, 0xb3, 0x57, 0x89,
-	0x42, 0x5c, 0xe2, 0x94, 0x94, 0x38, 0x45, 0xaf, 0xa1, 0xee, 0x5c, 0xdb, 0xfe, 0x88, 0x59, 0x9e,
-	0xe0, 0xae, 0xb4, 0x38, 0x35, 0x4a, 0x6a, 0xd3, 0x5e, 0x14, 0xe2, 0xe5, 0x14, 0xa9, 0xc5, 0xc2,
-	0xd5, 0x2c, 0xee, 0x53, 0x74, 0x0e, 0x8f, 0x1c, 0xe1, 0xba, 0xcc, 0x91, 0xc2, 0x9f, 0x39, 0xcb,
-	0xca, 0xb9, 0x13, 0x85, 0x78, 0x41, 0x27, 0x5b, 0x69, 0xd4, 0xa7, 0xe8, 0x14, 0x80, 0xf9, 0xbe,
-	0xf0, 0x2d, 0x47, 0x50, 0x66, 0x6c, 0xb4, 0xb5, 0x8e, 0xde, 0xdb, 0x8e, 0x42, 0x9c, 0x53, 0x89,
-	0xae, 0xd6, 0x17, 0x82, 0x32, 0xd4, 0x84, 0x0d, 0xee, 0x0e, 0x85, 0xb1, 0xa9, 0x36, 0x56, 0xa3,
-	0x10, 0xab, 0x98, 0xa8, 0x5f, 0x64, 0x42, 0x25, 0x6e, 0xa0, 0x51, 0x51, 0x79, 0x88, 0x42, 0x9c,
-	0x28, 0x24, 0xf9, 0x47, 0x27, 0xa0, 0x7f, 0x65, 0x2e, 0x8d, 0xaf, 0xf8, 0x50, 0x6d, 0xab, 0x45,
-	0x21, 0xce, 0x44, 0x52, 0x8d, 0x97, 0x7d, 0x8a, 0xde, 0xc0, 0x6e, 0x22, 0xe7, 0xee, 0x58, 0x55,
-	0x9e, 0xfd, 0x28, 0xc4, 0xc5, 0x24, 0xa9, 0xc7, 0xd2, 0x65, 0x7a, 0xe1, 0x17, 0xa0, 0x4b, 0x3e,
-	0x66, 0x81, 0xb4, 0xc7, 0x9e, 0xa1, 0x67, 0xc7, 0xa5, 0x22, 0xc9, 0x96, 0xe8, 0x12, 0x90, 0xcf,
-	0x3c, 0xe1, 0x4b, 0x46, 0xad, 0xcc, 0x05, 0xca, 0xd5, 0x88, 0x42, 0xbc, 0x22, 0x4b, 0x76, 0xe7,
-	0xda, 0xc7, 0xb9, 0x64, 0x7e, 0xd7, 0x00, 0xbf, 0x65, 0xf2, 0x9d, 0x2d, 0x59, 0x20, 0x8b, 0xaf,
-	0x1f, 0x10, 0xf6, 0x05, 0x1d, 0xc3, 0xb6, 0xed, 0x79, 0x37, 0x89, 0x64, 0x25, 0xd3, 0xa0, 0x93,
-	0x5a, 0x4e, 0xed, 0x53, 0xf4, 0x0a, 0x0e, 0x96, 0x5e, 0x9d, 0xb9, 0xb3, 0x4a, 0xcc, 0x57, 0x83,
-	0xa1, 0x93, 0xfd, 0x85, 0x19, 0x98, 0x27, 0x4d, 0x0b, 0x8e, 0xff, 0x73, 0x83, 0xab, 0xc9, 0xe0,
-	0x86, 0x3b, 0xeb, 0x0e, 0xd0, 0xd6, 0x1d, 0xf0, 0x0d, 0xda, 0xeb, 0x0f, 0x08, 0x3c, 0xf4, 0x09,
-	0x76, 0xb2, 0xc1, 0x4b, 0x06, 0x43, 0x6b, 0x97, 0x3b, 0x5b, 0x2f, 0x8d, 0xee, 0x0c, 0xa6, 0x6e,
-	0xd1, 0xd8, 0x7b, 0x1c, 0x85, 0xb8, 0xe0, 0x22, 0xf5, 0x54, 0x89, 0x2d, 0xe6, 0xcf, 0x12, 0x1c,
-	0x5d, 0xf8, 0xcc, 0x96, 0xac, 0x58, 0x63, 0xd6, 0xde, 0xe7, 0x45, 0x90, 0x14, 0x6d, 0xcb, 0xcc,
-	0x3c, 0x5b, 0x62, 0x46, 0xd1, 0xb6, 0x48, 0xc8, 0xd3, 0x05, 0x42, 0xca, 0xaa, 0x29, 0x39, 0x22,
-	0x50, 0x42, 0x84, 0x42, 0x27, 0xe1, 0xa0, 0x91, 0x72, 0xa0, 0x38, 0x49, 0x67, 0xbf, 0x99, 0x1f,
-	0xc6, 0x4a, 0x5c, 0x29, 0x9b, 0xbe, 0xa3, 0x02, 0x19, 0x39, 0x14, 0x4e, 0xee, 0x45, 0xa1, 0x30,
-	0xf3, 0xe6, 0x0f, 0x0d, 0x9a, 0xf7, 0x37, 0x27, 0xf0, 0xd0, 0x00, 0xf6, 0x56, 0x7c, 0xe8, 0x54,
-	0x87, 0xd6, 0xbd, 0xcd, 0x41, 0x14, 0xe2, 0x55, 0x46, 0x82, 0x82, 0xe2, 0xe6, 0x27, 0xb7, 0x77,
-	0xad, 0x07, 0x7f, 0xee, 0x5a, 0xda, 0xed, 0xb4, 0xa5, 0xfd, 0x9a, 0xb6, 0xb4, 0xdf, 0xd3, 0x96,
-	0xf6, 0xb9, 0xec, 0x7b, 0xce, 0xa0, 0xa2, 0xbe, 0x8d, 0xe7, 0xff, 0x02, 0x00, 0x00, 0xff, 0xff,
-	0xef, 0x6b, 0xb3, 0xdc, 0x6e, 0x05, 0x00, 0x00,
+	// 614 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x94, 0xc1, 0x6e, 0xd3, 0x4c,
+	0x10, 0xc7, 0xeb, 0xa4, 0x4d, 0xeb, 0xe9, 0xf7, 0xd1, 0x76, 0xa1, 0xad, 0x9b, 0x86, 0x6c, 0x6a,
+	0x09, 0x14, 0x15, 0x35, 0x95, 0x5a, 0x89, 0x3b, 0xa9, 0x2a, 0x14, 0x09, 0x21, 0xb4, 0xe5, 0x02,
+	0x17, 0xcb, 0xb1, 0x37, 0xe9, 0x1e, 0xe2, 0x35, 0xeb, 0x4d, 0x25, 0x90, 0xb8, 0xf0, 0x4e, 0xbc,
+	0x43, 0x25, 0x2e, 0x3c, 0x81, 0x45, 0x73, 0x42, 0x3e, 0xf1, 0x08, 0x28, 0xbb, 0xae, 0xed, 0xe0,
+	0x34, 0xe5, 0xc2, 0x25, 0xd9, 0xfd, 0xcf, 0xfc, 0xc7, 0xe3, 0x9d, 0x9f, 0x17, 0xea, 0x91, 0x74,
+	0xe5, 0x38, 0x72, 0x02, 0x2e, 0xd9, 0x80, 0x79, 0xae, 0x64, 0x3c, 0x88, 0x3a, 0xa1, 0xe0, 0x92,
+	0xa3, 0x65, 0xee, 0x85, 0x61, 0xfd, 0x68, 0xc8, 0xe4, 0xe5, 0xb8, 0xdf, 0xf1, 0xf8, 0xe8, 0x78,
+	0xc8, 0x87, 0xfc, 0x58, 0x05, 0xfb, 0xe3, 0x81, 0xda, 0xa9, 0x8d, 0x5a, 0x69, 0x93, 0xfd, 0xb5,
+	0x0a, 0xe8, 0x42, 0xd5, 0x7c, 0x5d, 0x28, 0x89, 0x76, 0xa0, 0xc2, 0x7c, 0xcb, 0x68, 0x19, 0xed,
+	0x95, 0x6e, 0x2d, 0x89, 0x71, 0x85, 0xf9, 0xa4, 0xc2, 0x7c, 0x74, 0x0a, 0xff, 0x79, 0x3c, 0x08,
+	0xa8, 0x27, 0xb9, 0x70, 0x98, 0x6f, 0x55, 0x54, 0xc6, 0x66, 0x12, 0xe3, 0x19, 0x9d, 0xac, 0x67,
+	0xbb, 0x9e, 0x8f, 0x8e, 0x00, 0xa8, 0x10, 0x5c, 0x38, 0x1e, 0xf7, 0xa9, 0x55, 0x6d, 0x19, 0x6d,
+	0xb3, 0xfb, 0x20, 0x89, 0x71, 0x41, 0x25, 0xa6, 0x5a, 0x9f, 0x71, 0x9f, 0xa2, 0x06, 0x2c, 0xb3,
+	0x60, 0xc0, 0xad, 0x65, 0x95, 0xb8, 0x96, 0xc4, 0x58, 0xed, 0x89, 0xfa, 0x45, 0x36, 0xd4, 0xf4,
+	0x19, 0x58, 0x2b, 0x2a, 0x0e, 0x49, 0x8c, 0x53, 0x85, 0xa4, 0xff, 0xe8, 0x10, 0xcc, 0x2b, 0x1a,
+	0xf8, 0xba, 0xc5, 0x9a, 0x4a, 0xfb, 0x3f, 0x89, 0x71, 0x2e, 0x92, 0x35, 0xbd, 0xec, 0xf9, 0xe8,
+	0x05, 0x6c, 0xa5, 0x72, 0xa1, 0xc7, 0x55, 0xe5, 0xd9, 0x4e, 0x62, 0x5c, 0x0e, 0x92, 0x0d, 0x2d,
+	0x9d, 0x67, 0x0d, 0x3f, 0x03, 0x53, 0xb2, 0x11, 0x8d, 0xa4, 0x3b, 0x0a, 0xad, 0xb5, 0xfc, 0x71,
+	0x99, 0x48, 0xf2, 0x25, 0x3a, 0x07, 0x24, 0x68, 0xc8, 0x85, 0xa4, 0xbe, 0x93, 0xbb, 0x4c, 0xe5,
+	0xda, 0x49, 0x62, 0x3c, 0x27, 0x4a, 0xb6, 0x6e, 0xb5, 0xb7, 0xb7, 0x92, 0xfd, 0x09, 0xf0, 0x4b,
+	0x2a, 0x5f, 0xb9, 0x92, 0x46, 0xb2, 0x3c, 0xbf, 0x88, 0xd0, 0x0f, 0x08, 0xc3, 0x3a, 0x0d, 0x24,
+	0x93, 0x1f, 0xf5, 0x3b, 0x4d, 0x87, 0x69, 0x12, 0xd0, 0x92, 0xea, 0xfb, 0x39, 0xec, 0x7a, 0x97,
+	0xae, 0x18, 0x52, 0x27, 0xe4, 0x2c, 0x90, 0x0e, 0xf3, 0xa7, 0xc1, 0x01, 0xa3, 0x42, 0xcd, 0xd5,
+	0x24, 0xdb, 0x3a, 0xfc, 0x66, 0x1a, 0xed, 0x65, 0x41, 0xfb, 0x33, 0xb4, 0x16, 0x3f, 0x3b, 0x0a,
+	0xd1, 0x3b, 0xd8, 0xcc, 0x81, 0x48, 0x07, 0x66, 0xb4, 0xaa, 0xed, 0xf5, 0x13, 0xab, 0x33, 0xe5,
+	0xb4, 0x53, 0x36, 0x76, 0x1f, 0x25, 0x31, 0x2e, 0xb9, 0xc8, 0x46, 0xa6, 0x68, 0x8b, 0xfd, 0xad,
+	0x02, 0xfb, 0x67, 0x82, 0xba, 0x92, 0x96, 0x6b, 0xfc, 0xcb, 0xf7, 0x46, 0x07, 0x7f, 0xc0, 0x3f,
+	0x25, 0x79, 0x65, 0x16, 0xf5, 0xc7, 0x33, 0xa8, 0x2b, 0x82, 0x8b, 0x68, 0xa3, 0x14, 0x6d, 0x85,
+	0x6e, 0x0a, 0xf4, 0x4e, 0x06, 0xb4, 0x22, 0x35, 0x83, 0xb8, 0x51, 0xa4, 0x6a, 0x55, 0x57, 0xca,
+	0x31, 0xda, 0x2f, 0x22, 0xae, 0x98, 0x2b, 0x30, 0x7d, 0x38, 0x8f, 0x69, 0x85, 0x58, 0x09, 0x5e,
+	0xfb, 0x8b, 0x01, 0x8d, 0xbb, 0x4f, 0x33, 0x0a, 0x51, 0x1f, 0x1e, 0xce, 0xb9, 0x74, 0xd4, 0xb1,
+	0x2e, 0x1a, 0xe6, 0x6e, 0x12, 0xe3, 0x79, 0x46, 0x82, 0xa2, 0x52, 0xf2, 0xc9, 0x2f, 0x03, 0xf6,
+	0xca, 0x35, 0x2e, 0xa8, 0xb8, 0x62, 0x1e, 0x45, 0x1c, 0x1a, 0x8b, 0x78, 0x43, 0x4f, 0x74, 0x13,
+	0xf7, 0x7c, 0x0f, 0xf5, 0xa7, 0x7f, 0x93, 0x16, 0x85, 0xf6, 0x12, 0xea, 0x83, 0x75, 0xd7, 0x91,
+	0xa0, 0x03, 0x5d, 0x65, 0x01, 0x80, 0xf5, 0xfb, 0x53, 0xec, 0xa5, 0xee, 0xde, 0xf5, 0x4d, 0x73,
+	0xe9, 0xe7, 0x4d, 0xd3, 0xb8, 0x9e, 0x34, 0x8d, 0xef, 0x93, 0xa6, 0xf1, 0x63, 0xd2, 0x34, 0xde,
+	0x57, 0x45, 0xe8, 0xf5, 0x6b, 0xea, 0x6a, 0x3e, 0xfd, 0x1d, 0x00, 0x00, 0xff, 0xff, 0x70, 0xee,
+	0x66, 0xd7, 0xed, 0x05, 0x00, 0x00,
 }
 
 type StatusNotificationFace interface {
 	Proto() github_com_gogo_protobuf_proto.Message
 	GetId() int32
-	GetChargePointId() int32
 	GetConnectorId() int32
 	GetErrorCode() string
 	GetInfo() string
@@ -360,10 +321,6 @@ func (this *StatusNotification) TestProto() github_com_gogo_protobuf_proto.Messa
 
 func (this *StatusNotification) GetId() int32 {
 	return this.Id
-}
-
-func (this *StatusNotification) GetChargePointId() int32 {
-	return this.ChargePointId
 }
 
 func (this *StatusNotification) GetConnectorId() int32 {
@@ -401,7 +358,6 @@ func (this *StatusNotification) GetReportedTimestamp() string {
 func NewStatusNotificationFromFace(that StatusNotificationFace) *StatusNotification {
 	this := &StatusNotification{}
 	this.Id = that.GetId()
-	this.ChargePointId = that.GetChargePointId()
 	this.ConnectorId = that.GetConnectorId()
 	this.ErrorCode = that.GetErrorCode()
 	this.Info = that.GetInfo()
@@ -415,7 +371,7 @@ func NewStatusNotificationFromFace(that StatusNotificationFace) *StatusNotificat
 
 type GetLatestStatusNotificationsReqFace interface {
 	Proto() github_com_gogo_protobuf_proto.Message
-	GetApplicationId() string
+	GetEntityCode() string
 	GetChargePointIdentifier() string
 }
 
@@ -427,8 +383,8 @@ func (this *GetLatestStatusNotificationsReq) TestProto() github_com_gogo_protobu
 	return NewGetLatestStatusNotificationsReqFromFace(this)
 }
 
-func (this *GetLatestStatusNotificationsReq) GetApplicationId() string {
-	return this.ApplicationId
+func (this *GetLatestStatusNotificationsReq) GetEntityCode() string {
+	return this.EntityCode
 }
 
 func (this *GetLatestStatusNotificationsReq) GetChargePointIdentifier() string {
@@ -437,30 +393,7 @@ func (this *GetLatestStatusNotificationsReq) GetChargePointIdentifier() string {
 
 func NewGetLatestStatusNotificationsReqFromFace(that GetLatestStatusNotificationsReqFace) *GetLatestStatusNotificationsReq {
 	this := &GetLatestStatusNotificationsReq{}
-	this.ApplicationId = that.GetApplicationId()
-	this.ChargePointIdentifier = that.GetChargePointIdentifier()
-	return this
-}
-
-type GetLatestStatusNotificationsReqPublicFace interface {
-	Proto() github_com_gogo_protobuf_proto.Message
-	GetChargePointIdentifier() string
-}
-
-func (this *GetLatestStatusNotificationsReqPublic) Proto() github_com_gogo_protobuf_proto.Message {
-	return this
-}
-
-func (this *GetLatestStatusNotificationsReqPublic) TestProto() github_com_gogo_protobuf_proto.Message {
-	return NewGetLatestStatusNotificationsReqPublicFromFace(this)
-}
-
-func (this *GetLatestStatusNotificationsReqPublic) GetChargePointIdentifier() string {
-	return this.ChargePointIdentifier
-}
-
-func NewGetLatestStatusNotificationsReqPublicFromFace(that GetLatestStatusNotificationsReqPublicFace) *GetLatestStatusNotificationsReqPublic {
-	this := &GetLatestStatusNotificationsReqPublic{}
+	this.EntityCode = that.GetEntityCode()
 	this.ChargePointIdentifier = that.GetChargePointIdentifier()
 	return this
 }
@@ -490,7 +423,8 @@ func NewGetLatestStatusNotificationsRespFromFace(that GetLatestStatusNotificatio
 
 type CreateStatusNotificationReqFace interface {
 	Proto() github_com_gogo_protobuf_proto.Message
-	GetChargePointId() int32
+	GetEntityCode() string
+	GetChargePointIdentifier() string
 	GetConnectorId() int32
 	GetErrorCode() string
 	GetInfo() string
@@ -508,8 +442,12 @@ func (this *CreateStatusNotificationReq) TestProto() github_com_gogo_protobuf_pr
 	return NewCreateStatusNotificationReqFromFace(this)
 }
 
-func (this *CreateStatusNotificationReq) GetChargePointId() int32 {
-	return this.ChargePointId
+func (this *CreateStatusNotificationReq) GetEntityCode() string {
+	return this.EntityCode
+}
+
+func (this *CreateStatusNotificationReq) GetChargePointIdentifier() string {
+	return this.ChargePointIdentifier
 }
 
 func (this *CreateStatusNotificationReq) GetConnectorId() int32 {
@@ -542,7 +480,8 @@ func (this *CreateStatusNotificationReq) GetVendorErrorCode() string {
 
 func NewCreateStatusNotificationReqFromFace(that CreateStatusNotificationReqFace) *CreateStatusNotificationReq {
 	this := &CreateStatusNotificationReq{}
-	this.ChargePointId = that.GetChargePointId()
+	this.EntityCode = that.GetEntityCode()
+	this.ChargePointIdentifier = that.GetChargePointIdentifier()
 	this.ConnectorId = that.GetConnectorId()
 	this.ErrorCode = that.GetErrorCode()
 	this.Info = that.GetInfo()
@@ -576,6 +515,122 @@ func NewCreateStatusNotificationRespFromFace(that CreateStatusNotificationRespFa
 	return this
 }
 
+// Reference imports to suppress errors if they are not otherwise used.
+var _ context.Context
+var _ grpc.ClientConn
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the grpc package it is being compiled against.
+const _ = grpc.SupportPackageIsVersion4
+
+// StatusNotificationServiceClient is the client API for StatusNotificationService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+type StatusNotificationServiceClient interface {
+	GetLatestStatusNotifications(ctx context.Context, in *GetLatestStatusNotificationsReq, opts ...grpc.CallOption) (*GetLatestStatusNotificationsResp, error)
+	CreateStatusNotification(ctx context.Context, in *CreateStatusNotificationReq, opts ...grpc.CallOption) (*CreateStatusNotificationReq, error)
+}
+
+type statusNotificationServiceClient struct {
+	cc *grpc.ClientConn
+}
+
+func NewStatusNotificationServiceClient(cc *grpc.ClientConn) StatusNotificationServiceClient {
+	return &statusNotificationServiceClient{cc}
+}
+
+func (c *statusNotificationServiceClient) GetLatestStatusNotifications(ctx context.Context, in *GetLatestStatusNotificationsReq, opts ...grpc.CallOption) (*GetLatestStatusNotificationsResp, error) {
+	out := new(GetLatestStatusNotificationsResp)
+	err := c.cc.Invoke(ctx, "/ocpp.StatusNotificationService/GetLatestStatusNotifications", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *statusNotificationServiceClient) CreateStatusNotification(ctx context.Context, in *CreateStatusNotificationReq, opts ...grpc.CallOption) (*CreateStatusNotificationReq, error) {
+	out := new(CreateStatusNotificationReq)
+	err := c.cc.Invoke(ctx, "/ocpp.StatusNotificationService/CreateStatusNotification", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// StatusNotificationServiceServer is the server API for StatusNotificationService service.
+type StatusNotificationServiceServer interface {
+	GetLatestStatusNotifications(context.Context, *GetLatestStatusNotificationsReq) (*GetLatestStatusNotificationsResp, error)
+	CreateStatusNotification(context.Context, *CreateStatusNotificationReq) (*CreateStatusNotificationReq, error)
+}
+
+// UnimplementedStatusNotificationServiceServer can be embedded to have forward compatible implementations.
+type UnimplementedStatusNotificationServiceServer struct {
+}
+
+func (*UnimplementedStatusNotificationServiceServer) GetLatestStatusNotifications(ctx context.Context, req *GetLatestStatusNotificationsReq) (*GetLatestStatusNotificationsResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetLatestStatusNotifications not implemented")
+}
+func (*UnimplementedStatusNotificationServiceServer) CreateStatusNotification(ctx context.Context, req *CreateStatusNotificationReq) (*CreateStatusNotificationReq, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateStatusNotification not implemented")
+}
+
+func RegisterStatusNotificationServiceServer(s *grpc.Server, srv StatusNotificationServiceServer) {
+	s.RegisterService(&_StatusNotificationService_serviceDesc, srv)
+}
+
+func _StatusNotificationService_GetLatestStatusNotifications_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetLatestStatusNotificationsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StatusNotificationServiceServer).GetLatestStatusNotifications(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ocpp.StatusNotificationService/GetLatestStatusNotifications",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StatusNotificationServiceServer).GetLatestStatusNotifications(ctx, req.(*GetLatestStatusNotificationsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _StatusNotificationService_CreateStatusNotification_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateStatusNotificationReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StatusNotificationServiceServer).CreateStatusNotification(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ocpp.StatusNotificationService/CreateStatusNotification",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StatusNotificationServiceServer).CreateStatusNotification(ctx, req.(*CreateStatusNotificationReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _StatusNotificationService_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "ocpp.StatusNotificationService",
+	HandlerType: (*StatusNotificationServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetLatestStatusNotifications",
+			Handler:    _StatusNotificationService_GetLatestStatusNotifications_Handler,
+		},
+		{
+			MethodName: "CreateStatusNotification",
+			Handler:    _StatusNotificationService_CreateStatusNotification_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "status_notifications.proto",
+}
+
 func (m *StatusNotification) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -605,57 +660,52 @@ func (m *StatusNotification) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		copy(dAtA[i:], m.ReportedTimestamp)
 		i = encodeVarintStatusNotifications(dAtA, i, uint64(len(m.ReportedTimestamp)))
 		i--
-		dAtA[i] = 0x52
+		dAtA[i] = 0x4a
 	}
 	if len(m.Timestamp) > 0 {
 		i -= len(m.Timestamp)
 		copy(dAtA[i:], m.Timestamp)
 		i = encodeVarintStatusNotifications(dAtA, i, uint64(len(m.Timestamp)))
 		i--
-		dAtA[i] = 0x4a
+		dAtA[i] = 0x42
 	}
 	if len(m.VendorErrorCode) > 0 {
 		i -= len(m.VendorErrorCode)
 		copy(dAtA[i:], m.VendorErrorCode)
 		i = encodeVarintStatusNotifications(dAtA, i, uint64(len(m.VendorErrorCode)))
 		i--
-		dAtA[i] = 0x42
+		dAtA[i] = 0x3a
 	}
 	if len(m.VendorId) > 0 {
 		i -= len(m.VendorId)
 		copy(dAtA[i:], m.VendorId)
 		i = encodeVarintStatusNotifications(dAtA, i, uint64(len(m.VendorId)))
 		i--
-		dAtA[i] = 0x3a
+		dAtA[i] = 0x32
 	}
 	if len(m.Status) > 0 {
 		i -= len(m.Status)
 		copy(dAtA[i:], m.Status)
 		i = encodeVarintStatusNotifications(dAtA, i, uint64(len(m.Status)))
 		i--
-		dAtA[i] = 0x32
+		dAtA[i] = 0x2a
 	}
 	if len(m.Info) > 0 {
 		i -= len(m.Info)
 		copy(dAtA[i:], m.Info)
 		i = encodeVarintStatusNotifications(dAtA, i, uint64(len(m.Info)))
 		i--
-		dAtA[i] = 0x2a
+		dAtA[i] = 0x22
 	}
 	if len(m.ErrorCode) > 0 {
 		i -= len(m.ErrorCode)
 		copy(dAtA[i:], m.ErrorCode)
 		i = encodeVarintStatusNotifications(dAtA, i, uint64(len(m.ErrorCode)))
 		i--
-		dAtA[i] = 0x22
+		dAtA[i] = 0x1a
 	}
 	if m.ConnectorId != 0 {
 		i = encodeVarintStatusNotifications(dAtA, i, uint64(m.ConnectorId))
-		i--
-		dAtA[i] = 0x18
-	}
-	if m.ChargePointId != 0 {
-		i = encodeVarintStatusNotifications(dAtA, i, uint64(m.ChargePointId))
 		i--
 		dAtA[i] = 0x10
 	}
@@ -698,44 +748,10 @@ func (m *GetLatestStatusNotificationsReq) MarshalToSizedBuffer(dAtA []byte) (int
 		i--
 		dAtA[i] = 0x12
 	}
-	if len(m.ApplicationId) > 0 {
-		i -= len(m.ApplicationId)
-		copy(dAtA[i:], m.ApplicationId)
-		i = encodeVarintStatusNotifications(dAtA, i, uint64(len(m.ApplicationId)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *GetLatestStatusNotificationsReqPublic) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *GetLatestStatusNotificationsReqPublic) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *GetLatestStatusNotificationsReqPublic) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.XXX_unrecognized != nil {
-		i -= len(m.XXX_unrecognized)
-		copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	if len(m.ChargePointIdentifier) > 0 {
-		i -= len(m.ChargePointIdentifier)
-		copy(dAtA[i:], m.ChargePointIdentifier)
-		i = encodeVarintStatusNotifications(dAtA, i, uint64(len(m.ChargePointIdentifier)))
+	if len(m.EntityCode) > 0 {
+		i -= len(m.EntityCode)
+		copy(dAtA[i:], m.EntityCode)
+		i = encodeVarintStatusNotifications(dAtA, i, uint64(len(m.EntityCode)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -812,52 +828,61 @@ func (m *CreateStatusNotificationReq) MarshalToSizedBuffer(dAtA []byte) (int, er
 		copy(dAtA[i:], m.VendorErrorCode)
 		i = encodeVarintStatusNotifications(dAtA, i, uint64(len(m.VendorErrorCode)))
 		i--
-		dAtA[i] = 0x42
+		dAtA[i] = 0x4a
 	}
 	if len(m.VendorId) > 0 {
 		i -= len(m.VendorId)
 		copy(dAtA[i:], m.VendorId)
 		i = encodeVarintStatusNotifications(dAtA, i, uint64(len(m.VendorId)))
 		i--
-		dAtA[i] = 0x3a
+		dAtA[i] = 0x42
 	}
 	if len(m.Timestamp) > 0 {
 		i -= len(m.Timestamp)
 		copy(dAtA[i:], m.Timestamp)
 		i = encodeVarintStatusNotifications(dAtA, i, uint64(len(m.Timestamp)))
 		i--
-		dAtA[i] = 0x32
+		dAtA[i] = 0x3a
 	}
 	if len(m.Status) > 0 {
 		i -= len(m.Status)
 		copy(dAtA[i:], m.Status)
 		i = encodeVarintStatusNotifications(dAtA, i, uint64(len(m.Status)))
 		i--
-		dAtA[i] = 0x2a
+		dAtA[i] = 0x32
 	}
 	if len(m.Info) > 0 {
 		i -= len(m.Info)
 		copy(dAtA[i:], m.Info)
 		i = encodeVarintStatusNotifications(dAtA, i, uint64(len(m.Info)))
 		i--
-		dAtA[i] = 0x22
+		dAtA[i] = 0x2a
 	}
 	if len(m.ErrorCode) > 0 {
 		i -= len(m.ErrorCode)
 		copy(dAtA[i:], m.ErrorCode)
 		i = encodeVarintStatusNotifications(dAtA, i, uint64(len(m.ErrorCode)))
 		i--
-		dAtA[i] = 0x1a
+		dAtA[i] = 0x22
 	}
 	if m.ConnectorId != 0 {
 		i = encodeVarintStatusNotifications(dAtA, i, uint64(m.ConnectorId))
 		i--
-		dAtA[i] = 0x10
+		dAtA[i] = 0x18
 	}
-	if m.ChargePointId != 0 {
-		i = encodeVarintStatusNotifications(dAtA, i, uint64(m.ChargePointId))
+	if len(m.ChargePointIdentifier) > 0 {
+		i -= len(m.ChargePointIdentifier)
+		copy(dAtA[i:], m.ChargePointIdentifier)
+		i = encodeVarintStatusNotifications(dAtA, i, uint64(len(m.ChargePointIdentifier)))
 		i--
-		dAtA[i] = 0x8
+		dAtA[i] = 0x12
+	}
+	if len(m.EntityCode) > 0 {
+		i -= len(m.EntityCode)
+		copy(dAtA[i:], m.EntityCode)
+		i = encodeVarintStatusNotifications(dAtA, i, uint64(len(m.EntityCode)))
+		i--
+		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
@@ -921,9 +946,6 @@ func (m *StatusNotification) Size() (n int) {
 	if m.Id != 0 {
 		n += 1 + sovStatusNotifications(uint64(m.Id))
 	}
-	if m.ChargePointId != 0 {
-		n += 1 + sovStatusNotifications(uint64(m.ChargePointId))
-	}
 	if m.ConnectorId != 0 {
 		n += 1 + sovStatusNotifications(uint64(m.ConnectorId))
 	}
@@ -967,26 +989,10 @@ func (m *GetLatestStatusNotificationsReq) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.ApplicationId)
+	l = len(m.EntityCode)
 	if l > 0 {
 		n += 1 + l + sovStatusNotifications(uint64(l))
 	}
-	l = len(m.ChargePointIdentifier)
-	if l > 0 {
-		n += 1 + l + sovStatusNotifications(uint64(l))
-	}
-	if m.XXX_unrecognized != nil {
-		n += len(m.XXX_unrecognized)
-	}
-	return n
-}
-
-func (m *GetLatestStatusNotificationsReqPublic) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
 	l = len(m.ChargePointIdentifier)
 	if l > 0 {
 		n += 1 + l + sovStatusNotifications(uint64(l))
@@ -1021,8 +1027,13 @@ func (m *CreateStatusNotificationReq) Size() (n int) {
 	}
 	var l int
 	_ = l
-	if m.ChargePointId != 0 {
-		n += 1 + sovStatusNotifications(uint64(m.ChargePointId))
+	l = len(m.EntityCode)
+	if l > 0 {
+		n += 1 + l + sovStatusNotifications(uint64(l))
+	}
+	l = len(m.ChargePointIdentifier)
+	if l > 0 {
+		n += 1 + l + sovStatusNotifications(uint64(l))
 	}
 	if m.ConnectorId != 0 {
 		n += 1 + sovStatusNotifications(uint64(m.ConnectorId))
@@ -1129,25 +1140,6 @@ func (m *StatusNotification) Unmarshal(dAtA []byte) error {
 			}
 		case 2:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ChargePointId", wireType)
-			}
-			m.ChargePointId = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowStatusNotifications
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.ChargePointId |= int32(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 3:
-			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ConnectorId", wireType)
 			}
 			m.ConnectorId = 0
@@ -1165,7 +1157,7 @@ func (m *StatusNotification) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 4:
+		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ErrorCode", wireType)
 			}
@@ -1197,7 +1189,7 @@ func (m *StatusNotification) Unmarshal(dAtA []byte) error {
 			}
 			m.ErrorCode = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 5:
+		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Info", wireType)
 			}
@@ -1229,7 +1221,7 @@ func (m *StatusNotification) Unmarshal(dAtA []byte) error {
 			}
 			m.Info = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 6:
+		case 5:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Status", wireType)
 			}
@@ -1261,7 +1253,7 @@ func (m *StatusNotification) Unmarshal(dAtA []byte) error {
 			}
 			m.Status = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 7:
+		case 6:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field VendorId", wireType)
 			}
@@ -1293,7 +1285,7 @@ func (m *StatusNotification) Unmarshal(dAtA []byte) error {
 			}
 			m.VendorId = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 8:
+		case 7:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field VendorErrorCode", wireType)
 			}
@@ -1325,7 +1317,7 @@ func (m *StatusNotification) Unmarshal(dAtA []byte) error {
 			}
 			m.VendorErrorCode = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 9:
+		case 8:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Timestamp", wireType)
 			}
@@ -1357,7 +1349,7 @@ func (m *StatusNotification) Unmarshal(dAtA []byte) error {
 			}
 			m.Timestamp = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 10:
+		case 9:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ReportedTimestamp", wireType)
 			}
@@ -1442,7 +1434,7 @@ func (m *GetLatestStatusNotificationsReq) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ApplicationId", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field EntityCode", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -1470,92 +1462,9 @@ func (m *GetLatestStatusNotificationsReq) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.ApplicationId = string(dAtA[iNdEx:postIndex])
+			m.EntityCode = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ChargePointIdentifier", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowStatusNotifications
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthStatusNotifications
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthStatusNotifications
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ChargePointIdentifier = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipStatusNotifications(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthStatusNotifications
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *GetLatestStatusNotificationsReqPublic) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowStatusNotifications
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: GetLatestStatusNotificationsReqPublic: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: GetLatestStatusNotificationsReqPublic: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ChargePointIdentifier", wireType)
 			}
@@ -1724,10 +1633,10 @@ func (m *CreateStatusNotificationReq) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ChargePointId", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EntityCode", wireType)
 			}
-			m.ChargePointId = 0
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowStatusNotifications
@@ -1737,12 +1646,57 @@ func (m *CreateStatusNotificationReq) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ChargePointId |= int32(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthStatusNotifications
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthStatusNotifications
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.EntityCode = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
 		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ChargePointIdentifier", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStatusNotifications
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthStatusNotifications
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthStatusNotifications
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ChargePointIdentifier = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ConnectorId", wireType)
 			}
@@ -1761,7 +1715,7 @@ func (m *CreateStatusNotificationReq) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 3:
+		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ErrorCode", wireType)
 			}
@@ -1793,7 +1747,7 @@ func (m *CreateStatusNotificationReq) Unmarshal(dAtA []byte) error {
 			}
 			m.ErrorCode = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 4:
+		case 5:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Info", wireType)
 			}
@@ -1825,7 +1779,7 @@ func (m *CreateStatusNotificationReq) Unmarshal(dAtA []byte) error {
 			}
 			m.Info = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 5:
+		case 6:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Status", wireType)
 			}
@@ -1857,7 +1811,7 @@ func (m *CreateStatusNotificationReq) Unmarshal(dAtA []byte) error {
 			}
 			m.Status = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 6:
+		case 7:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Timestamp", wireType)
 			}
@@ -1889,7 +1843,7 @@ func (m *CreateStatusNotificationReq) Unmarshal(dAtA []byte) error {
 			}
 			m.Timestamp = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 7:
+		case 8:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field VendorId", wireType)
 			}
@@ -1921,7 +1875,7 @@ func (m *CreateStatusNotificationReq) Unmarshal(dAtA []byte) error {
 			}
 			m.VendorId = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 8:
+		case 9:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field VendorErrorCode", wireType)
 			}

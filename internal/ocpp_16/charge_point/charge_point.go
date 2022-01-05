@@ -2,15 +2,19 @@ package chargepoint
 
 import (
 	"context"
+	"errors"
 	"sync"
 
 	"go.uber.org/zap"
 
+	"github.com/Beep-Technologies/beepbeep3-ocpp/api/rpc"
 	"github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_16/messaging"
+	"github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_16/messaging/schemas"
 	application "github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/application"
 	chargepoint "github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/charge_point"
 	statusnotification "github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/status_notification"
 	transaction "github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/transaction"
+	"github.com/google/uuid"
 )
 
 type OCPP16ChargePoint struct {
@@ -92,17 +96,78 @@ func (cp *OCPP16ChargePoint) Listen() {
 	go cp.listenCP()
 }
 
-func (cp *OCPP16ChargePoint) RemoteStartTransaction() (transactionID int, err error) {
-	// STUB
-	return 0, nil
+func (cp *OCPP16ChargePoint) RemoteStartTransaction(connectorID int) (transactionID int, err error) {
+	// check if there is a currently ongoing transaction
+	currentTransactionRes, err := cp.transactionService.GetOngoingTransaction(cp.ctx, &rpc.GetOngoingTransactionReq{
+		EntityCode:            cp.entityCode,
+		ChargePointIdentifier: cp.chargePointIdentifier,
+		ConnectorId:           int32(connectorID),
+	})
+	if err != nil {
+		return 0, err
+	}
+	if currentTransactionRes.OngoingTransaction {
+		return 0, errors.New("there is already an ongoing transaction")
+	}
+
+	// generate a unique id tag for this connection
+	// id tags must be 20 characters long
+	idTag := uuid.NewString()[0:20]
+
+	// create the transaction
+	transactionRes, err := cp.transactionService.CreateTransaction(cp.ctx, &rpc.CreateTransactionReq{
+		EntityCode:            cp.entityCode,
+		ChargePointIdentifier: cp.chargePointIdentifier,
+		ConnectorId:           int32(connectorID),
+		RemoteInitiated:       true,
+		IdTag:                 idTag,
+	})
+	if err != nil {
+		return 0, err
+	}
+
+	// add the message to the queue
+	cp.callMessageQueue.enqueue(messaging.OCPP16CallMessage{
+		MessageTypeID: messaging.CALL,
+		UniqueID:      uuid.NewString(),
+		Action:        "RemoteStartTransaction",
+		Payload: schemas.RemoteStartTransactionRequest{
+			ConnectorId: int(transactionRes.Transaction.ConnectorId),
+			IdTag:       transactionRes.Transaction.IdTag,
+		},
+	})
+
+	return int(transactionRes.Transaction.ConnectorId), nil
 }
 
-func (cp *OCPP16ChargePoint) RemoteStopTransaction() (err error) {
-	// STUB
+func (cp *OCPP16ChargePoint) RemoteStopTransaction(connectorID int) (err error) {
+	// check if there is a currently ongoing transaction
+	currentTransactionRes, err := cp.transactionService.GetOngoingTransaction(cp.ctx, &rpc.GetOngoingTransactionReq{
+		EntityCode:            cp.entityCode,
+		ChargePointIdentifier: cp.chargePointIdentifier,
+		ConnectorId:           int32(connectorID),
+	})
+	if err != nil {
+		return err
+	}
+	if !currentTransactionRes.OngoingTransaction {
+		return errors.New("there is no ongoing transaction")
+	}
+
+	// add the message to the queue
+	cp.callMessageQueue.enqueue(messaging.OCPP16CallMessage{
+		MessageTypeID: messaging.CALL,
+		UniqueID:      uuid.NewString(),
+		Action:        "RemoteStopTransaction",
+		Payload: schemas.RemoteStopTransactionRequest{
+			TransactionId: int(currentTransactionRes.Transaction.Id),
+		},
+	})
+
 	return nil
 }
 
-func (cp *OCPP16ChargePoint) TriggerStatusNotification() (err error) {
+func (cp *OCPP16ChargePoint) TriggerStatusNotification(connectorID int) (err error) {
 	// STUB
 	return nil
 }

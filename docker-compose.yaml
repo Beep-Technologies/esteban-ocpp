@@ -10,6 +10,7 @@ services:
       - POSTGRES_DB=beepbeep3
       - TIMESCALEDB_TELEMETRY=off
     volumes:
+      - ./.pg_data:/var/lib/postgresql/data
       - ./migrations/postgres:/docker-entrypoint-initdb.d
 
   pgweb:

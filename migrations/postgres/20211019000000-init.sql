@@ -21,22 +21,21 @@ create table bb3.ocpp_application_entity (
 create table bb3.ocpp_charge_point (
     id serial primary key,
     entity_code varchar(255) not null,
-    /* fixed to charge point */
-    charge_point_vendor varchar(20) not null,
-    charge_point_model varchar(20) not null,
-    charge_point_serial_number varchar(25) not null,
-    charge_box_serial_number varchar(25) not null,
-    iccid varchar(20) not null,
-    imsi varchar(20) not null,
-    meter_type varchar(25) not null,
-    meter_serial_number varchar(25) not null,
-    firmware_version varchar(50) not null,
-    connector_count int not null,
     /* user-set */
     charge_point_identifier varchar(255) not null,
     ocpp_protocol varchar(20) not null,
-    unique (entity_code, charge_point_identifier),
-    foreign key (application_id) references bb3.ocpp_application(id)
+    /* fixed to charge point */
+    charge_point_vendor varchar(20) not null default '',
+    charge_point_model varchar(20) not null default '',
+    charge_point_serial_number varchar(25) not null default '',
+    charge_box_serial_number varchar(25) not null default '',
+    iccid varchar(20) not null default '',
+    imsi varchar(20) not null default '',
+    meter_type varchar(25) not null default '',
+    meter_serial_number varchar(25) not null default '',
+    firmware_version varchar(50) not null default '',
+    connector_count int not null default 0,
+    unique (entity_code, charge_point_identifier)
 );
 create table bb3.ocpp_charge_point_id_tag (
     id serial primary key,

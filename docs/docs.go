@@ -26,171 +26,64 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/v2/ocpp/applications/callbacks": {
+        "/v2/ocpp/charge-points/{entityCode}/{chargePointIdentifier}": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Applications"
-                ],
-                "summary": "Get Callback URL for Application",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/rpc.GetApplicationCallbacksResp"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Applications"
-                ],
-                "summary": "Set Callback URL for Application",
-                "parameters": [
-                    {
-                        "description": "Post CreateApplicationCallbackReq body",
-                        "name": "Body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/rpc.CreateApplicationCallbackReqPublic"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/rpc.CreateApplicationCallbackResp"
-                        }
-                    }
-                }
-            }
-        },
-        "/v2/ocpp/charge_points": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Charge Points"
                 ],
-                "summary": "Create a Charge Point",
+                "summary": "Get charge point",
                 "parameters": [
                     {
-                        "description": "Post CreateChargePointReq body",
-                        "name": "Body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/rpc.CreateChargePointReqPublic"
-                        }
+                        "type": "string",
+                        "description": "entity code",
+                        "name": "entityCode",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "charge point identifier",
+                        "name": "chargePointIdentifier",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/rpc.CreateChargePointResp"
+                            "$ref": "#/definitions/rpc.GetChargePointResp"
                         }
                     }
                 }
             }
         },
-        "/v2/ocpp/charge_points/id_tags": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
+        "/v2/ocpp/charge-points/{entityCode}/{chargePointIdentifier}/status": {
+            "get": {
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Charge Points"
                 ],
-                "summary": "Create a Charge Point ID tag",
+                "summary": "Get charge point connector status",
                 "parameters": [
                     {
-                        "description": "Post CreateChargePointIdTagReq body",
-                        "name": "Body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/rpc.CreateChargePointIdTagReqPublic"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/rpc.CreateChargePointIdTagReq"
-                        }
-                    }
-                }
-            }
-        },
-        "/v2/ocpp/operations/get-latest-status": {
-            "post": {
-                "security": [
+                        "type": "string",
+                        "description": "entity code",
+                        "name": "entityCode",
+                        "in": "path",
+                        "required": true
+                    },
                     {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Operations"
-                ],
-                "summary": "Get Status of Connectors",
-                "parameters": [
-                    {
-                        "description": "Post GetLatestStatus body",
-                        "name": "Body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/rpc.GetLatestStatusNotificationsReqPublic"
-                        }
+                        "type": "string",
+                        "description": "charge point identifier",
+                        "name": "chargePointIdentifier",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -205,11 +98,6 @@ var doc = `{
         },
         "/v2/ocpp/operations/remote-start-transaction": {
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -227,7 +115,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/rpc.RemoteStartTransactionReqPublic"
+                            "$ref": "#/definitions/rpc.RemoteStartTransactionReq"
                         }
                     }
                 ],
@@ -243,11 +131,6 @@ var doc = `{
         },
         "/v2/ocpp/operations/remote-stop-transaction": {
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -265,7 +148,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/rpc.RemoteStopTransactionReqPublic"
+                            "$ref": "#/definitions/rpc.RemoteStopTransactionReq"
                         }
                     }
                 ],
@@ -281,29 +164,9 @@ var doc = `{
         }
     },
     "definitions": {
-        "rpc.ApplicationCallback": {
-            "type": "object",
-            "properties": {
-                "application_id": {
-                    "type": "string"
-                },
-                "callback_event": {
-                    "type": "string"
-                },
-                "callback_url": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                }
-            }
-        },
         "rpc.ChargePoint": {
             "type": "object",
             "properties": {
-                "application_id": {
-                    "type": "string"
-                },
                 "charge_box_serial_number": {
                     "type": "string"
                 },
@@ -348,88 +211,11 @@ var doc = `{
                 }
             }
         },
-        "rpc.CreateApplicationCallbackReqPublic": {
-            "type": "object",
-            "properties": {
-                "callback_event": {
-                    "type": "string"
-                },
-                "callback_url": {
-                    "type": "string"
-                }
-            }
-        },
-        "rpc.CreateApplicationCallbackResp": {
-            "type": "object",
-            "properties": {
-                "application_callback": {
-                    "$ref": "#/definitions/rpc.ApplicationCallback"
-                }
-            }
-        },
-        "rpc.CreateChargePointIdTagReq": {
-            "type": "object",
-            "properties": {
-                "application_id": {
-                    "type": "string"
-                },
-                "charge_point_identifier": {
-                    "type": "string"
-                },
-                "id_tag": {
-                    "type": "string"
-                }
-            }
-        },
-        "rpc.CreateChargePointIdTagReqPublic": {
-            "type": "object",
-            "properties": {
-                "charge_point_identifier": {
-                    "type": "string"
-                },
-                "id_tag": {
-                    "type": "string"
-                }
-            }
-        },
-        "rpc.CreateChargePointReqPublic": {
-            "type": "object",
-            "properties": {
-                "charge_point_identifier": {
-                    "type": "string"
-                },
-                "entity_code": {
-                    "type": "string"
-                },
-                "ocpp_protocol": {
-                    "type": "string"
-                }
-            }
-        },
-        "rpc.CreateChargePointResp": {
+        "rpc.GetChargePointResp": {
             "type": "object",
             "properties": {
                 "charge_point": {
                     "$ref": "#/definitions/rpc.ChargePoint"
-                }
-            }
-        },
-        "rpc.GetApplicationCallbacksResp": {
-            "type": "object",
-            "properties": {
-                "application_callbacks": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/rpc.ApplicationCallback"
-                    }
-                }
-            }
-        },
-        "rpc.GetLatestStatusNotificationsReqPublic": {
-            "type": "object",
-            "properties": {
-                "charge_point_identifier": {
-                    "type": "string"
                 }
             }
         },
@@ -444,7 +230,7 @@ var doc = `{
                 }
             }
         },
-        "rpc.RemoteStartTransactionReqPublic": {
+        "rpc.RemoteStartTransactionReq": {
             "type": "object",
             "properties": {
                 "charge_point_identifier": {
@@ -452,6 +238,9 @@ var doc = `{
                 },
                 "connector_id": {
                     "type": "integer"
+                },
+                "entity_code": {
+                    "type": "string"
                 }
             }
         },
@@ -463,7 +252,7 @@ var doc = `{
                 }
             }
         },
-        "rpc.RemoteStopTransactionReqPublic": {
+        "rpc.RemoteStopTransactionReq": {
             "type": "object",
             "properties": {
                 "charge_point_identifier": {
@@ -471,6 +260,9 @@ var doc = `{
                 },
                 "connector_id": {
                     "type": "integer"
+                },
+                "entity_code": {
+                    "type": "string"
                 }
             }
         },
@@ -480,9 +272,6 @@ var doc = `{
         "rpc.StatusNotification": {
             "type": "object",
             "properties": {
-                "charge_point_id": {
-                    "type": "integer"
-                },
                 "connector_id": {
                     "type": "integer"
                 },
@@ -534,7 +323,7 @@ type swaggerInfo struct {
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
 	Version:     "2.0",
-	Host:        "ocpp-dev.beepbeep.tech:8060",
+	Host:        "ocpp-dev.chargegowhere.sg:8060",
 	BasePath:    "",
 	Schemes:     []string{"http"},
 	Title:       "BB3 OCPP API",

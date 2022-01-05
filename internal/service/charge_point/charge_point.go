@@ -2,7 +2,6 @@ package chargepoint
 
 import (
 	"context"
-	"errors"
 
 	"gorm.io/gorm"
 
@@ -24,111 +23,24 @@ func NewService(db *gorm.DB) *Service {
 	}
 }
 
-func (srv Service) CreateChargePoint(ctx context.Context, req *rpc.CreateChargePointReq) (*rpc.CreateChargePointResp, error) {
-	cp, err := srv.chargePoint.Create(ctx, models.OcppChargePoint{
-		ApplicationID:         req.ApplicationId,
-		ChargePointIdentifier: req.ChargePointIdentifier,
-		EntityCode:            req.EntityCode,
-		OcppProtocol:          req.OcppProtocol,
-	})
-
+func (srv Service) GetChargePoint(ctx context.Context, req *rpc.GetChargePointReq) (*rpc.GetChargePointResp, error) {
+	cp, err := srv.chargePoint.GetChargePoint(ctx, req.EntityCode, req.ChargePointIdentifier)
 	if err != nil {
 		return nil, err
 	}
 
-	cpo := rpc.ChargePoint{}
+	resChargePoint := &rpc.ChargePoint{}
+	util.ConvertCopyStruct(resChargePoint, &cp, map[string]util.ConverterFunc{})
 
-	err = util.ConvertCopyStruct(&cpo, &cp, map[string]util.ConverterFunc{})
-	if err != nil {
-		return nil, err
-	}
-
-	res := &rpc.CreateChargePointResp{
-		ChargePoint: &cpo,
-	}
-
-	return res, nil
-}
-
-func (srv Service) GetChargePointByIdentifier(ctx context.Context, req *rpc.GetChargePointByIdentifierReq) (*rpc.GetChargePointByIdentifierResp, error) {
-	cp, err := srv.chargePoint.GetChargePointByIdentifier(ctx, req.ApplicationId, req.ChargePointIdentifier)
-	if err != nil {
-		return nil, err
-	}
-
-	cpo := rpc.ChargePoint{}
-
-	err = util.ConvertCopyStruct(&cpo, &cp, map[string]util.ConverterFunc{})
-	if err != nil {
-		return nil, err
-	}
-
-	res := &rpc.GetChargePointByIdentifierResp{
-		ChargePoint: &cpo,
-	}
-
-	return res, nil
-}
-
-func (srv Service) CreateChargePointIdTag(ctx context.Context, req *rpc.CreateChargePointIdTagReq) (*rpc.CreateChargePointIdTagResp, error) {
-	cp, err := srv.chargePoint.GetChargePointByIdentifier(ctx, req.ApplicationId, req.ChargePointIdentifier)
-	if err != nil {
-		return nil, err
-	}
-
-	it, err := srv.chargePoint.CreateIdTag(ctx, models.OcppChargePointIDTag{
-		ChargePointID: cp.ID,
-		IDTag:         req.IdTag,
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	res := &rpc.CreateChargePointIdTagResp{
-		ChargePointIdTag: &rpc.ChargePointIdTag{
-			Id:                    it.ID,
-			ChargePointId:         it.ChargePointID,
-			ChargePointIdentifier: cp.ChargePointIdentifier,
-			IdTag:                 it.IDTag,
-		},
-	}
-
-	return res, nil
-}
-
-func (srv Service) GetChargePointIdTag(ctx context.Context, req *rpc.GetChargePointIdTagReq) (*rpc.GetChargePointIdTagResp, error) {
-	cp, err := srv.chargePoint.GetChargePointByIdentifier(ctx, req.ApplicationId, req.ChargePointIdentifier)
-	if err != nil {
-		return nil, err
-	}
-
-	it, err := srv.chargePoint.GetIdTag(ctx, int(cp.ID), req.IdTag)
-	if err != nil && errors.Is(gorm.ErrRecordNotFound, err) {
-		return &rpc.GetChargePointIdTagResp{
-			ChargePointIdTag: nil,
-		}, nil
-	}
-
-	if err != nil {
-		return nil, err
-	}
-
-	resIt := &rpc.ChargePointIdTag{}
-	err = util.ConvertCopyStruct(resIt, &it, map[string]util.ConverterFunc{})
-	if err != nil {
-		return nil, err
-	}
-
-	res := &rpc.GetChargePointIdTagResp{
-		ChargePointIdTag: resIt,
+	res := &rpc.GetChargePointResp{
+		ChargePoint: resChargePoint,
 	}
 
 	return res, nil
 }
 
 func (srv Service) GetChargePointIdTags(ctx context.Context, req *rpc.GetChargePointIdTagsReq) (*rpc.GetChargePointIdTagsResp, error) {
-	cp, err := srv.chargePoint.GetChargePointByIdentifier(ctx, req.ApplicationId, req.ChargePointIdentifier)
+	cp, err := srv.chargePoint.GetChargePoint(ctx, req.EntityCode, req.ChargePointIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -138,26 +50,30 @@ func (srv Service) GetChargePointIdTags(ctx context.Context, req *rpc.GetChargeP
 		return nil, err
 	}
 
-	r := make([]*rpc.ChargePointIdTag, 0)
+	resIdTags := make([]*rpc.ChargePointIdTag, 0)
 	for _, it := range its {
-		r = append(r, &rpc.ChargePointIdTag{
-			ChargePointId:         cp.ID,
-			ChargePointIdentifier: cp.ChargePointIdentifier,
-			IdTag:                 it.IDTag,
-		})
+		resIdTag := &rpc.ChargePointIdTag{}
+		util.ConvertCopyStruct(resIdTag, it, map[string]util.ConverterFunc{})
 	}
 
 	res := &rpc.GetChargePointIdTagsResp{
-		ChargePointIdTags: r,
+		ChargePointIdTags: resIdTags,
 	}
 
 	return res, nil
 }
 
 func (srv Service) UpdateChargePointDetails(ctx context.Context, req *rpc.UpdateChargePointDetailsReq) (*rpc.UpdateChargePointDetailsResp, error) {
-	cp, err := srv.chargePoint.Update(
+	cp, err := srv.chargePoint.GetChargePoint(ctx, req.EntityCode, req.ChargePointIdentifier)
+	if err != nil {
+		return nil, err
+	}
+
+	cpID := cp.ID
+
+	cp, err = srv.chargePoint.Update(
 		ctx,
-		req.ChargePointId,
+		cpID,
 		[]string{
 			"charge_point_vendor",
 			"charge_point_model",
@@ -170,7 +86,7 @@ func (srv Service) UpdateChargePointDetails(ctx context.Context, req *rpc.Update
 			"firmware_version",
 		},
 		models.OcppChargePoint{
-			ID:                      req.ChargePointId,
+			ID:                      cpID,
 			ChargePointVendor:       req.ChargePointVendor,
 			ChargePointModel:        req.ChargePointModel,
 			ChargePointSerialNumber: req.ChargePointSerialNumber,
@@ -186,22 +102,10 @@ func (srv Service) UpdateChargePointDetails(ctx context.Context, req *rpc.Update
 		return nil, err
 	}
 
+	resChargePoint := &rpc.ChargePoint{}
+	util.ConvertCopyStruct(resChargePoint, cp, map[string]util.ConverterFunc{})
 	res := &rpc.UpdateChargePointDetailsResp{
-		ChargePoint: &rpc.ChargePoint{
-			Id:                      cp.ID,
-			ApplicationId:           cp.ApplicationID,
-			ChargePointVendor:       cp.ChargePointVendor,
-			ChargePointModel:        cp.ChargePointModel,
-			ChargePointSerialNumber: cp.ChargePointSerialNumber,
-			ChargeBoxSerialNumber:   cp.ChargeBoxSerialNumber,
-			Iccid:                   cp.Iccid,
-			Imsi:                    cp.Imsi,
-			MeterType:               cp.MeterType,
-			MeterSerialNumber:       cp.MeterSerialNumber,
-			FirmwareVersion:         cp.FirmwareVersion,
-			ChargePointIdentifier:   cp.ChargePointIdentifier,
-			OcppProtocol:            cp.OcppProtocol,
-		},
+		ChargePoint: resChargePoint,
 	}
 
 	return res, nil

@@ -1,19 +1,6 @@
 definitions:
-  rpc.ApplicationCallback:
-    properties:
-      application_id:
-        type: string
-      callback_event:
-        type: string
-      callback_url:
-        type: string
-      id:
-        type: integer
-    type: object
   rpc.ChargePoint:
     properties:
-      application_id:
-        type: string
       charge_box_serial_number:
         type: string
       charge_point_identifier:
@@ -43,59 +30,10 @@ definitions:
       ocpp_protocol:
         type: string
     type: object
-  rpc.CreateApplicationCallbackReqPublic:
-    properties:
-      callback_event:
-        type: string
-      callback_url:
-        type: string
-    type: object
-  rpc.CreateApplicationCallbackResp:
-    properties:
-      application_callback:
-        $ref: '#/definitions/rpc.ApplicationCallback'
-    type: object
-  rpc.CreateChargePointIdTagReq:
-    properties:
-      application_id:
-        type: string
-      charge_point_identifier:
-        type: string
-      id_tag:
-        type: string
-    type: object
-  rpc.CreateChargePointIdTagReqPublic:
-    properties:
-      charge_point_identifier:
-        type: string
-      id_tag:
-        type: string
-    type: object
-  rpc.CreateChargePointReqPublic:
-    properties:
-      charge_point_identifier:
-        type: string
-      entity_code:
-        type: string
-      ocpp_protocol:
-        type: string
-    type: object
-  rpc.CreateChargePointResp:
+  rpc.GetChargePointResp:
     properties:
       charge_point:
         $ref: '#/definitions/rpc.ChargePoint'
-    type: object
-  rpc.GetApplicationCallbacksResp:
-    properties:
-      application_callbacks:
-        items:
-          $ref: '#/definitions/rpc.ApplicationCallback'
-        type: array
-    type: object
-  rpc.GetLatestStatusNotificationsReqPublic:
-    properties:
-      charge_point_identifier:
-        type: string
     type: object
   rpc.GetLatestStatusNotificationsResp:
     properties:
@@ -104,31 +42,33 @@ definitions:
           $ref: '#/definitions/rpc.StatusNotification'
         type: array
     type: object
-  rpc.RemoteStartTransactionReqPublic:
+  rpc.RemoteStartTransactionReq:
     properties:
       charge_point_identifier:
         type: string
       connector_id:
         type: integer
+      entity_code:
+        type: string
     type: object
   rpc.RemoteStartTransactionResp:
     properties:
       transaction_id:
         type: integer
     type: object
-  rpc.RemoteStopTransactionReqPublic:
+  rpc.RemoteStopTransactionReq:
     properties:
       charge_point_identifier:
         type: string
       connector_id:
         type: integer
+      entity_code:
+        type: string
     type: object
   rpc.RemoteStopTransactionResp:
     type: object
   rpc.StatusNotification:
     properties:
-      charge_point_id:
-        type: integer
       connector_id:
         type: integer
       error_code:
@@ -148,7 +88,7 @@ definitions:
       vendor_id:
         type: string
     type: object
-host: ocpp-dev.beepbeep.tech:8060
+host: ocpp-dev.chargegowhere.sg:8060
 info:
   contact:
     email: lowen@beepbeep.tech
@@ -157,101 +97,42 @@ info:
   title: BB3 OCPP API
   version: "2.0"
 paths:
-  /v2/ocpp/applications/callbacks:
+  /v2/ocpp/charge-points/{entityCode}/{chargePointIdentifier}:
     get:
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/rpc.GetApplicationCallbacksResp'
-      security:
-      - ApiKeyAuth: []
-      summary: Get Callback URL for Application
-      tags:
-      - Applications
-    post:
-      consumes:
-      - application/json
       parameters:
-      - description: Post CreateApplicationCallbackReq body
-        in: body
-        name: Body
+      - description: entity code
+        in: path
+        name: entityCode
         required: true
-        schema:
-          $ref: '#/definitions/rpc.CreateApplicationCallbackReqPublic'
+        type: string
+      - description: charge point identifier
+        in: path
+        name: chargePointIdentifier
+        required: true
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/rpc.CreateApplicationCallbackResp'
-      security:
-      - ApiKeyAuth: []
-      summary: Set Callback URL for Application
-      tags:
-      - Applications
-  /v2/ocpp/charge_points:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: Post CreateChargePointReq body
-        in: body
-        name: Body
-        required: true
-        schema:
-          $ref: '#/definitions/rpc.CreateChargePointReqPublic'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/rpc.CreateChargePointResp'
-      security:
-      - ApiKeyAuth: []
-      summary: Create a Charge Point
+            $ref: '#/definitions/rpc.GetChargePointResp'
+      summary: Get charge point
       tags:
       - Charge Points
-  /v2/ocpp/charge_points/id_tags:
-    post:
-      consumes:
-      - application/json
+  /v2/ocpp/charge-points/{entityCode}/{chargePointIdentifier}/status:
+    get:
       parameters:
-      - description: Post CreateChargePointIdTagReq body
-        in: body
-        name: Body
+      - description: entity code
+        in: path
+        name: entityCode
         required: true
-        schema:
-          $ref: '#/definitions/rpc.CreateChargePointIdTagReqPublic'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/rpc.CreateChargePointIdTagReq'
-      security:
-      - ApiKeyAuth: []
-      summary: Create a Charge Point ID tag
-      tags:
-      - Charge Points
-  /v2/ocpp/operations/get-latest-status:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: Post GetLatestStatus body
-        in: body
-        name: Body
+        type: string
+      - description: charge point identifier
+        in: path
+        name: chargePointIdentifier
         required: true
-        schema:
-          $ref: '#/definitions/rpc.GetLatestStatusNotificationsReqPublic'
+        type: string
       produces:
       - application/json
       responses:
@@ -259,11 +140,9 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/rpc.GetLatestStatusNotificationsResp'
-      security:
-      - ApiKeyAuth: []
-      summary: Get Status of Connectors
+      summary: Get charge point connector status
       tags:
-      - Operations
+      - Charge Points
   /v2/ocpp/operations/remote-start-transaction:
     post:
       consumes:
@@ -274,7 +153,7 @@ paths:
         name: Body
         required: true
         schema:
-          $ref: '#/definitions/rpc.RemoteStartTransactionReqPublic'
+          $ref: '#/definitions/rpc.RemoteStartTransactionReq'
       produces:
       - application/json
       responses:
@@ -282,8 +161,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/rpc.RemoteStartTransactionResp'
-      security:
-      - ApiKeyAuth: []
       summary: Request Charge Point to Start a Transaction
       tags:
       - Operations
@@ -297,7 +174,7 @@ paths:
         name: Body
         required: true
         schema:
-          $ref: '#/definitions/rpc.RemoteStopTransactionReqPublic'
+          $ref: '#/definitions/rpc.RemoteStopTransactionReq'
       produces:
       - application/json
       responses:
@@ -305,8 +182,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/rpc.RemoteStopTransactionResp'
-      security:
-      - ApiKeyAuth: []
       summary: Request Charge Point to Stop a Transaction
       tags:
       - Operations

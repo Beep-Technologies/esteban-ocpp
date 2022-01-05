@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
 
+	"github.com/Beep-Technologies/beepbeep3-ocpp/api/rpc"
 	ocpp16 "github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_16"
 	ocpp16cp "github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_16/charge_point"
 	messaging "github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_16/messaging"
@@ -68,6 +69,16 @@ func (cs *OCPP16CentralSystem) ConnectChargePoint(entityCode, identifier string,
 		return errors.New("there is already a charge point connected with the key " + key)
 	}
 
+	// check if charge point exists
+	cpRes, err := cs.chargepointService.GetChargePoint(context.Background(), &rpc.GetChargePointReq{
+		EntityCode:            entityCode,
+		ChargePointIdentifier: identifier,
+	})
+	if err != nil {
+		return err
+	}
+
+	// if charge point exists, attach the charge point to this central system
 	ctx, ctxCancel := context.WithCancel(context.Background())
 	inCallStream := make(chan messaging.OCPP16CallMessage)
 	inCallResultStream := make(chan messaging.OCPP16CallResult)
@@ -75,10 +86,9 @@ func (cs *OCPP16CentralSystem) ConnectChargePoint(entityCode, identifier string,
 	outCallStream := make(chan messaging.OCPP16CallMessage)
 	outCallResultStream := make(chan messaging.OCPP16CallResult)
 	outCallErrorStream := make(chan messaging.OCPP16CallError)
-	id := 1 // STUB
 
 	cp := ocpp16cp.NewOCPP16ChargePoint(
-		id,
+		int(cpRes.ChargePoint.Id),
 		identifier,
 		entityCode,
 		ctx,
@@ -213,6 +223,11 @@ func (cs *OCPP16CentralSystem) ConnectChargePoint(entityCode, identifier string,
 			}
 
 			err = conn.WriteMessage(websocket.TextMessage, res)
+			cs.logger.Info(
+				string(res),
+				zap.String("event", "send_message"),
+				zap.String("charge_point_key", key),
+			)
 			if err != nil {
 				cs.logger.Error(
 					err.Error(),
@@ -233,6 +248,7 @@ func (cs *OCPP16CentralSystem) ConnectChargePoint(entityCode, identifier string,
 	<-ctx.Done()
 
 	// cleanup
+	delete(cs.chargePoints, key)
 	conn.Close()
 	cs.logger.Info(
 		"",
@@ -240,6 +256,5 @@ func (cs *OCPP16CentralSystem) ConnectChargePoint(entityCode, identifier string,
 		zap.String("charge_point_key", key),
 	)
 
-	delete(cs.chargePoints, key)
 	return nil
 }

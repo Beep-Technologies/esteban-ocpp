@@ -9,60 +9,35 @@ import (
 
 	"github.com/Beep-Technologies/beepbeep3-ocpp/api/rpc"
 	"github.com/Beep-Technologies/beepbeep3-ocpp/internal/models"
-	chargePointRepo "github.com/Beep-Technologies/beepbeep3-ocpp/internal/repository/charge_point"
-	transactionRepo "github.com/Beep-Technologies/beepbeep3-ocpp/internal/repository/transaction"
+	chargepoint "github.com/Beep-Technologies/beepbeep3-ocpp/internal/repository/charge_point"
+	transaction "github.com/Beep-Technologies/beepbeep3-ocpp/internal/repository/transaction"
 	"github.com/Beep-Technologies/beepbeep3-ocpp/pkg/util"
 )
 
 const RFC3339Milli = "2006-01-02T15:04:05.000Z07:00"
 
 type Service struct {
-	db              *gorm.DB
-	transactionRepo transactionRepo.BaseRepo
-	chargePointRepo chargePointRepo.BaseRepo
+	db          *gorm.DB
+	transaction transaction.BaseRepo
+	chargePoint chargepoint.BaseRepo
 }
 
 func NewService(db *gorm.DB) *Service {
 	return &Service{
-		db:              db,
-		chargePointRepo: chargePointRepo.NewBaseRepo(db),
-		transactionRepo: transactionRepo.NewBaseRepo(db),
+		db:          db,
+		chargePoint: chargepoint.NewBaseRepo(db),
+		transaction: transaction.NewBaseRepo(db),
 	}
-}
-
-func (srv Service) GetTransactionById(ctx context.Context, req *rpc.GetTransactionByIdReq) (*rpc.GetTransactionByIdResp, error) {
-
-	t, err := srv.transactionRepo.GetByID(ctx, req.Id)
-	if err != nil {
-		return nil, err
-	}
-
-	res := &rpc.GetTransactionByIdResp{
-		Transaction: &rpc.Transaction{
-			Id:              t.ID,
-			ChargePointId:   t.ChargePointID,
-			ConnectorId:     t.ConnectorID,
-			IdTag:           t.IDTag,
-			State:           t.State,
-			RemoteInitiated: t.RemoteInitiated,
-			StartTimestamp:  t.StartTimestamp.UTC().Format(RFC3339Milli),
-			StopTimestamp:   t.StopTimestamp.UTC().Format(RFC3339Milli),
-			StartMeterValue: t.StartMeterValue,
-			StopMeterValue:  t.StopMeterValue,
-			StopReason:      t.StopReason,
-		},
-	}
-
-	return res, nil
 }
 
 func (srv Service) GetOngoingTransaction(ctx context.Context, req *rpc.GetOngoingTransactionReq) (*rpc.GetOngoingTransactionResp, error) {
-	cp, err := srv.chargePointRepo.GetChargePointByIdentifier(ctx, req.ApplicationId, req.ChargePointIdentifier)
+	// get charge point
+	cp, err := srv.chargePoint.GetChargePoint(ctx, req.EntityCode, req.ChargePointIdentifier)
 	if err != nil {
 		return nil, err
 	}
 
-	t, err := srv.transactionRepo.GetByChargePointIDConnectorStates(ctx, cp.ID, req.ConnectorId, []string{"CREATED", "STARTED"})
+	t, err := srv.transaction.GetByChargePointIDConnectorStates(ctx, cp.ID, req.ConnectorId, []string{"CREATED", "STARTED"})
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		res := &rpc.GetOngoingTransactionResp{
 			OngoingTransaction: false,
@@ -89,8 +64,14 @@ func (srv Service) GetOngoingTransaction(ctx context.Context, req *rpc.GetOngoin
 }
 
 func (srv Service) CreateTransaction(ctx context.Context, req *rpc.CreateTransactionReq) (*rpc.CreateTransactionResp, error) {
-	t, err := srv.transactionRepo.Create(ctx, models.OcppTransaction{
-		ChargePointID:   req.ChargePointId,
+	// get charge point
+	cp, err := srv.chargePoint.GetChargePoint(ctx, req.EntityCode, req.ChargePointIdentifier)
+	if err != nil {
+		return nil, err
+	}
+
+	t, err := srv.transaction.Create(ctx, models.OcppTransaction{
+		ChargePointID:   cp.ID,
 		ConnectorID:     req.ConnectorId,
 		State:           "CREATED",
 		RemoteInitiated: req.RemoteInitiated,
@@ -121,7 +102,7 @@ func (srv Service) CreateTransaction(ctx context.Context, req *rpc.CreateTransac
 }
 
 func (srv Service) StartTransaction(ctx context.Context, req *rpc.StartTransactionReq) (*rpc.StartTransactionResp, error) {
-	_, err := srv.transactionRepo.Update(
+	_, err := srv.transaction.Update(
 		ctx,
 		req.Id,
 		[]string{"state", "ongoing", "start_timestamp", "start_meter_value"},
@@ -142,7 +123,7 @@ func (srv Service) StartTransaction(ctx context.Context, req *rpc.StartTransacti
 }
 
 func (srv Service) AbortTransaction(ctx context.Context, req *rpc.AbortTransactionReq) (*rpc.AbortTransactionResp, error) {
-	_, err := srv.transactionRepo.Update(
+	_, err := srv.transaction.Update(
 		ctx,
 		req.Id,
 		[]string{"state", "ongoing"},
@@ -161,7 +142,7 @@ func (srv Service) AbortTransaction(ctx context.Context, req *rpc.AbortTransacti
 }
 
 func (srv Service) AbnormalStopTransaction(ctx context.Context, req *rpc.AbnormalStopTransactionReq) (*rpc.AbnormalStopTransactionResp, error) {
-	_, err := srv.transactionRepo.Update(
+	_, err := srv.transaction.Update(
 		ctx,
 		req.Id,
 		[]string{"state", "ongoing"},
@@ -180,7 +161,7 @@ func (srv Service) AbnormalStopTransaction(ctx context.Context, req *rpc.Abnorma
 }
 
 func (srv Service) StopTransaction(ctx context.Context, req *rpc.StopTransactionReq) (*rpc.StopTransactionResp, error) {
-	t, err := srv.transactionRepo.Update(
+	t, err := srv.transaction.Update(
 		ctx,
 		req.Id,
 		[]string{"state", "stopped", "ongoing", "stop_timestamp", "stop_meter_value", "stop_reason"},

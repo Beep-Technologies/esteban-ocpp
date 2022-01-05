@@ -16,23 +16,27 @@ const RFC3339Milli = "2006-01-02T15:04:05.000Z07:00"
 
 type Service struct {
 	db                 *gorm.DB
-	statusnotification statusnotification.BaseRepo
-	chargepoint        chargepoint.BaseRepo
+	statusNotification statusnotification.BaseRepo
+	chargePoint        chargepoint.BaseRepo
 }
 
 func NewService(db *gorm.DB) *Service {
 	return &Service{
 		db:                 db,
-		statusnotification: statusnotification.NewBaseRepo(db),
-		chargepoint:        chargepoint.NewBaseRepo(db),
+		statusNotification: statusnotification.NewBaseRepo(db),
+		chargePoint:        chargepoint.NewBaseRepo(db),
 	}
 }
 
 func (srv Service) CreateStatusNotification(ctx context.Context, req *rpc.CreateStatusNotificationReq) (*rpc.CreateStatusNotificationResp, error) {
+	// get charge point
+	cp, err := srv.chargePoint.GetChargePoint(ctx, req.EntityCode, req.ChargePointIdentifier)
+	if err != nil {
+		return nil, err
+	}
+
 	// reported timestamp can be empty
 	var rts time.Time
-	var err error
-
 	if req.Timestamp == "" {
 		rts = time.Time{}
 	} else {
@@ -42,8 +46,8 @@ func (srv Service) CreateStatusNotification(ctx context.Context, req *rpc.Create
 		}
 	}
 
-	sn, err := srv.statusnotification.Create(ctx, models.OcppStatusNotification{
-		ChargePointID:     req.ChargePointId,
+	sn, err := srv.statusNotification.Create(ctx, models.OcppStatusNotification{
+		ChargePointID:     cp.ID,
 		ConnectorID:       req.ConnectorId,
 		ErrorCode:         req.ErrorCode,
 		Info:              req.Info,
@@ -61,7 +65,6 @@ func (srv Service) CreateStatusNotification(ctx context.Context, req *rpc.Create
 	res := &rpc.CreateStatusNotificationResp{
 		StatusNotification: &rpc.StatusNotification{
 			Id:                sn.ID,
-			ChargePointId:     sn.ChargePointID,
 			ConnectorId:       sn.ConnectorID,
 			ErrorCode:         sn.ErrorCode,
 			Info:              sn.Info,
@@ -77,23 +80,26 @@ func (srv Service) CreateStatusNotification(ctx context.Context, req *rpc.Create
 }
 
 func (srv Service) GetLatestStatusNotifications(ctx context.Context, req *rpc.GetLatestStatusNotificationsReq) (*rpc.GetLatestStatusNotificationsResp, error) {
-	cpModel, err := srv.chargepoint.GetChargePointByIdentifier(ctx, req.ApplicationId, req.ChargePointIdentifier)
+	// get charge point
+	cp, err := srv.chargePoint.GetChargePoint(ctx, req.EntityCode, req.ChargePointIdentifier)
+	if err != nil {
+		return nil, err
+	}
 
 	if err != nil {
 		return nil, err
 	}
 
-	snModels, err := srv.statusnotification.GetLatestStatusNotifications(ctx, cpModel.ID)
+	sns, err := srv.statusNotification.GetLatestStatusNotifications(ctx, cp.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	snRpcs := make([]*rpc.StatusNotification, 0)
+	snsRes := make([]*rpc.StatusNotification, 0)
 
-	for _, sn := range snModels {
-		snRpc := &rpc.StatusNotification{
+	for _, sn := range sns {
+		resStatusNotification := &rpc.StatusNotification{
 			Id:                sn.ID,
-			ChargePointId:     sn.ChargePointID,
 			ConnectorId:       sn.ConnectorID,
 			ErrorCode:         sn.ErrorCode,
 			Info:              sn.Info,
@@ -104,11 +110,11 @@ func (srv Service) GetLatestStatusNotifications(ctx context.Context, req *rpc.Ge
 			ReportedTimestamp: sn.ReportedTimestamp.UTC().Format(RFC3339Milli),
 		}
 
-		snRpcs = append(snRpcs, snRpc)
+		snsRes = append(snsRes, resStatusNotification)
 	}
 
 	res := &rpc.GetLatestStatusNotificationsResp{
-		ConnectorStatus: snRpcs,
+		ConnectorStatus: snsRes,
 	}
 
 	return res, nil

@@ -4,10 +4,14 @@
 package rpc
 
 import (
+	context "context"
 	fmt "fmt"
 	_ "github.com/gogo/protobuf/gogoproto"
 	github_com_gogo_protobuf_proto "github.com/gogo/protobuf/proto"
 	proto "github.com/gogo/protobuf/proto"
+	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	io "io"
 	math "math"
 	math_bits "math/bits"
@@ -108,7 +112,6 @@ func (m *ApplicationCallback) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ApplicationCallback proto.InternalMessageInfo
 
-// for exposed services
 type CreateApplicationReq struct {
 	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -231,47 +234,6 @@ func (m *CreateApplicationCallbackReq) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_CreateApplicationCallbackReq proto.InternalMessageInfo
 
-type CreateApplicationCallbackReqPublic struct {
-	CallbackEvent        string   `protobuf:"bytes,1,opt,name=callback_event,json=callbackEvent,proto3" json:"callback_event,omitempty"`
-	CallbackUrl          string   `protobuf:"bytes,2,opt,name=callback_url,json=callbackUrl,proto3" json:"callback_url,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *CreateApplicationCallbackReqPublic) Reset()         { *m = CreateApplicationCallbackReqPublic{} }
-func (m *CreateApplicationCallbackReqPublic) String() string { return proto.CompactTextString(m) }
-func (*CreateApplicationCallbackReqPublic) ProtoMessage()    {}
-func (*CreateApplicationCallbackReqPublic) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f65f8be3f63a21be, []int{5}
-}
-func (m *CreateApplicationCallbackReqPublic) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *CreateApplicationCallbackReqPublic) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_CreateApplicationCallbackReqPublic.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *CreateApplicationCallbackReqPublic) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CreateApplicationCallbackReqPublic.Merge(m, src)
-}
-func (m *CreateApplicationCallbackReqPublic) XXX_Size() int {
-	return m.Size()
-}
-func (m *CreateApplicationCallbackReqPublic) XXX_DiscardUnknown() {
-	xxx_messageInfo_CreateApplicationCallbackReqPublic.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_CreateApplicationCallbackReqPublic proto.InternalMessageInfo
-
 type CreateApplicationCallbackResp struct {
 	ApplicationCallback  *ApplicationCallback `protobuf:"bytes,1,opt,name=application_callback,json=applicationCallback,proto3" json:"application_callback"`
 	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
@@ -283,7 +245,7 @@ func (m *CreateApplicationCallbackResp) Reset()         { *m = CreateApplication
 func (m *CreateApplicationCallbackResp) String() string { return proto.CompactTextString(m) }
 func (*CreateApplicationCallbackResp) ProtoMessage()    {}
 func (*CreateApplicationCallbackResp) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f65f8be3f63a21be, []int{6}
+	return fileDescriptor_f65f8be3f63a21be, []int{5}
 }
 func (m *CreateApplicationCallbackResp) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -312,169 +274,9 @@ func (m *CreateApplicationCallbackResp) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_CreateApplicationCallbackResp proto.InternalMessageInfo
 
-type GetApplicationByIdReq struct {
-	ApplicationId        string   `protobuf:"bytes,1,opt,name=application_id,json=applicationId,proto3" json:"application_id,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *GetApplicationByIdReq) Reset()         { *m = GetApplicationByIdReq{} }
-func (m *GetApplicationByIdReq) String() string { return proto.CompactTextString(m) }
-func (*GetApplicationByIdReq) ProtoMessage()    {}
-func (*GetApplicationByIdReq) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f65f8be3f63a21be, []int{7}
-}
-func (m *GetApplicationByIdReq) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *GetApplicationByIdReq) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_GetApplicationByIdReq.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *GetApplicationByIdReq) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetApplicationByIdReq.Merge(m, src)
-}
-func (m *GetApplicationByIdReq) XXX_Size() int {
-	return m.Size()
-}
-func (m *GetApplicationByIdReq) XXX_DiscardUnknown() {
-	xxx_messageInfo_GetApplicationByIdReq.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_GetApplicationByIdReq proto.InternalMessageInfo
-
-type GetApplicationByIdResp struct {
-	Application          *Application `protobuf:"bytes,1,opt,name=application,proto3" json:"application,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
-	XXX_unrecognized     []byte       `json:"-"`
-	XXX_sizecache        int32        `json:"-"`
-}
-
-func (m *GetApplicationByIdResp) Reset()         { *m = GetApplicationByIdResp{} }
-func (m *GetApplicationByIdResp) String() string { return proto.CompactTextString(m) }
-func (*GetApplicationByIdResp) ProtoMessage()    {}
-func (*GetApplicationByIdResp) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f65f8be3f63a21be, []int{8}
-}
-func (m *GetApplicationByIdResp) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *GetApplicationByIdResp) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_GetApplicationByIdResp.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *GetApplicationByIdResp) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetApplicationByIdResp.Merge(m, src)
-}
-func (m *GetApplicationByIdResp) XXX_Size() int {
-	return m.Size()
-}
-func (m *GetApplicationByIdResp) XXX_DiscardUnknown() {
-	xxx_messageInfo_GetApplicationByIdResp.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_GetApplicationByIdResp proto.InternalMessageInfo
-
-type GetApplicationCallbackReq struct {
-	ApplicationId        string   `protobuf:"bytes,1,opt,name=application_id,json=applicationId,proto3" json:"application_id,omitempty"`
-	CallbackEvent        string   `protobuf:"bytes,2,opt,name=callback_event,json=callbackEvent,proto3" json:"callback_event,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *GetApplicationCallbackReq) Reset()         { *m = GetApplicationCallbackReq{} }
-func (m *GetApplicationCallbackReq) String() string { return proto.CompactTextString(m) }
-func (*GetApplicationCallbackReq) ProtoMessage()    {}
-func (*GetApplicationCallbackReq) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f65f8be3f63a21be, []int{9}
-}
-func (m *GetApplicationCallbackReq) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *GetApplicationCallbackReq) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_GetApplicationCallbackReq.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *GetApplicationCallbackReq) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetApplicationCallbackReq.Merge(m, src)
-}
-func (m *GetApplicationCallbackReq) XXX_Size() int {
-	return m.Size()
-}
-func (m *GetApplicationCallbackReq) XXX_DiscardUnknown() {
-	xxx_messageInfo_GetApplicationCallbackReq.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_GetApplicationCallbackReq proto.InternalMessageInfo
-
-type GetApplicationCallbackResp struct {
-	ApplicationCallback  *ApplicationCallback `protobuf:"bytes,1,opt,name=application_callback,json=applicationCallback,proto3" json:"application_callback"`
-	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
-	XXX_unrecognized     []byte               `json:"-"`
-	XXX_sizecache        int32                `json:"-"`
-}
-
-func (m *GetApplicationCallbackResp) Reset()         { *m = GetApplicationCallbackResp{} }
-func (m *GetApplicationCallbackResp) String() string { return proto.CompactTextString(m) }
-func (*GetApplicationCallbackResp) ProtoMessage()    {}
-func (*GetApplicationCallbackResp) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f65f8be3f63a21be, []int{10}
-}
-func (m *GetApplicationCallbackResp) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *GetApplicationCallbackResp) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_GetApplicationCallbackResp.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *GetApplicationCallbackResp) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetApplicationCallbackResp.Merge(m, src)
-}
-func (m *GetApplicationCallbackResp) XXX_Size() int {
-	return m.Size()
-}
-func (m *GetApplicationCallbackResp) XXX_DiscardUnknown() {
-	xxx_messageInfo_GetApplicationCallbackResp.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_GetApplicationCallbackResp proto.InternalMessageInfo
-
 type GetApplicationCallbacksReq struct {
-	ApplicationId        string   `protobuf:"bytes,1,opt,name=application_id,json=applicationId,proto3" json:"application_id,omitempty"`
+	EntityCode           string   `protobuf:"bytes,1,opt,name=entity_code,json=entityCode,proto3" json:"entity_code,omitempty"`
+	CallbackEvent        string   `protobuf:"bytes,2,opt,name=callback_event,json=callbackEvent,proto3" json:"callback_event,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -484,7 +286,7 @@ func (m *GetApplicationCallbacksReq) Reset()         { *m = GetApplicationCallba
 func (m *GetApplicationCallbacksReq) String() string { return proto.CompactTextString(m) }
 func (*GetApplicationCallbacksReq) ProtoMessage()    {}
 func (*GetApplicationCallbacksReq) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f65f8be3f63a21be, []int{11}
+	return fileDescriptor_f65f8be3f63a21be, []int{6}
 }
 func (m *GetApplicationCallbacksReq) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -524,7 +326,7 @@ func (m *GetApplicationCallbacksResp) Reset()         { *m = GetApplicationCallb
 func (m *GetApplicationCallbacksResp) String() string { return proto.CompactTextString(m) }
 func (*GetApplicationCallbacksResp) ProtoMessage()    {}
 func (*GetApplicationCallbacksResp) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f65f8be3f63a21be, []int{12}
+	return fileDescriptor_f65f8be3f63a21be, []int{7}
 }
 func (m *GetApplicationCallbacksResp) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -553,140 +355,54 @@ func (m *GetApplicationCallbacksResp) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_GetApplicationCallbacksResp proto.InternalMessageInfo
 
-type DeleteApplicationCallbackReq struct {
-	ApplicationId        string   `protobuf:"bytes,1,opt,name=application_id,json=applicationId,proto3" json:"application_id,omitempty"`
-	CallbackEvent        string   `protobuf:"bytes,2,opt,name=callback_event,json=callbackEvent,proto3" json:"callback_event,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *DeleteApplicationCallbackReq) Reset()         { *m = DeleteApplicationCallbackReq{} }
-func (m *DeleteApplicationCallbackReq) String() string { return proto.CompactTextString(m) }
-func (*DeleteApplicationCallbackReq) ProtoMessage()    {}
-func (*DeleteApplicationCallbackReq) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f65f8be3f63a21be, []int{13}
-}
-func (m *DeleteApplicationCallbackReq) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *DeleteApplicationCallbackReq) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_DeleteApplicationCallbackReq.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *DeleteApplicationCallbackReq) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DeleteApplicationCallbackReq.Merge(m, src)
-}
-func (m *DeleteApplicationCallbackReq) XXX_Size() int {
-	return m.Size()
-}
-func (m *DeleteApplicationCallbackReq) XXX_DiscardUnknown() {
-	xxx_messageInfo_DeleteApplicationCallbackReq.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_DeleteApplicationCallbackReq proto.InternalMessageInfo
-
-type DeleteApplicationCallbackResp struct {
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *DeleteApplicationCallbackResp) Reset()         { *m = DeleteApplicationCallbackResp{} }
-func (m *DeleteApplicationCallbackResp) String() string { return proto.CompactTextString(m) }
-func (*DeleteApplicationCallbackResp) ProtoMessage()    {}
-func (*DeleteApplicationCallbackResp) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f65f8be3f63a21be, []int{14}
-}
-func (m *DeleteApplicationCallbackResp) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *DeleteApplicationCallbackResp) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_DeleteApplicationCallbackResp.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *DeleteApplicationCallbackResp) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DeleteApplicationCallbackResp.Merge(m, src)
-}
-func (m *DeleteApplicationCallbackResp) XXX_Size() int {
-	return m.Size()
-}
-func (m *DeleteApplicationCallbackResp) XXX_DiscardUnknown() {
-	xxx_messageInfo_DeleteApplicationCallbackResp.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_DeleteApplicationCallbackResp proto.InternalMessageInfo
-
 func init() {
 	proto.RegisterType((*Application)(nil), "ocpp.Application")
 	proto.RegisterType((*ApplicationCallback)(nil), "ocpp.ApplicationCallback")
 	proto.RegisterType((*CreateApplicationReq)(nil), "ocpp.CreateApplicationReq")
 	proto.RegisterType((*CreateApplicationResp)(nil), "ocpp.CreateApplicationResp")
 	proto.RegisterType((*CreateApplicationCallbackReq)(nil), "ocpp.CreateApplicationCallbackReq")
-	proto.RegisterType((*CreateApplicationCallbackReqPublic)(nil), "ocpp.CreateApplicationCallbackReqPublic")
 	proto.RegisterType((*CreateApplicationCallbackResp)(nil), "ocpp.CreateApplicationCallbackResp")
-	proto.RegisterType((*GetApplicationByIdReq)(nil), "ocpp.GetApplicationByIdReq")
-	proto.RegisterType((*GetApplicationByIdResp)(nil), "ocpp.GetApplicationByIdResp")
-	proto.RegisterType((*GetApplicationCallbackReq)(nil), "ocpp.GetApplicationCallbackReq")
-	proto.RegisterType((*GetApplicationCallbackResp)(nil), "ocpp.GetApplicationCallbackResp")
 	proto.RegisterType((*GetApplicationCallbacksReq)(nil), "ocpp.GetApplicationCallbacksReq")
 	proto.RegisterType((*GetApplicationCallbacksResp)(nil), "ocpp.GetApplicationCallbacksResp")
-	proto.RegisterType((*DeleteApplicationCallbackReq)(nil), "ocpp.DeleteApplicationCallbackReq")
-	proto.RegisterType((*DeleteApplicationCallbackResp)(nil), "ocpp.DeleteApplicationCallbackResp")
 }
 
 func init() { proto.RegisterFile("applications.proto", fileDescriptor_f65f8be3f63a21be) }
 
 var fileDescriptor_f65f8be3f63a21be = []byte{
-	// 511 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x55, 0xcf, 0x8b, 0xd3, 0x40,
-	0x14, 0x76, 0xd2, 0xba, 0xe8, 0xab, 0xeb, 0x8f, 0xd9, 0x76, 0x49, 0xd7, 0x6e, 0xb2, 0x0e, 0x2c,
-	0x88, 0x60, 0x17, 0xec, 0xc9, 0x8b, 0x60, 0xbb, 0x22, 0x7b, 0x10, 0x64, 0xc0, 0x8b, 0x20, 0x4b,
-	0x7e, 0xcc, 0xd6, 0xc1, 0x6c, 0x33, 0x66, 0x52, 0xc1, 0xbb, 0xa0, 0x37, 0xff, 0xad, 0x3d, 0x7a,
-	0xf4, 0x14, 0xdc, 0x9e, 0x24, 0x7f, 0x85, 0x74, 0x9a, 0xb8, 0x93, 0x26, 0x0d, 0xf5, 0x60, 0x2f,
-	0xa5, 0x5f, 0xde, 0xfb, 0xbe, 0xf7, 0xde, 0xf7, 0x5e, 0x08, 0x60, 0x47, 0x88, 0x80, 0x7b, 0x4e,
-	0xcc, 0xc3, 0x89, 0xec, 0x8b, 0x28, 0x8c, 0x43, 0xdc, 0x0c, 0x3d, 0x21, 0xf6, 0x1e, 0x8f, 0x79,
-	0xfc, 0x7e, 0xea, 0xf6, 0xbd, 0xf0, 0xfc, 0x68, 0x1c, 0x8e, 0xc3, 0x23, 0x15, 0x74, 0xa7, 0x67,
-	0x0a, 0x29, 0xa0, 0xfe, 0x2d, 0x48, 0x64, 0x04, 0xad, 0xe7, 0x57, 0x52, 0x78, 0x17, 0x0c, 0xee,
-	0x9b, 0xe8, 0x00, 0x3d, 0xbc, 0x39, 0xdc, 0x4a, 0x13, 0xdb, 0xe0, 0x3e, 0x35, 0xb8, 0x8f, 0x7b,
-	0xd0, 0x9c, 0x38, 0xe7, 0xcc, 0x34, 0x54, 0xe4, 0x46, 0x9a, 0xd8, 0x0a, 0x53, 0xf5, 0x4b, 0x7e,
-	0x22, 0xd8, 0xd1, 0x54, 0x46, 0x4e, 0x10, 0xb8, 0x8e, 0xf7, 0x41, 0x53, 0xbb, 0x5e, 0x50, 0x7b,
-	0x0a, 0xb7, 0xb5, 0xfe, 0x4f, 0xb9, 0x9f, 0xe9, 0xe2, 0x34, 0xb1, 0x97, 0x22, 0x74, 0x5b, 0xc3,
-	0x27, 0x8a, 0xea, 0x65, 0xf2, 0xa7, 0xec, 0x13, 0x9b, 0xc4, 0x66, 0xe3, 0x8a, 0x5a, 0x8c, 0xd0,
-	0xed, 0x1c, 0xbf, 0x98, 0x43, 0x3c, 0x80, 0x5b, 0x7f, 0x13, 0xa6, 0x51, 0x60, 0x36, 0x15, 0xf1,
-	0x6e, 0x9a, 0xd8, 0x85, 0xe7, 0xb4, 0x95, 0xa3, 0x37, 0x51, 0x40, 0x1e, 0x41, 0x7b, 0x14, 0x31,
-	0x27, 0x66, 0xda, 0x7c, 0x94, 0x7d, 0xc4, 0x38, 0x33, 0x44, 0x59, 0x95, 0xd9, 0xf0, 0x0e, 0x3a,
-	0x15, 0xb9, 0x52, 0xe0, 0x63, 0x68, 0x69, 0x53, 0x28, 0x4e, 0xeb, 0xc9, 0xbd, 0xfe, 0x7c, 0x5f,
-	0x7d, 0x2d, 0x77, 0x78, 0x27, 0x4d, 0x6c, 0x3d, 0x93, 0xea, 0x80, 0x7c, 0x47, 0xd0, 0x2b, 0xe9,
-	0xe7, 0x5e, 0xcf, 0x7b, 0x3a, 0x2c, 0xd9, 0xba, 0xe8, 0x6e, 0xc9, 0xc2, 0xc3, 0x92, 0x85, 0xc6,
-	0x22, 0xad, 0x68, 0xd7, 0x83, 0x25, 0xbb, 0x94, 0xcf, 0x45, 0x73, 0x26, 0x40, 0xea, 0x1a, 0x7a,
-	0x3d, 0x75, 0x03, 0xee, 0x55, 0xd4, 0x43, 0xeb, 0xd4, 0x33, 0xca, 0xf5, 0xbe, 0x22, 0xd8, 0xaf,
-	0x29, 0x28, 0x05, 0x3e, 0x83, 0xb6, 0x6e, 0x41, 0x4e, 0xce, 0x2c, 0xef, 0x96, 0x2c, 0xcf, 0xc9,
-	0x43, 0x33, 0x4d, 0xec, 0x4a, 0x2a, 0xdd, 0x71, 0xca, 0xe9, 0xe4, 0x19, 0x74, 0x5e, 0xb2, 0x58,
-	0xdf, 0xdd, 0xe7, 0x13, 0x7f, 0xfd, 0x1d, 0x90, 0x57, 0xb0, 0x5b, 0xc5, 0x97, 0x02, 0x0f, 0xd6,
-	0xbb, 0x95, 0xe2, 0x69, 0x70, 0xe8, 0x16, 0xe5, 0xfe, 0xdb, 0x59, 0x90, 0x2f, 0x08, 0xf6, 0x56,
-	0xd5, 0xda, 0xe0, 0x02, 0x46, 0xab, 0xba, 0x90, 0xff, 0xb0, 0x85, 0x6f, 0x08, 0xee, 0xaf, 0x54,
-	0x91, 0x02, 0x73, 0xe8, 0x54, 0x75, 0x24, 0x4d, 0x74, 0xd0, 0xa8, 0x9f, 0xa6, 0x9b, 0x26, 0x76,
-	0x35, 0x97, 0xb6, 0x2b, 0xc6, 0x91, 0x24, 0x80, 0xde, 0x31, 0x0b, 0xd8, 0x66, 0xde, 0x6d, 0x62,
-	0xc3, 0x7e, 0x4d, 0x35, 0x29, 0x86, 0xdd, 0x8b, 0x4b, 0xeb, 0xda, 0xef, 0x4b, 0x0b, 0x5d, 0xcc,
-	0x2c, 0xf4, 0x63, 0x66, 0xa1, 0x5f, 0x33, 0x0b, 0xbd, 0x6d, 0x44, 0xc2, 0x73, 0xb7, 0xd4, 0x87,
-	0x63, 0xf0, 0x27, 0x00, 0x00, 0xff, 0xff, 0xd7, 0x33, 0x0a, 0x79, 0x83, 0x06, 0x00, 0x00,
+	// 521 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x94, 0xc1, 0x6e, 0xd3, 0x40,
+	0x10, 0x86, 0xbb, 0x4e, 0xa8, 0x60, 0x4c, 0x81, 0x6e, 0x53, 0x70, 0xdc, 0x62, 0xa7, 0x46, 0x95,
+	0x10, 0x12, 0xa9, 0xd4, 0x9e, 0x38, 0x92, 0x80, 0x10, 0x17, 0x0e, 0x46, 0x5c, 0x90, 0x20, 0x72,
+	0xec, 0x4d, 0x58, 0xe1, 0x66, 0x17, 0xaf, 0x53, 0x89, 0x27, 0x80, 0x1b, 0x2f, 0xc2, 0x83, 0xf4,
+	0xc8, 0x91, 0x93, 0x45, 0x73, 0x42, 0x7e, 0x0a, 0x94, 0xb5, 0x4d, 0xd7, 0xb1, 0xdd, 0xf4, 0x12,
+	0x65, 0x3c, 0xff, 0xff, 0xef, 0xec, 0x37, 0x96, 0x01, 0x7b, 0x9c, 0x87, 0xd4, 0xf7, 0x62, 0xca,
+	0x66, 0xa2, 0xcf, 0x23, 0x16, 0x33, 0xdc, 0x66, 0x3e, 0xe7, 0xe6, 0xd3, 0x29, 0x8d, 0x3f, 0xcd,
+	0xc7, 0x7d, 0x9f, 0x9d, 0x1e, 0x4d, 0xd9, 0x94, 0x1d, 0xc9, 0xe6, 0x78, 0x3e, 0x91, 0x95, 0x2c,
+	0xe4, 0xbf, 0xcc, 0xe4, 0x0c, 0x41, 0x7f, 0x7e, 0x19, 0x85, 0xef, 0x83, 0x46, 0x03, 0x03, 0xf5,
+	0xd0, 0xe3, 0x5b, 0x83, 0xcd, 0x34, 0xb1, 0x35, 0x1a, 0xb8, 0x1a, 0x0d, 0xf0, 0x3e, 0xb4, 0x67,
+	0xde, 0x29, 0x31, 0x34, 0xd9, 0xb9, 0x99, 0x26, 0xb6, 0xac, 0x5d, 0xf9, 0xeb, 0xfc, 0x46, 0xb0,
+	0xa3, 0xa4, 0x0c, 0xbd, 0x30, 0x1c, 0x7b, 0xfe, 0x67, 0x25, 0xed, 0x46, 0x29, 0xed, 0x19, 0xdc,
+	0x51, 0xe6, 0x1f, 0xd1, 0x20, 0xcf, 0xc5, 0x69, 0x62, 0xaf, 0x74, 0xdc, 0x2d, 0xa5, 0x7e, 0x2d,
+	0xad, 0x7e, 0x1e, 0x3f, 0x22, 0x67, 0x64, 0x16, 0x1b, 0xad, 0x4b, 0x6b, 0xb9, 0xe3, 0x6e, 0x15,
+	0xf5, 0xcb, 0x65, 0x89, 0x4f, 0xe0, 0xf6, 0x7f, 0xc1, 0x3c, 0x0a, 0x8d, 0xb6, 0x34, 0xde, 0x4b,
+	0x13, 0xbb, 0xf4, 0xdc, 0xd5, 0x8b, 0xea, 0x5d, 0x14, 0x3a, 0x4f, 0xa0, 0x33, 0x8c, 0x88, 0x17,
+	0x13, 0xe5, 0x7e, 0x2e, 0xf9, 0x82, 0x71, 0x0e, 0x44, 0xa2, 0xca, 0x31, 0x7c, 0x80, 0xdd, 0x1a,
+	0xad, 0xe0, 0xf8, 0x05, 0xe8, 0xca, 0x2d, 0xa4, 0x47, 0x3f, 0xde, 0xee, 0x2f, 0xf7, 0xd5, 0x57,
+	0xb4, 0x83, 0xbb, 0x69, 0x62, 0xab, 0x4a, 0x57, 0x2d, 0x9c, 0x1f, 0x08, 0xf6, 0x2b, 0xf9, 0x05,
+	0xeb, 0xe5, 0x4c, 0x87, 0x15, 0xac, 0xd9, 0x74, 0x2b, 0x08, 0x0f, 0x2b, 0x08, 0xb5, 0x4c, 0x56,
+	0xc6, 0x75, 0xb0, 0x82, 0x4b, 0x72, 0x2e, 0xc3, 0xf9, 0x86, 0xe0, 0xe1, 0x15, 0x13, 0x09, 0x8e,
+	0x27, 0xd0, 0x51, 0x47, 0x2a, 0xcc, 0x39, 0x82, 0x6e, 0x05, 0x41, 0x61, 0x1e, 0x18, 0x69, 0x62,
+	0xd7, 0x5a, 0xdd, 0x1d, 0xaf, 0x2a, 0x77, 0x02, 0x30, 0x5f, 0x91, 0xb8, 0x26, 0x48, 0x2c, 0xc1,
+	0xd8, 0xa0, 0x93, 0x59, 0x4c, 0xe3, 0xaf, 0x23, 0x9f, 0x05, 0xc5, 0xce, 0x20, 0x7b, 0x34, 0x64,
+	0x01, 0xb9, 0x26, 0x12, 0xe7, 0x3b, 0x82, 0xbd, 0xc6, 0x63, 0x04, 0xc7, 0x14, 0x76, 0xeb, 0x46,
+	0x16, 0x06, 0xea, 0xb5, 0xae, 0xbe, 0x6e, 0x37, 0x4d, 0xec, 0x7a, 0xaf, 0xdb, 0xa9, 0xb9, 0xaf,
+	0x38, 0xfe, 0xa9, 0x01, 0x56, 0x82, 0xde, 0x92, 0xe8, 0x8c, 0xfa, 0x04, 0xbf, 0x81, 0xed, 0xca,
+	0x42, 0xb0, 0x99, 0x9d, 0x5b, 0xf7, 0x1e, 0x9b, 0x7b, 0x8d, 0x3d, 0xc1, 0x9d, 0x0d, 0x3c, 0x81,
+	0x6e, 0xe3, 0x82, 0xb1, 0xd3, 0xe0, 0x55, 0xde, 0x49, 0xf3, 0xd1, 0x5a, 0x8d, 0x3c, 0xe7, 0x23,
+	0x3c, 0x68, 0x00, 0x8b, 0x7b, 0x59, 0x42, 0xf3, 0x7a, 0xcd, 0x83, 0x35, 0x0a, 0xc1, 0x07, 0xdd,
+	0xf3, 0x0b, 0x6b, 0xe3, 0xef, 0x85, 0x85, 0xce, 0x17, 0x16, 0xfa, 0xb5, 0xb0, 0xd0, 0x9f, 0x85,
+	0x85, 0xde, 0xb7, 0x22, 0xee, 0x8f, 0x37, 0xe5, 0x87, 0xf0, 0xe4, 0x5f, 0x00, 0x00, 0x00, 0xff,
+	0xff, 0x86, 0x9b, 0xc6, 0x88, 0x53, 0x05, 0x00, 0x00,
 }
 
 type ApplicationFace interface {
@@ -840,35 +556,6 @@ func NewCreateApplicationCallbackReqFromFace(that CreateApplicationCallbackReqFa
 	return this
 }
 
-type CreateApplicationCallbackReqPublicFace interface {
-	Proto() github_com_gogo_protobuf_proto.Message
-	GetCallbackEvent() string
-	GetCallbackUrl() string
-}
-
-func (this *CreateApplicationCallbackReqPublic) Proto() github_com_gogo_protobuf_proto.Message {
-	return this
-}
-
-func (this *CreateApplicationCallbackReqPublic) TestProto() github_com_gogo_protobuf_proto.Message {
-	return NewCreateApplicationCallbackReqPublicFromFace(this)
-}
-
-func (this *CreateApplicationCallbackReqPublic) GetCallbackEvent() string {
-	return this.CallbackEvent
-}
-
-func (this *CreateApplicationCallbackReqPublic) GetCallbackUrl() string {
-	return this.CallbackUrl
-}
-
-func NewCreateApplicationCallbackReqPublicFromFace(that CreateApplicationCallbackReqPublicFace) *CreateApplicationCallbackReqPublic {
-	this := &CreateApplicationCallbackReqPublic{}
-	this.CallbackEvent = that.GetCallbackEvent()
-	this.CallbackUrl = that.GetCallbackUrl()
-	return this
-}
-
 type CreateApplicationCallbackRespFace interface {
 	Proto() github_com_gogo_protobuf_proto.Message
 	GetApplicationCallback() *ApplicationCallback
@@ -892,107 +579,10 @@ func NewCreateApplicationCallbackRespFromFace(that CreateApplicationCallbackResp
 	return this
 }
 
-type GetApplicationByIdReqFace interface {
-	Proto() github_com_gogo_protobuf_proto.Message
-	GetApplicationId() string
-}
-
-func (this *GetApplicationByIdReq) Proto() github_com_gogo_protobuf_proto.Message {
-	return this
-}
-
-func (this *GetApplicationByIdReq) TestProto() github_com_gogo_protobuf_proto.Message {
-	return NewGetApplicationByIdReqFromFace(this)
-}
-
-func (this *GetApplicationByIdReq) GetApplicationId() string {
-	return this.ApplicationId
-}
-
-func NewGetApplicationByIdReqFromFace(that GetApplicationByIdReqFace) *GetApplicationByIdReq {
-	this := &GetApplicationByIdReq{}
-	this.ApplicationId = that.GetApplicationId()
-	return this
-}
-
-type GetApplicationByIdRespFace interface {
-	Proto() github_com_gogo_protobuf_proto.Message
-	GetApplication() *Application
-}
-
-func (this *GetApplicationByIdResp) Proto() github_com_gogo_protobuf_proto.Message {
-	return this
-}
-
-func (this *GetApplicationByIdResp) TestProto() github_com_gogo_protobuf_proto.Message {
-	return NewGetApplicationByIdRespFromFace(this)
-}
-
-func (this *GetApplicationByIdResp) GetApplication() *Application {
-	return this.Application
-}
-
-func NewGetApplicationByIdRespFromFace(that GetApplicationByIdRespFace) *GetApplicationByIdResp {
-	this := &GetApplicationByIdResp{}
-	this.Application = that.GetApplication()
-	return this
-}
-
-type GetApplicationCallbackReqFace interface {
-	Proto() github_com_gogo_protobuf_proto.Message
-	GetApplicationId() string
-	GetCallbackEvent() string
-}
-
-func (this *GetApplicationCallbackReq) Proto() github_com_gogo_protobuf_proto.Message {
-	return this
-}
-
-func (this *GetApplicationCallbackReq) TestProto() github_com_gogo_protobuf_proto.Message {
-	return NewGetApplicationCallbackReqFromFace(this)
-}
-
-func (this *GetApplicationCallbackReq) GetApplicationId() string {
-	return this.ApplicationId
-}
-
-func (this *GetApplicationCallbackReq) GetCallbackEvent() string {
-	return this.CallbackEvent
-}
-
-func NewGetApplicationCallbackReqFromFace(that GetApplicationCallbackReqFace) *GetApplicationCallbackReq {
-	this := &GetApplicationCallbackReq{}
-	this.ApplicationId = that.GetApplicationId()
-	this.CallbackEvent = that.GetCallbackEvent()
-	return this
-}
-
-type GetApplicationCallbackRespFace interface {
-	Proto() github_com_gogo_protobuf_proto.Message
-	GetApplicationCallback() *ApplicationCallback
-}
-
-func (this *GetApplicationCallbackResp) Proto() github_com_gogo_protobuf_proto.Message {
-	return this
-}
-
-func (this *GetApplicationCallbackResp) TestProto() github_com_gogo_protobuf_proto.Message {
-	return NewGetApplicationCallbackRespFromFace(this)
-}
-
-func (this *GetApplicationCallbackResp) GetApplicationCallback() *ApplicationCallback {
-	return this.ApplicationCallback
-}
-
-func NewGetApplicationCallbackRespFromFace(that GetApplicationCallbackRespFace) *GetApplicationCallbackResp {
-	this := &GetApplicationCallbackResp{}
-	this.ApplicationCallback = that.GetApplicationCallback()
-	return this
-}
-
 type GetApplicationCallbacksReqFace interface {
 	Proto() github_com_gogo_protobuf_proto.Message
-	GetApplicationId() string
+	GetEntityCode() string
+	GetCallbackEvent() string
 }
 
 func (this *GetApplicationCallbacksReq) Proto() github_com_gogo_protobuf_proto.Message {
@@ -1003,13 +593,18 @@ func (this *GetApplicationCallbacksReq) TestProto() github_com_gogo_protobuf_pro
 	return NewGetApplicationCallbacksReqFromFace(this)
 }
 
-func (this *GetApplicationCallbacksReq) GetApplicationId() string {
-	return this.ApplicationId
+func (this *GetApplicationCallbacksReq) GetEntityCode() string {
+	return this.EntityCode
+}
+
+func (this *GetApplicationCallbacksReq) GetCallbackEvent() string {
+	return this.CallbackEvent
 }
 
 func NewGetApplicationCallbacksReqFromFace(that GetApplicationCallbacksReqFace) *GetApplicationCallbacksReq {
 	this := &GetApplicationCallbacksReq{}
-	this.ApplicationId = that.GetApplicationId()
+	this.EntityCode = that.GetEntityCode()
+	this.CallbackEvent = that.GetCallbackEvent()
 	return this
 }
 
@@ -1036,50 +631,156 @@ func NewGetApplicationCallbacksRespFromFace(that GetApplicationCallbacksRespFace
 	return this
 }
 
-type DeleteApplicationCallbackReqFace interface {
-	Proto() github_com_gogo_protobuf_proto.Message
-	GetApplicationId() string
-	GetCallbackEvent() string
+// Reference imports to suppress errors if they are not otherwise used.
+var _ context.Context
+var _ grpc.ClientConn
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the grpc package it is being compiled against.
+const _ = grpc.SupportPackageIsVersion4
+
+// ApplicationServiceClient is the client API for ApplicationService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+type ApplicationServiceClient interface {
+	CreateApplication(ctx context.Context, in *CreateApplicationReq, opts ...grpc.CallOption) (*CreateApplicationResp, error)
+	CreateApplicationCallback(ctx context.Context, in *CreateApplicationCallbackReq, opts ...grpc.CallOption) (*CreateApplicationCallbackResp, error)
+	GetApplicationCallbacks(ctx context.Context, in *GetApplicationCallbacksReq, opts ...grpc.CallOption) (*GetApplicationCallbacksResp, error)
 }
 
-func (this *DeleteApplicationCallbackReq) Proto() github_com_gogo_protobuf_proto.Message {
-	return this
+type applicationServiceClient struct {
+	cc *grpc.ClientConn
 }
 
-func (this *DeleteApplicationCallbackReq) TestProto() github_com_gogo_protobuf_proto.Message {
-	return NewDeleteApplicationCallbackReqFromFace(this)
+func NewApplicationServiceClient(cc *grpc.ClientConn) ApplicationServiceClient {
+	return &applicationServiceClient{cc}
 }
 
-func (this *DeleteApplicationCallbackReq) GetApplicationId() string {
-	return this.ApplicationId
+func (c *applicationServiceClient) CreateApplication(ctx context.Context, in *CreateApplicationReq, opts ...grpc.CallOption) (*CreateApplicationResp, error) {
+	out := new(CreateApplicationResp)
+	err := c.cc.Invoke(ctx, "/ocpp.ApplicationService/CreateApplication", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
-func (this *DeleteApplicationCallbackReq) GetCallbackEvent() string {
-	return this.CallbackEvent
+func (c *applicationServiceClient) CreateApplicationCallback(ctx context.Context, in *CreateApplicationCallbackReq, opts ...grpc.CallOption) (*CreateApplicationCallbackResp, error) {
+	out := new(CreateApplicationCallbackResp)
+	err := c.cc.Invoke(ctx, "/ocpp.ApplicationService/CreateApplicationCallback", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
-func NewDeleteApplicationCallbackReqFromFace(that DeleteApplicationCallbackReqFace) *DeleteApplicationCallbackReq {
-	this := &DeleteApplicationCallbackReq{}
-	this.ApplicationId = that.GetApplicationId()
-	this.CallbackEvent = that.GetCallbackEvent()
-	return this
+func (c *applicationServiceClient) GetApplicationCallbacks(ctx context.Context, in *GetApplicationCallbacksReq, opts ...grpc.CallOption) (*GetApplicationCallbacksResp, error) {
+	out := new(GetApplicationCallbacksResp)
+	err := c.cc.Invoke(ctx, "/ocpp.ApplicationService/GetApplicationCallbacks", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
-type DeleteApplicationCallbackRespFace interface {
-	Proto() github_com_gogo_protobuf_proto.Message
+// ApplicationServiceServer is the server API for ApplicationService service.
+type ApplicationServiceServer interface {
+	CreateApplication(context.Context, *CreateApplicationReq) (*CreateApplicationResp, error)
+	CreateApplicationCallback(context.Context, *CreateApplicationCallbackReq) (*CreateApplicationCallbackResp, error)
+	GetApplicationCallbacks(context.Context, *GetApplicationCallbacksReq) (*GetApplicationCallbacksResp, error)
 }
 
-func (this *DeleteApplicationCallbackResp) Proto() github_com_gogo_protobuf_proto.Message {
-	return this
+// UnimplementedApplicationServiceServer can be embedded to have forward compatible implementations.
+type UnimplementedApplicationServiceServer struct {
 }
 
-func (this *DeleteApplicationCallbackResp) TestProto() github_com_gogo_protobuf_proto.Message {
-	return NewDeleteApplicationCallbackRespFromFace(this)
+func (*UnimplementedApplicationServiceServer) CreateApplication(ctx context.Context, req *CreateApplicationReq) (*CreateApplicationResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateApplication not implemented")
+}
+func (*UnimplementedApplicationServiceServer) CreateApplicationCallback(ctx context.Context, req *CreateApplicationCallbackReq) (*CreateApplicationCallbackResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateApplicationCallback not implemented")
+}
+func (*UnimplementedApplicationServiceServer) GetApplicationCallbacks(ctx context.Context, req *GetApplicationCallbacksReq) (*GetApplicationCallbacksResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetApplicationCallbacks not implemented")
 }
 
-func NewDeleteApplicationCallbackRespFromFace(that DeleteApplicationCallbackRespFace) *DeleteApplicationCallbackResp {
-	this := &DeleteApplicationCallbackResp{}
-	return this
+func RegisterApplicationServiceServer(s *grpc.Server, srv ApplicationServiceServer) {
+	s.RegisterService(&_ApplicationService_serviceDesc, srv)
+}
+
+func _ApplicationService_CreateApplication_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateApplicationReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApplicationServiceServer).CreateApplication(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ocpp.ApplicationService/CreateApplication",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApplicationServiceServer).CreateApplication(ctx, req.(*CreateApplicationReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ApplicationService_CreateApplicationCallback_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateApplicationCallbackReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApplicationServiceServer).CreateApplicationCallback(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ocpp.ApplicationService/CreateApplicationCallback",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApplicationServiceServer).CreateApplicationCallback(ctx, req.(*CreateApplicationCallbackReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ApplicationService_GetApplicationCallbacks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetApplicationCallbacksReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApplicationServiceServer).GetApplicationCallbacks(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ocpp.ApplicationService/GetApplicationCallbacks",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApplicationServiceServer).GetApplicationCallbacks(ctx, req.(*GetApplicationCallbacksReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _ApplicationService_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "ocpp.ApplicationService",
+	HandlerType: (*ApplicationServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "CreateApplication",
+			Handler:    _ApplicationService_CreateApplication_Handler,
+		},
+		{
+			MethodName: "CreateApplicationCallback",
+			Handler:    _ApplicationService_CreateApplicationCallback_Handler,
+		},
+		{
+			MethodName: "GetApplicationCallbacks",
+			Handler:    _ApplicationService_GetApplicationCallbacks_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "applications.proto",
 }
 
 func (m *Application) Marshal() (dAtA []byte, err error) {
@@ -1297,47 +998,6 @@ func (m *CreateApplicationCallbackReq) MarshalToSizedBuffer(dAtA []byte) (int, e
 	return len(dAtA) - i, nil
 }
 
-func (m *CreateApplicationCallbackReqPublic) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *CreateApplicationCallbackReqPublic) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *CreateApplicationCallbackReqPublic) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.XXX_unrecognized != nil {
-		i -= len(m.XXX_unrecognized)
-		copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	if len(m.CallbackUrl) > 0 {
-		i -= len(m.CallbackUrl)
-		copy(dAtA[i:], m.CallbackUrl)
-		i = encodeVarintApplications(dAtA, i, uint64(len(m.CallbackUrl)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.CallbackEvent) > 0 {
-		i -= len(m.CallbackEvent)
-		copy(dAtA[i:], m.CallbackEvent)
-		i = encodeVarintApplications(dAtA, i, uint64(len(m.CallbackEvent)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
 func (m *CreateApplicationCallbackResp) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1354,159 +1014,6 @@ func (m *CreateApplicationCallbackResp) MarshalTo(dAtA []byte) (int, error) {
 }
 
 func (m *CreateApplicationCallbackResp) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.XXX_unrecognized != nil {
-		i -= len(m.XXX_unrecognized)
-		copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	if m.ApplicationCallback != nil {
-		{
-			size, err := m.ApplicationCallback.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintApplications(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *GetApplicationByIdReq) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *GetApplicationByIdReq) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *GetApplicationByIdReq) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.XXX_unrecognized != nil {
-		i -= len(m.XXX_unrecognized)
-		copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	if len(m.ApplicationId) > 0 {
-		i -= len(m.ApplicationId)
-		copy(dAtA[i:], m.ApplicationId)
-		i = encodeVarintApplications(dAtA, i, uint64(len(m.ApplicationId)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *GetApplicationByIdResp) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *GetApplicationByIdResp) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *GetApplicationByIdResp) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.XXX_unrecognized != nil {
-		i -= len(m.XXX_unrecognized)
-		copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	if m.Application != nil {
-		{
-			size, err := m.Application.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintApplications(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *GetApplicationCallbackReq) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *GetApplicationCallbackReq) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *GetApplicationCallbackReq) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.XXX_unrecognized != nil {
-		i -= len(m.XXX_unrecognized)
-		copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	if len(m.CallbackEvent) > 0 {
-		i -= len(m.CallbackEvent)
-		copy(dAtA[i:], m.CallbackEvent)
-		i = encodeVarintApplications(dAtA, i, uint64(len(m.CallbackEvent)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.ApplicationId) > 0 {
-		i -= len(m.ApplicationId)
-		copy(dAtA[i:], m.ApplicationId)
-		i = encodeVarintApplications(dAtA, i, uint64(len(m.ApplicationId)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *GetApplicationCallbackResp) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *GetApplicationCallbackResp) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *GetApplicationCallbackResp) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1554,10 +1061,17 @@ func (m *GetApplicationCallbacksReq) MarshalToSizedBuffer(dAtA []byte) (int, err
 		i -= len(m.XXX_unrecognized)
 		copy(dAtA[i:], m.XXX_unrecognized)
 	}
-	if len(m.ApplicationId) > 0 {
-		i -= len(m.ApplicationId)
-		copy(dAtA[i:], m.ApplicationId)
-		i = encodeVarintApplications(dAtA, i, uint64(len(m.ApplicationId)))
+	if len(m.CallbackEvent) > 0 {
+		i -= len(m.CallbackEvent)
+		copy(dAtA[i:], m.CallbackEvent)
+		i = encodeVarintApplications(dAtA, i, uint64(len(m.CallbackEvent)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.EntityCode) > 0 {
+		i -= len(m.EntityCode)
+		copy(dAtA[i:], m.EntityCode)
+		i = encodeVarintApplications(dAtA, i, uint64(len(m.EntityCode)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -1601,74 +1115,6 @@ func (m *GetApplicationCallbacksResp) MarshalToSizedBuffer(dAtA []byte) (int, er
 			i--
 			dAtA[i] = 0xa
 		}
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *DeleteApplicationCallbackReq) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *DeleteApplicationCallbackReq) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *DeleteApplicationCallbackReq) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.XXX_unrecognized != nil {
-		i -= len(m.XXX_unrecognized)
-		copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	if len(m.CallbackEvent) > 0 {
-		i -= len(m.CallbackEvent)
-		copy(dAtA[i:], m.CallbackEvent)
-		i = encodeVarintApplications(dAtA, i, uint64(len(m.CallbackEvent)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.ApplicationId) > 0 {
-		i -= len(m.ApplicationId)
-		copy(dAtA[i:], m.ApplicationId)
-		i = encodeVarintApplications(dAtA, i, uint64(len(m.ApplicationId)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *DeleteApplicationCallbackResp) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *DeleteApplicationCallbackResp) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *DeleteApplicationCallbackResp) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.XXX_unrecognized != nil {
-		i -= len(m.XXX_unrecognized)
-		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	return len(dAtA) - i, nil
 }
@@ -1787,95 +1233,7 @@ func (m *CreateApplicationCallbackReq) Size() (n int) {
 	return n
 }
 
-func (m *CreateApplicationCallbackReqPublic) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.CallbackEvent)
-	if l > 0 {
-		n += 1 + l + sovApplications(uint64(l))
-	}
-	l = len(m.CallbackUrl)
-	if l > 0 {
-		n += 1 + l + sovApplications(uint64(l))
-	}
-	if m.XXX_unrecognized != nil {
-		n += len(m.XXX_unrecognized)
-	}
-	return n
-}
-
 func (m *CreateApplicationCallbackResp) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.ApplicationCallback != nil {
-		l = m.ApplicationCallback.Size()
-		n += 1 + l + sovApplications(uint64(l))
-	}
-	if m.XXX_unrecognized != nil {
-		n += len(m.XXX_unrecognized)
-	}
-	return n
-}
-
-func (m *GetApplicationByIdReq) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.ApplicationId)
-	if l > 0 {
-		n += 1 + l + sovApplications(uint64(l))
-	}
-	if m.XXX_unrecognized != nil {
-		n += len(m.XXX_unrecognized)
-	}
-	return n
-}
-
-func (m *GetApplicationByIdResp) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.Application != nil {
-		l = m.Application.Size()
-		n += 1 + l + sovApplications(uint64(l))
-	}
-	if m.XXX_unrecognized != nil {
-		n += len(m.XXX_unrecognized)
-	}
-	return n
-}
-
-func (m *GetApplicationCallbackReq) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.ApplicationId)
-	if l > 0 {
-		n += 1 + l + sovApplications(uint64(l))
-	}
-	l = len(m.CallbackEvent)
-	if l > 0 {
-		n += 1 + l + sovApplications(uint64(l))
-	}
-	if m.XXX_unrecognized != nil {
-		n += len(m.XXX_unrecognized)
-	}
-	return n
-}
-
-func (m *GetApplicationCallbackResp) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1897,7 +1255,11 @@ func (m *GetApplicationCallbacksReq) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.ApplicationId)
+	l = len(m.EntityCode)
+	if l > 0 {
+		n += 1 + l + sovApplications(uint64(l))
+	}
+	l = len(m.CallbackEvent)
 	if l > 0 {
 		n += 1 + l + sovApplications(uint64(l))
 	}
@@ -1919,38 +1281,6 @@ func (m *GetApplicationCallbacksResp) Size() (n int) {
 			n += 1 + l + sovApplications(uint64(l))
 		}
 	}
-	if m.XXX_unrecognized != nil {
-		n += len(m.XXX_unrecognized)
-	}
-	return n
-}
-
-func (m *DeleteApplicationCallbackReq) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.ApplicationId)
-	if l > 0 {
-		n += 1 + l + sovApplications(uint64(l))
-	}
-	l = len(m.CallbackEvent)
-	if l > 0 {
-		n += 1 + l + sovApplications(uint64(l))
-	}
-	if m.XXX_unrecognized != nil {
-		n += len(m.XXX_unrecognized)
-	}
-	return n
-}
-
-func (m *DeleteApplicationCallbackResp) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
 	if m.XXX_unrecognized != nil {
 		n += len(m.XXX_unrecognized)
 	}
@@ -2561,121 +1891,6 @@ func (m *CreateApplicationCallbackReq) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *CreateApplicationCallbackReqPublic) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowApplications
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: CreateApplicationCallbackReqPublic: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: CreateApplicationCallbackReqPublic: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field CallbackEvent", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowApplications
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthApplications
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthApplications
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.CallbackEvent = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field CallbackUrl", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowApplications
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthApplications
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthApplications
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.CallbackUrl = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipApplications(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthApplications
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
 func (m *CreateApplicationCallbackResp) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -2703,378 +1918,6 @@ func (m *CreateApplicationCallbackResp) Unmarshal(dAtA []byte) error {
 		}
 		if fieldNum <= 0 {
 			return fmt.Errorf("proto: CreateApplicationCallbackResp: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ApplicationCallback", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowApplications
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthApplications
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthApplications
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if m.ApplicationCallback == nil {
-				m.ApplicationCallback = &ApplicationCallback{}
-			}
-			if err := m.ApplicationCallback.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipApplications(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthApplications
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *GetApplicationByIdReq) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowApplications
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: GetApplicationByIdReq: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: GetApplicationByIdReq: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ApplicationId", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowApplications
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthApplications
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthApplications
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ApplicationId = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipApplications(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthApplications
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *GetApplicationByIdResp) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowApplications
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: GetApplicationByIdResp: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: GetApplicationByIdResp: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Application", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowApplications
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthApplications
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthApplications
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if m.Application == nil {
-				m.Application = &Application{}
-			}
-			if err := m.Application.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipApplications(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthApplications
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *GetApplicationCallbackReq) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowApplications
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: GetApplicationCallbackReq: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: GetApplicationCallbackReq: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ApplicationId", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowApplications
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthApplications
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthApplications
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ApplicationId = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field CallbackEvent", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowApplications
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthApplications
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthApplications
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.CallbackEvent = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipApplications(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthApplications
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *GetApplicationCallbackResp) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowApplications
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: GetApplicationCallbackResp: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: GetApplicationCallbackResp: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -3166,7 +2009,7 @@ func (m *GetApplicationCallbacksReq) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ApplicationId", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field EntityCode", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -3194,7 +2037,39 @@ func (m *GetApplicationCallbacksReq) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.ApplicationId = string(dAtA[iNdEx:postIndex])
+			m.EntityCode = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CallbackEvent", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowApplications
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthApplications
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthApplications
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.CallbackEvent = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -3281,172 +2156,6 @@ func (m *GetApplicationCallbacksResp) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipApplications(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthApplications
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *DeleteApplicationCallbackReq) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowApplications
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: DeleteApplicationCallbackReq: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: DeleteApplicationCallbackReq: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ApplicationId", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowApplications
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthApplications
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthApplications
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ApplicationId = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field CallbackEvent", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowApplications
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthApplications
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthApplications
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.CallbackEvent = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipApplications(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthApplications
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *DeleteApplicationCallbackResp) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowApplications
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: DeleteApplicationCallbackResp: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: DeleteApplicationCallbackResp: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
 		default:
 			iNdEx = preIndex
 			skippy, err := skipApplications(dAtA[iNdEx:])

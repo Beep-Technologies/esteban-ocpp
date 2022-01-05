@@ -1,10 +1,12 @@
 package chargepoint
 
 import (
+	"errors"
 	"sync"
 	"time"
 
 	"github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_16/messaging"
+	"go.uber.org/zap"
 )
 
 // callMessageQueue is a simple FIFO queue
@@ -56,6 +58,7 @@ func (cp *OCPP16ChargePoint) listenCS() {
 	var currentOutgoingCallTimer *time.Timer
 
 	// outgoingCallCond is used to signal when currentOutoingCall is nil
+	currentOutgoingCallLock := &sync.Mutex{}
 	currentOutgoingCallCond := sync.NewCond(&sync.Mutex{})
 
 	// call messages will be placed into the outgoingCallStream when
@@ -83,9 +86,21 @@ func (cp *OCPP16ChargePoint) listenCS() {
 				}
 
 				outgoingCallMessage, _ := cp.callMessageQueue.dequeue()
+
+				currentOutgoingCallLock.Lock()
 				currentOutgoingCall = &outgoingCallMessage
+				currentOutgoingCallLock.Unlock()
+
 				currentOutgoingCallTimer = time.AfterFunc(10*time.Second, func() {
+					cp.logger.Error(
+						"call timed out",
+						zap.String("event", "timed_out_call"),
+					)
+
+					currentOutgoingCallLock.Lock()
 					currentOutgoingCall = nil
+					currentOutgoingCallLock.Unlock()
+
 					currentOutgoingCallCond.Broadcast()
 				})
 
@@ -109,12 +124,58 @@ func (cp *OCPP16ChargePoint) listenCS() {
 				return
 			case msg := <-outgoingCallStream:
 				cp.outCallStream <- msg
-			case <-cp.inCallResultStream:
+			case msg := <-cp.inCallResultStream:
+				currentOutgoingCallLock.Lock()
+				if currentOutgoingCall == nil {
+					cp.logger.Error(
+						"received response to a timed-out call",
+						zap.String("event", "timed_out_call_response"),
+					)
+					if currentOutgoingCallTimer != nil {
+						currentOutgoingCallTimer.Stop()
+					}
+					currentOutgoingCallCond.Broadcast()
+					currentOutgoingCallLock.Unlock()
+					continue
+				}
+
+				if msg.UniqueID != currentOutgoingCall.UniqueID {
+					cp.logger.Error(
+						"received response to a non-current call",
+						zap.String("event", "non_current_call_response"),
+					)
+					if currentOutgoingCallTimer != nil {
+						currentOutgoingCallTimer.Stop()
+					}
+					currentOutgoingCallCond.Broadcast()
+					currentOutgoingCallLock.Unlock()
+					continue
+				}
+
+				// respond to call
+				var err error
+				call := *currentOutgoingCall
+				switch currentOutgoingCall.Action {
+				case "RemoteStartTransaction":
+					err = cp.handleRemoteStartTransaction(call, msg)
+				case "RemoteStopTransaction":
+					err = cp.handleRemoteStopTransaction(call, msg)
+				default:
+					err = errors.New("response not implemented")
+				}
+				if err != nil {
+					cp.logger.Error(
+						err.Error(),
+						zap.String("event", "call_response_error"),
+					)
+				}
+
 				currentOutgoingCall = nil
 				if currentOutgoingCallTimer != nil {
 					currentOutgoingCallTimer.Stop()
 				}
 				currentOutgoingCallCond.Broadcast()
+				currentOutgoingCallLock.Unlock()
 			case <-cp.inCallErrorStream:
 				currentOutgoingCall = nil
 				if currentOutgoingCallTimer != nil {

@@ -27,33 +27,25 @@ func (repo BaseRepo) Create(ctx context.Context, cp models.OcppChargePoint) (mod
 	return cp, nil
 }
 
-func (repo BaseRepo) GetChargePoints(ctx context.Context, aid string) ([]models.OcppChargePoint, error) {
+func (repo BaseRepo) GetChargePoints(ctx context.Context, entity string) ([]models.OcppChargePoint, error) {
 	cps := make([]models.OcppChargePoint, 0)
 
 	err := repo.db.Table("bb3.ocpp_charge_point").
-		Where("application_id = ?", aid).
+		Where("entity_code = ?", entity).
 		Find(&cps).
 		Error
 
 	return cps, err
 }
 
-func (repo BaseRepo) GetChargePointByID(ctx context.Context, cpid int32) (models.OcppChargePoint, error) {
+func (repo BaseRepo) GetChargePoint(ctx context.Context, entity, identifier string) (models.OcppChargePoint, error) {
 	cp := models.OcppChargePoint{}
+
 	err := repo.db.Table("bb3.ocpp_charge_point").
-		Where("id = ?", cpid).
+		Where("entity_code = ?", entity).
+		Where("charge_point_identifier = ?", identifier).
 		First(&cp).
 		Error
-
-	return cp, err
-}
-
-func (repo BaseRepo) GetChargePointByIdentifier(ctx context.Context, aid string, cpid string) (models.OcppChargePoint, error) {
-	cp := models.OcppChargePoint{}
-	err := repo.db.Table("bb3.ocpp_charge_point").
-		Where("application_id = ?", aid).
-		Where("charge_point_identifier = ?", cpid).
-		First(&cp).Error
 
 	return cp, err
 }

@@ -13,3 +13,6 @@ scratch
 
 # files for deployment
 .deployment
+
+# local postgres files
+.pg_data

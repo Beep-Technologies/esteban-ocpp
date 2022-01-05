@@ -9,51 +9,46 @@ import (
 	"github.com/Beep-Technologies/beepbeep3-iam/pkg/constants"
 	"github.com/Beep-Technologies/beepbeep3-ocpp/api/rpc"
 	chargepoint "github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/charge_point"
+	statusnotification "github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/status_notification"
 )
 
 type ChargePointsAPI struct {
-	chargepointService *chargepoint.Service
+	chargepointService        *chargepoint.Service
+	statusnotificationService *statusnotification.Service
 }
 
-func NewChargePointsAPI(cS *chargepoint.Service) *ChargePointsAPI {
+func NewChargePointsAPI(cpS *chargepoint.Service, snS *statusnotification.Service) *ChargePointsAPI {
 	return &ChargePointsAPI{
-		chargepointService: cS,
+		chargepointService:        cpS,
+		statusnotificationService: snS,
 	}
 }
 
-// CreateChargePoint creates a charge point
-// @Summary Create a Charge Point
+// GetChargePoint gets the status of the charge point
+// @Summary Get charge point
 // @Tags Charge Points
-// @Accept json
 // @Produce json
-// @Security ApiKeyAuth
-// @Param Body body rpc.CreateChargePointReqPublic true "Post CreateChargePointReq body"
-// @Success 200 {object} rpc.CreateChargePointResp
-// @Router /v2/ocpp/charge_points [post]
-func (api *ChargePointsAPI) CreateChargePoint(c *gin.Context) {
+// @Param entityCode   path string true "entity code"
+// @Param chargePointIdentifier path string true "charge point identifier"
+// @Success 200 {object} rpc.GetChargePointResp
+// @Router /v2/ocpp/charge-points/{entityCode}/{chargePointIdentifier} [get]
+func (api *ChargePointsAPI) GetChargePoint(c *gin.Context) {
 	ctx := context.Background()
 	ctx = context.WithValue(ctx, constants.CtxKey("gin"), c)
 
-	applicationId := c.GetString("application_id")
+	// get the entity code
+	entityCode := c.Param("entityCode")
 
-	req := &rpc.CreateChargePointReqPublic{}
-	err := c.ShouldBindJSON(&req)
-	if err != nil {
-		c.Error(err).SetType(gin.ErrorTypeBind)
-		c.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{
-			"status":  http.StatusUnprocessableEntity,
-			"message": err.Error(),
-			"data":    nil,
-		})
-		return
+	// get the charge point identifier and decode it
+	// charge point identifiers are percent-encoded
+	chargePointIdentifier := c.Param("chargePointIdentifier")
+
+	req := &rpc.GetChargePointReq{
+		EntityCode:            entityCode,
+		ChargePointIdentifier: chargePointIdentifier,
 	}
 
-	res, err := api.chargepointService.CreateChargePoint(ctx, &rpc.CreateChargePointReq{
-		ApplicationId:         applicationId,
-		ChargePointIdentifier: req.ChargePointIdentifier,
-		EntityCode:            req.EntityCode,
-		OcppProtocol:          req.OcppProtocol,
-	})
+	res, err := api.chargepointService.GetChargePoint(ctx, req)
 
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
@@ -67,42 +62,35 @@ func (api *ChargePointsAPI) CreateChargePoint(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
 		"message": "Success",
-		"data":    res,
+		"data":    res.ChargePoint,
 	})
 }
 
-// CreateChargePointIdTag creates an id tag associated with a charge point
-// @Summary Create a Charge Point ID tag
+// GetChargePointConnectorStatus gets the latest status of the connectors on the charge point
+// @Summary Get charge point connector status
 // @Tags Charge Points
-// @Accept json
 // @Produce json
-// @Security ApiKeyAuth
-// @Param Body body rpc.CreateChargePointIdTagReqPublic true "Post CreateChargePointIdTagReq body"
-// @Success 200 {object} rpc.CreateChargePointIdTagReq
-// @Router /v2/ocpp/charge_points/id_tags [post]
-func (api *ChargePointsAPI) CreateChargePointIdTag(c *gin.Context) {
+// @Param entityCode   path string true "entity code"
+// @Param chargePointIdentifier path string true "charge point identifier"
+// @Success 200 {object} rpc.GetLatestStatusNotificationsResp
+// @Router /v2/ocpp/charge-points/{entityCode}/{chargePointIdentifier}/status [get]
+func (api *ChargePointsAPI) GetChargePointConnectorStatus(c *gin.Context) {
 	ctx := context.Background()
 	ctx = context.WithValue(ctx, constants.CtxKey("gin"), c)
 
-	applicationId := c.GetString("application_id")
+	// get the entity code
+	entityCode := c.Param("entityCode")
 
-	req := &rpc.CreateChargePointIdTagReqPublic{}
-	err := c.ShouldBindJSON(&req)
-	if err != nil {
-		c.Error(err).SetType(gin.ErrorTypeBind)
-		c.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{
-			"status":  http.StatusUnprocessableEntity,
-			"message": err.Error(),
-			"data":    nil,
-		})
-		return
+	// get the charge point identifier and decode it
+	// charge point identifiers are percent-encoded
+	chargePointIdentifier := c.Param("chargePointIdentifier")
+
+	req := &rpc.GetLatestStatusNotificationsReq{
+		EntityCode:            entityCode,
+		ChargePointIdentifier: chargePointIdentifier,
 	}
 
-	res, err := api.chargepointService.CreateChargePointIdTag(ctx, &rpc.CreateChargePointIdTagReq{
-		ApplicationId:         applicationId,
-		ChargePointIdentifier: req.ChargePointIdentifier,
-		IdTag:                 req.IdTag,
-	})
+	res, err := api.statusnotificationService.GetLatestStatusNotifications(ctx, req)
 
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{

@@ -12,8 +12,9 @@ import (
 // OcppChargePoint is an object representing the database table.
 type OcppChargePoint struct {
 	ID                      int32  `gorm:"column:id"`
-	ApplicationID           string `gorm:"column:application_id"`
 	EntityCode              string `gorm:"column:entity_code"`
+	ChargePointIdentifier   string `gorm:"column:charge_point_identifier"`
+	OcppProtocol            string `gorm:"column:ocpp_protocol"`
 	ChargePointVendor       string `gorm:"column:charge_point_vendor"`
 	ChargePointModel        string `gorm:"column:charge_point_model"`
 	ChargePointSerialNumber string `gorm:"column:charge_point_serial_number"`
@@ -24,8 +25,6 @@ type OcppChargePoint struct {
 	MeterSerialNumber       string `gorm:"column:meter_serial_number"`
 	FirmwareVersion         string `gorm:"column:firmware_version"`
 	ConnectorCount          int32  `gorm:"column:connector_count"`
-	ChargePointIdentifier   string `gorm:"column:charge_point_identifier"`
-	OcppProtocol            string `gorm:"column:ocpp_protocol"`
 }
 
 func (OcppChargePoint) TableName() string {

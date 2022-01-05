@@ -6,11 +6,11 @@ type ChargePoint interface {
 	// start listening on the (websocket) connection for messages
 	Listen()
 	// make a request to remote start transactions
-	RemoteStartTransaction() (transactionID int, err error)
+	RemoteStartTransaction(connectorID int) (transactionID int, err error)
 	// make a request to remote stop transaction
-	RemoteStopTransaction() (err error)
+	RemoteStopTransaction(connectorID int) (err error)
 	// make a request to trigger a status notification from the charge point
-	TriggerStatusNotification() (err error)
+	TriggerStatusNotification(connectorID int) (err error)
 }
 
 type CentralSystem interface {

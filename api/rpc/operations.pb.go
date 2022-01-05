@@ -4,10 +4,14 @@
 package rpc
 
 import (
+	context "context"
 	fmt "fmt"
 	_ "github.com/gogo/protobuf/gogoproto"
 	github_com_gogo_protobuf_proto "github.com/gogo/protobuf/proto"
 	proto "github.com/gogo/protobuf/proto"
+	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	io "io"
 	math "math"
 	math_bits "math/bits"
@@ -26,7 +30,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // for exposed services
 type RemoteStartTransactionReq struct {
-	ApplicationId         string   `protobuf:"bytes,1,opt,name=application_id,json=applicationId,proto3" json:"application_id,omitempty"`
+	EntityCode            string   `protobuf:"bytes,1,opt,name=entity_code,json=entityCode,proto3" json:"entity_code,omitempty"`
 	ChargePointIdentifier string   `protobuf:"bytes,2,opt,name=charge_point_identifier,json=chargePointIdentifier,proto3" json:"charge_point_identifier,omitempty"`
 	ConnectorId           int32    `protobuf:"varint,3,opt,name=connector_id,json=connectorId,proto3" json:"connector_id,omitempty"`
 	XXX_NoUnkeyedLiteral  struct{} `json:"-"`
@@ -67,47 +71,6 @@ func (m *RemoteStartTransactionReq) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_RemoteStartTransactionReq proto.InternalMessageInfo
 
-type RemoteStartTransactionReqPublic struct {
-	ChargePointIdentifier string   `protobuf:"bytes,1,opt,name=charge_point_identifier,json=chargePointIdentifier,proto3" json:"charge_point_identifier,omitempty"`
-	ConnectorId           int32    `protobuf:"varint,2,opt,name=connector_id,json=connectorId,proto3" json:"connector_id,omitempty"`
-	XXX_NoUnkeyedLiteral  struct{} `json:"-"`
-	XXX_unrecognized      []byte   `json:"-"`
-	XXX_sizecache         int32    `json:"-"`
-}
-
-func (m *RemoteStartTransactionReqPublic) Reset()         { *m = RemoteStartTransactionReqPublic{} }
-func (m *RemoteStartTransactionReqPublic) String() string { return proto.CompactTextString(m) }
-func (*RemoteStartTransactionReqPublic) ProtoMessage()    {}
-func (*RemoteStartTransactionReqPublic) Descriptor() ([]byte, []int) {
-	return fileDescriptor_1b4a5877375e491e, []int{1}
-}
-func (m *RemoteStartTransactionReqPublic) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *RemoteStartTransactionReqPublic) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_RemoteStartTransactionReqPublic.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *RemoteStartTransactionReqPublic) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_RemoteStartTransactionReqPublic.Merge(m, src)
-}
-func (m *RemoteStartTransactionReqPublic) XXX_Size() int {
-	return m.Size()
-}
-func (m *RemoteStartTransactionReqPublic) XXX_DiscardUnknown() {
-	xxx_messageInfo_RemoteStartTransactionReqPublic.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_RemoteStartTransactionReqPublic proto.InternalMessageInfo
-
 type RemoteStartTransactionResp struct {
 	TransactionId        int32    `protobuf:"varint,1,opt,name=transaction_id,json=transactionId,proto3" json:"transaction_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -119,7 +82,7 @@ func (m *RemoteStartTransactionResp) Reset()         { *m = RemoteStartTransacti
 func (m *RemoteStartTransactionResp) String() string { return proto.CompactTextString(m) }
 func (*RemoteStartTransactionResp) ProtoMessage()    {}
 func (*RemoteStartTransactionResp) Descriptor() ([]byte, []int) {
-	return fileDescriptor_1b4a5877375e491e, []int{2}
+	return fileDescriptor_1b4a5877375e491e, []int{1}
 }
 func (m *RemoteStartTransactionResp) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -149,7 +112,7 @@ func (m *RemoteStartTransactionResp) XXX_DiscardUnknown() {
 var xxx_messageInfo_RemoteStartTransactionResp proto.InternalMessageInfo
 
 type RemoteStopTransactionReq struct {
-	ApplicationId         string   `protobuf:"bytes,1,opt,name=application_id,json=applicationId,proto3" json:"application_id,omitempty"`
+	EntityCode            string   `protobuf:"bytes,1,opt,name=entity_code,json=entityCode,proto3" json:"entity_code,omitempty"`
 	ChargePointIdentifier string   `protobuf:"bytes,2,opt,name=charge_point_identifier,json=chargePointIdentifier,proto3" json:"charge_point_identifier,omitempty"`
 	ConnectorId           int32    `protobuf:"varint,3,opt,name=connector_id,json=connectorId,proto3" json:"connector_id,omitempty"`
 	XXX_NoUnkeyedLiteral  struct{} `json:"-"`
@@ -161,7 +124,7 @@ func (m *RemoteStopTransactionReq) Reset()         { *m = RemoteStopTransactionR
 func (m *RemoteStopTransactionReq) String() string { return proto.CompactTextString(m) }
 func (*RemoteStopTransactionReq) ProtoMessage()    {}
 func (*RemoteStopTransactionReq) Descriptor() ([]byte, []int) {
-	return fileDescriptor_1b4a5877375e491e, []int{3}
+	return fileDescriptor_1b4a5877375e491e, []int{2}
 }
 func (m *RemoteStopTransactionReq) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -190,47 +153,6 @@ func (m *RemoteStopTransactionReq) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_RemoteStopTransactionReq proto.InternalMessageInfo
 
-type RemoteStopTransactionReqPublic struct {
-	ChargePointIdentifier string   `protobuf:"bytes,1,opt,name=charge_point_identifier,json=chargePointIdentifier,proto3" json:"charge_point_identifier,omitempty"`
-	ConnectorId           int32    `protobuf:"varint,2,opt,name=connector_id,json=connectorId,proto3" json:"connector_id,omitempty"`
-	XXX_NoUnkeyedLiteral  struct{} `json:"-"`
-	XXX_unrecognized      []byte   `json:"-"`
-	XXX_sizecache         int32    `json:"-"`
-}
-
-func (m *RemoteStopTransactionReqPublic) Reset()         { *m = RemoteStopTransactionReqPublic{} }
-func (m *RemoteStopTransactionReqPublic) String() string { return proto.CompactTextString(m) }
-func (*RemoteStopTransactionReqPublic) ProtoMessage()    {}
-func (*RemoteStopTransactionReqPublic) Descriptor() ([]byte, []int) {
-	return fileDescriptor_1b4a5877375e491e, []int{4}
-}
-func (m *RemoteStopTransactionReqPublic) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *RemoteStopTransactionReqPublic) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_RemoteStopTransactionReqPublic.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *RemoteStopTransactionReqPublic) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_RemoteStopTransactionReqPublic.Merge(m, src)
-}
-func (m *RemoteStopTransactionReqPublic) XXX_Size() int {
-	return m.Size()
-}
-func (m *RemoteStopTransactionReqPublic) XXX_DiscardUnknown() {
-	xxx_messageInfo_RemoteStopTransactionReqPublic.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_RemoteStopTransactionReqPublic proto.InternalMessageInfo
-
 type RemoteStopTransactionResp struct {
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -241,7 +163,7 @@ func (m *RemoteStopTransactionResp) Reset()         { *m = RemoteStopTransaction
 func (m *RemoteStopTransactionResp) String() string { return proto.CompactTextString(m) }
 func (*RemoteStopTransactionResp) ProtoMessage()    {}
 func (*RemoteStopTransactionResp) Descriptor() ([]byte, []int) {
-	return fileDescriptor_1b4a5877375e491e, []int{5}
+	return fileDescriptor_1b4a5877375e491e, []int{3}
 }
 func (m *RemoteStopTransactionResp) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -272,42 +194,41 @@ var xxx_messageInfo_RemoteStopTransactionResp proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*RemoteStartTransactionReq)(nil), "ocpp.RemoteStartTransactionReq")
-	proto.RegisterType((*RemoteStartTransactionReqPublic)(nil), "ocpp.RemoteStartTransactionReqPublic")
 	proto.RegisterType((*RemoteStartTransactionResp)(nil), "ocpp.RemoteStartTransactionResp")
 	proto.RegisterType((*RemoteStopTransactionReq)(nil), "ocpp.RemoteStopTransactionReq")
-	proto.RegisterType((*RemoteStopTransactionReqPublic)(nil), "ocpp.RemoteStopTransactionReqPublic")
 	proto.RegisterType((*RemoteStopTransactionResp)(nil), "ocpp.RemoteStopTransactionResp")
 }
 
 func init() { proto.RegisterFile("operations.proto", fileDescriptor_1b4a5877375e491e) }
 
 var fileDescriptor_1b4a5877375e491e = []byte{
-	// 305 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x12, 0xc8, 0x2f, 0x48, 0x2d,
-	0x4a, 0x2c, 0xc9, 0xcc, 0xcf, 0x2b, 0xd6, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0xc9, 0x4f,
-	0x2e, 0x28, 0x90, 0xd2, 0x4d, 0xcf, 0x2c, 0xc9, 0x28, 0x4d, 0xd2, 0x4b, 0xce, 0xcf, 0xd5, 0x4f,
-	0xcf, 0x4f, 0xcf, 0xd7, 0x07, 0x4b, 0x26, 0x95, 0xa6, 0x81, 0x79, 0x60, 0x0e, 0x98, 0x05, 0xd1,
-	0xa4, 0x34, 0x97, 0x91, 0x4b, 0x32, 0x28, 0x35, 0x37, 0xbf, 0x24, 0x35, 0xb8, 0x24, 0xb1, 0xa8,
-	0x24, 0xa4, 0x28, 0x31, 0xaf, 0x38, 0x31, 0x19, 0x64, 0x6c, 0x50, 0x6a, 0xa1, 0x90, 0x2a, 0x17,
-	0x5f, 0x62, 0x41, 0x41, 0x4e, 0x66, 0x32, 0xd8, 0xa2, 0xf8, 0xcc, 0x14, 0x09, 0x46, 0x05, 0x46,
-	0x0d, 0xce, 0x20, 0x5e, 0x24, 0x51, 0xcf, 0x14, 0x21, 0x33, 0x2e, 0xf1, 0xe4, 0x8c, 0xc4, 0xa2,
-	0xf4, 0xd4, 0xf8, 0x82, 0xfc, 0xcc, 0xbc, 0x92, 0xf8, 0xcc, 0x94, 0xd4, 0xbc, 0x92, 0xcc, 0xb4,
-	0xcc, 0xd4, 0x22, 0x09, 0x26, 0xb0, 0x7a, 0x51, 0x88, 0x74, 0x00, 0x48, 0xd6, 0x13, 0x2e, 0x29,
-	0xa4, 0xc8, 0xc5, 0x93, 0x9c, 0x9f, 0x97, 0x97, 0x9a, 0x5c, 0x92, 0x5f, 0x04, 0x32, 0x9c, 0x59,
-	0x81, 0x51, 0x83, 0x35, 0x88, 0x1b, 0x2e, 0xe6, 0x99, 0xa2, 0x54, 0xc3, 0x25, 0x8f, 0xd3, 0x79,
-	0x01, 0xa5, 0x49, 0x39, 0x99, 0xc9, 0xf8, 0x6c, 0x67, 0x24, 0xc5, 0x76, 0x26, 0x4c, 0xdb, 0x9d,
-	0xb9, 0xa4, 0x70, 0xd9, 0x5e, 0x5c, 0x00, 0x0a, 0x9d, 0x12, 0x84, 0x10, 0x2c, 0x74, 0x58, 0x83,
-	0x78, 0x91, 0x44, 0x3d, 0x53, 0x94, 0xe6, 0x30, 0x72, 0x49, 0xc0, 0x4c, 0xc9, 0x2f, 0x18, 0x74,
-	0x21, 0x5c, 0xcd, 0x25, 0x87, 0xcb, 0x75, 0xb4, 0x0f, 0x60, 0x69, 0x44, 0xea, 0x43, 0xb3, 0xbc,
-	0xb8, 0xc0, 0x49, 0xf2, 0xc4, 0x43, 0x39, 0x86, 0x17, 0x0f, 0xe5, 0x18, 0x4f, 0x3c, 0x92, 0x63,
-	0xbc, 0xf0, 0x48, 0x8e, 0xf1, 0xc1, 0x23, 0x39, 0xc6, 0x28, 0xe6, 0xa2, 0x82, 0xe4, 0x24, 0x36,
-	0x70, 0xea, 0x35, 0x06, 0x04, 0x00, 0x00, 0xff, 0xff, 0xbd, 0x12, 0xde, 0x97, 0x06, 0x03, 0x00,
-	0x00,
+	// 329 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x92, 0xc1, 0x4e, 0xc2, 0x40,
+	0x10, 0x86, 0x5d, 0x51, 0x13, 0x07, 0x35, 0x64, 0x13, 0xb4, 0xd4, 0xa4, 0x20, 0x89, 0x09, 0x17,
+	0x4b, 0xa2, 0x89, 0x0f, 0x20, 0x27, 0x4e, 0x9a, 0xe2, 0xc1, 0xe8, 0xa1, 0x29, 0xdb, 0xa1, 0xec,
+	0x81, 0xce, 0xba, 0x5d, 0x4c, 0x7c, 0x11, 0x7d, 0x25, 0xbc, 0xf9, 0x08, 0xc2, 0xc9, 0xc7, 0x30,
+	0x5d, 0x02, 0x28, 0x01, 0xce, 0xde, 0x3a, 0xff, 0x37, 0xf3, 0x67, 0x3a, 0xff, 0x42, 0x89, 0x14,
+	0xea, 0xc8, 0x48, 0x4a, 0x33, 0x5f, 0x69, 0x32, 0xc4, 0x77, 0x48, 0x28, 0xe5, 0x5e, 0x24, 0xd2,
+	0xf4, 0x87, 0x5d, 0x5f, 0xd0, 0xa0, 0x99, 0x50, 0x42, 0x4d, 0x0b, 0xbb, 0xc3, 0x9e, 0xad, 0x6c,
+	0x61, 0xbf, 0xa6, 0x43, 0xf5, 0x77, 0x06, 0x95, 0x00, 0x07, 0x64, 0xb0, 0x63, 0x22, 0x6d, 0xee,
+	0x75, 0x94, 0x66, 0x91, 0xc8, 0x6d, 0x03, 0x7c, 0xe6, 0x55, 0x28, 0x62, 0x6a, 0xa4, 0x79, 0x0d,
+	0x05, 0xc5, 0xe8, 0xb0, 0x1a, 0x6b, 0xec, 0x07, 0x30, 0x95, 0x5a, 0x14, 0x23, 0xbf, 0x86, 0x13,
+	0xd1, 0x8f, 0x74, 0x82, 0xa1, 0x22, 0x99, 0x9a, 0x50, 0xc6, 0x39, 0xec, 0x49, 0xd4, 0xce, 0xb6,
+	0x6d, 0x2e, 0x4f, 0xf1, 0x5d, 0x4e, 0xdb, 0x73, 0xc8, 0xcf, 0xe0, 0x40, 0x50, 0x9a, 0xa2, 0x30,
+	0xa4, 0x43, 0x19, 0x3b, 0x85, 0x1a, 0x6b, 0xec, 0x06, 0xc5, 0xb9, 0xd6, 0x8e, 0xeb, 0x2d, 0x70,
+	0xd7, 0x2d, 0x96, 0x29, 0x7e, 0x0e, 0x47, 0x66, 0x21, 0xe5, 0x16, 0xcc, 0x5a, 0x1c, 0xfe, 0x52,
+	0xdb, 0x71, 0xfd, 0x8d, 0x81, 0x33, 0x73, 0x21, 0xf5, 0x8f, 0xfe, 0xee, 0x74, 0x71, 0xf6, 0xa5,
+	0xbd, 0x32, 0x75, 0xf9, 0xc1, 0xa0, 0x74, 0x3b, 0x8b, 0xb7, 0x83, 0xfa, 0x45, 0x0a, 0xe4, 0x4f,
+	0x70, 0xbc, 0xfa, 0x1e, 0xbc, 0xea, 0xe7, 0xc9, 0xfb, 0x6b, 0x63, 0x74, 0x6b, 0x9b, 0x1b, 0x32,
+	0xc5, 0x1f, 0xa0, 0xbc, 0x72, 0x1d, 0xee, 0xfd, 0x1d, 0x5d, 0xbe, 0xa1, 0x5b, 0xdd, 0xc8, 0x33,
+	0x75, 0x53, 0x19, 0x8d, 0xbd, 0xad, 0xef, 0xb1, 0xc7, 0x46, 0x13, 0x8f, 0x7d, 0x4e, 0x3c, 0xf6,
+	0x35, 0xf1, 0xd8, 0x63, 0x41, 0x2b, 0xd1, 0xdd, 0xb3, 0x4f, 0xf0, 0xea, 0x27, 0x00, 0x00, 0xff,
+	0xff, 0x7b, 0x90, 0x78, 0x26, 0xcb, 0x02, 0x00, 0x00,
 }
 
 type RemoteStartTransactionReqFace interface {
 	Proto() github_com_gogo_protobuf_proto.Message
-	GetApplicationId() string
+	GetEntityCode() string
 	GetChargePointIdentifier() string
 	GetConnectorId() int32
 }
@@ -320,8 +241,8 @@ func (this *RemoteStartTransactionReq) TestProto() github_com_gogo_protobuf_prot
 	return NewRemoteStartTransactionReqFromFace(this)
 }
 
-func (this *RemoteStartTransactionReq) GetApplicationId() string {
-	return this.ApplicationId
+func (this *RemoteStartTransactionReq) GetEntityCode() string {
+	return this.EntityCode
 }
 
 func (this *RemoteStartTransactionReq) GetChargePointIdentifier() string {
@@ -334,36 +255,7 @@ func (this *RemoteStartTransactionReq) GetConnectorId() int32 {
 
 func NewRemoteStartTransactionReqFromFace(that RemoteStartTransactionReqFace) *RemoteStartTransactionReq {
 	this := &RemoteStartTransactionReq{}
-	this.ApplicationId = that.GetApplicationId()
-	this.ChargePointIdentifier = that.GetChargePointIdentifier()
-	this.ConnectorId = that.GetConnectorId()
-	return this
-}
-
-type RemoteStartTransactionReqPublicFace interface {
-	Proto() github_com_gogo_protobuf_proto.Message
-	GetChargePointIdentifier() string
-	GetConnectorId() int32
-}
-
-func (this *RemoteStartTransactionReqPublic) Proto() github_com_gogo_protobuf_proto.Message {
-	return this
-}
-
-func (this *RemoteStartTransactionReqPublic) TestProto() github_com_gogo_protobuf_proto.Message {
-	return NewRemoteStartTransactionReqPublicFromFace(this)
-}
-
-func (this *RemoteStartTransactionReqPublic) GetChargePointIdentifier() string {
-	return this.ChargePointIdentifier
-}
-
-func (this *RemoteStartTransactionReqPublic) GetConnectorId() int32 {
-	return this.ConnectorId
-}
-
-func NewRemoteStartTransactionReqPublicFromFace(that RemoteStartTransactionReqPublicFace) *RemoteStartTransactionReqPublic {
-	this := &RemoteStartTransactionReqPublic{}
+	this.EntityCode = that.GetEntityCode()
 	this.ChargePointIdentifier = that.GetChargePointIdentifier()
 	this.ConnectorId = that.GetConnectorId()
 	return this
@@ -394,7 +286,7 @@ func NewRemoteStartTransactionRespFromFace(that RemoteStartTransactionRespFace) 
 
 type RemoteStopTransactionReqFace interface {
 	Proto() github_com_gogo_protobuf_proto.Message
-	GetApplicationId() string
+	GetEntityCode() string
 	GetChargePointIdentifier() string
 	GetConnectorId() int32
 }
@@ -407,8 +299,8 @@ func (this *RemoteStopTransactionReq) TestProto() github_com_gogo_protobuf_proto
 	return NewRemoteStopTransactionReqFromFace(this)
 }
 
-func (this *RemoteStopTransactionReq) GetApplicationId() string {
-	return this.ApplicationId
+func (this *RemoteStopTransactionReq) GetEntityCode() string {
+	return this.EntityCode
 }
 
 func (this *RemoteStopTransactionReq) GetChargePointIdentifier() string {
@@ -421,36 +313,7 @@ func (this *RemoteStopTransactionReq) GetConnectorId() int32 {
 
 func NewRemoteStopTransactionReqFromFace(that RemoteStopTransactionReqFace) *RemoteStopTransactionReq {
 	this := &RemoteStopTransactionReq{}
-	this.ApplicationId = that.GetApplicationId()
-	this.ChargePointIdentifier = that.GetChargePointIdentifier()
-	this.ConnectorId = that.GetConnectorId()
-	return this
-}
-
-type RemoteStopTransactionReqPublicFace interface {
-	Proto() github_com_gogo_protobuf_proto.Message
-	GetChargePointIdentifier() string
-	GetConnectorId() int32
-}
-
-func (this *RemoteStopTransactionReqPublic) Proto() github_com_gogo_protobuf_proto.Message {
-	return this
-}
-
-func (this *RemoteStopTransactionReqPublic) TestProto() github_com_gogo_protobuf_proto.Message {
-	return NewRemoteStopTransactionReqPublicFromFace(this)
-}
-
-func (this *RemoteStopTransactionReqPublic) GetChargePointIdentifier() string {
-	return this.ChargePointIdentifier
-}
-
-func (this *RemoteStopTransactionReqPublic) GetConnectorId() int32 {
-	return this.ConnectorId
-}
-
-func NewRemoteStopTransactionReqPublicFromFace(that RemoteStopTransactionReqPublicFace) *RemoteStopTransactionReqPublic {
-	this := &RemoteStopTransactionReqPublic{}
+	this.EntityCode = that.GetEntityCode()
 	this.ChargePointIdentifier = that.GetChargePointIdentifier()
 	this.ConnectorId = that.GetConnectorId()
 	return this
@@ -471,6 +334,122 @@ func (this *RemoteStopTransactionResp) TestProto() github_com_gogo_protobuf_prot
 func NewRemoteStopTransactionRespFromFace(that RemoteStopTransactionRespFace) *RemoteStopTransactionResp {
 	this := &RemoteStopTransactionResp{}
 	return this
+}
+
+// Reference imports to suppress errors if they are not otherwise used.
+var _ context.Context
+var _ grpc.ClientConn
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the grpc package it is being compiled against.
+const _ = grpc.SupportPackageIsVersion4
+
+// OperationServiceClient is the client API for OperationService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+type OperationServiceClient interface {
+	RemoteStartTransaction(ctx context.Context, in *RemoteStartTransactionReq, opts ...grpc.CallOption) (*RemoteStartTransactionResp, error)
+	RemoteStopTransaction(ctx context.Context, in *RemoteStopTransactionReq, opts ...grpc.CallOption) (*RemoteStopTransactionResp, error)
+}
+
+type operationServiceClient struct {
+	cc *grpc.ClientConn
+}
+
+func NewOperationServiceClient(cc *grpc.ClientConn) OperationServiceClient {
+	return &operationServiceClient{cc}
+}
+
+func (c *operationServiceClient) RemoteStartTransaction(ctx context.Context, in *RemoteStartTransactionReq, opts ...grpc.CallOption) (*RemoteStartTransactionResp, error) {
+	out := new(RemoteStartTransactionResp)
+	err := c.cc.Invoke(ctx, "/ocpp.OperationService/RemoteStartTransaction", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *operationServiceClient) RemoteStopTransaction(ctx context.Context, in *RemoteStopTransactionReq, opts ...grpc.CallOption) (*RemoteStopTransactionResp, error) {
+	out := new(RemoteStopTransactionResp)
+	err := c.cc.Invoke(ctx, "/ocpp.OperationService/RemoteStopTransaction", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// OperationServiceServer is the server API for OperationService service.
+type OperationServiceServer interface {
+	RemoteStartTransaction(context.Context, *RemoteStartTransactionReq) (*RemoteStartTransactionResp, error)
+	RemoteStopTransaction(context.Context, *RemoteStopTransactionReq) (*RemoteStopTransactionResp, error)
+}
+
+// UnimplementedOperationServiceServer can be embedded to have forward compatible implementations.
+type UnimplementedOperationServiceServer struct {
+}
+
+func (*UnimplementedOperationServiceServer) RemoteStartTransaction(ctx context.Context, req *RemoteStartTransactionReq) (*RemoteStartTransactionResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoteStartTransaction not implemented")
+}
+func (*UnimplementedOperationServiceServer) RemoteStopTransaction(ctx context.Context, req *RemoteStopTransactionReq) (*RemoteStopTransactionResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoteStopTransaction not implemented")
+}
+
+func RegisterOperationServiceServer(s *grpc.Server, srv OperationServiceServer) {
+	s.RegisterService(&_OperationService_serviceDesc, srv)
+}
+
+func _OperationService_RemoteStartTransaction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoteStartTransactionReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OperationServiceServer).RemoteStartTransaction(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ocpp.OperationService/RemoteStartTransaction",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OperationServiceServer).RemoteStartTransaction(ctx, req.(*RemoteStartTransactionReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OperationService_RemoteStopTransaction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoteStopTransactionReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OperationServiceServer).RemoteStopTransaction(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ocpp.OperationService/RemoteStopTransaction",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OperationServiceServer).RemoteStopTransaction(ctx, req.(*RemoteStopTransactionReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _OperationService_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "ocpp.OperationService",
+	HandlerType: (*OperationServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "RemoteStartTransaction",
+			Handler:    _OperationService_RemoteStartTransaction_Handler,
+		},
+		{
+			MethodName: "RemoteStopTransaction",
+			Handler:    _OperationService_RemoteStopTransaction_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "operations.proto",
 }
 
 func (m *RemoteStartTransactionReq) Marshal() (dAtA []byte, err error) {
@@ -509,49 +488,10 @@ func (m *RemoteStartTransactionReq) MarshalToSizedBuffer(dAtA []byte) (int, erro
 		i--
 		dAtA[i] = 0x12
 	}
-	if len(m.ApplicationId) > 0 {
-		i -= len(m.ApplicationId)
-		copy(dAtA[i:], m.ApplicationId)
-		i = encodeVarintOperations(dAtA, i, uint64(len(m.ApplicationId)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *RemoteStartTransactionReqPublic) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *RemoteStartTransactionReqPublic) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *RemoteStartTransactionReqPublic) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.XXX_unrecognized != nil {
-		i -= len(m.XXX_unrecognized)
-		copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	if m.ConnectorId != 0 {
-		i = encodeVarintOperations(dAtA, i, uint64(m.ConnectorId))
-		i--
-		dAtA[i] = 0x10
-	}
-	if len(m.ChargePointIdentifier) > 0 {
-		i -= len(m.ChargePointIdentifier)
-		copy(dAtA[i:], m.ChargePointIdentifier)
-		i = encodeVarintOperations(dAtA, i, uint64(len(m.ChargePointIdentifier)))
+	if len(m.EntityCode) > 0 {
+		i -= len(m.EntityCode)
+		copy(dAtA[i:], m.EntityCode)
+		i = encodeVarintOperations(dAtA, i, uint64(len(m.EntityCode)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -626,49 +566,10 @@ func (m *RemoteStopTransactionReq) MarshalToSizedBuffer(dAtA []byte) (int, error
 		i--
 		dAtA[i] = 0x12
 	}
-	if len(m.ApplicationId) > 0 {
-		i -= len(m.ApplicationId)
-		copy(dAtA[i:], m.ApplicationId)
-		i = encodeVarintOperations(dAtA, i, uint64(len(m.ApplicationId)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *RemoteStopTransactionReqPublic) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *RemoteStopTransactionReqPublic) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *RemoteStopTransactionReqPublic) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.XXX_unrecognized != nil {
-		i -= len(m.XXX_unrecognized)
-		copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	if m.ConnectorId != 0 {
-		i = encodeVarintOperations(dAtA, i, uint64(m.ConnectorId))
-		i--
-		dAtA[i] = 0x10
-	}
-	if len(m.ChargePointIdentifier) > 0 {
-		i -= len(m.ChargePointIdentifier)
-		copy(dAtA[i:], m.ChargePointIdentifier)
-		i = encodeVarintOperations(dAtA, i, uint64(len(m.ChargePointIdentifier)))
+	if len(m.EntityCode) > 0 {
+		i -= len(m.EntityCode)
+		copy(dAtA[i:], m.EntityCode)
+		i = encodeVarintOperations(dAtA, i, uint64(len(m.EntityCode)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -719,29 +620,10 @@ func (m *RemoteStartTransactionReq) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.ApplicationId)
+	l = len(m.EntityCode)
 	if l > 0 {
 		n += 1 + l + sovOperations(uint64(l))
 	}
-	l = len(m.ChargePointIdentifier)
-	if l > 0 {
-		n += 1 + l + sovOperations(uint64(l))
-	}
-	if m.ConnectorId != 0 {
-		n += 1 + sovOperations(uint64(m.ConnectorId))
-	}
-	if m.XXX_unrecognized != nil {
-		n += len(m.XXX_unrecognized)
-	}
-	return n
-}
-
-func (m *RemoteStartTransactionReqPublic) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
 	l = len(m.ChargePointIdentifier)
 	if l > 0 {
 		n += 1 + l + sovOperations(uint64(l))
@@ -776,29 +658,10 @@ func (m *RemoteStopTransactionReq) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.ApplicationId)
+	l = len(m.EntityCode)
 	if l > 0 {
 		n += 1 + l + sovOperations(uint64(l))
 	}
-	l = len(m.ChargePointIdentifier)
-	if l > 0 {
-		n += 1 + l + sovOperations(uint64(l))
-	}
-	if m.ConnectorId != 0 {
-		n += 1 + sovOperations(uint64(m.ConnectorId))
-	}
-	if m.XXX_unrecognized != nil {
-		n += len(m.XXX_unrecognized)
-	}
-	return n
-}
-
-func (m *RemoteStopTransactionReqPublic) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
 	l = len(m.ChargePointIdentifier)
 	if l > 0 {
 		n += 1 + l + sovOperations(uint64(l))
@@ -861,7 +724,7 @@ func (m *RemoteStartTransactionReq) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ApplicationId", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field EntityCode", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -889,7 +752,7 @@ func (m *RemoteStartTransactionReq) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.ApplicationId = string(dAtA[iNdEx:postIndex])
+			m.EntityCode = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
@@ -924,108 +787,6 @@ func (m *RemoteStartTransactionReq) Unmarshal(dAtA []byte) error {
 			m.ChargePointIdentifier = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 3:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ConnectorId", wireType)
-			}
-			m.ConnectorId = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowOperations
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.ConnectorId |= int32(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		default:
-			iNdEx = preIndex
-			skippy, err := skipOperations(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthOperations
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *RemoteStartTransactionReqPublic) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowOperations
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: RemoteStartTransactionReqPublic: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: RemoteStartTransactionReqPublic: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ChargePointIdentifier", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowOperations
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthOperations
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthOperations
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ChargePointIdentifier = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ConnectorId", wireType)
 			}
@@ -1167,7 +928,7 @@ func (m *RemoteStopTransactionReq) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ApplicationId", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field EntityCode", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -1195,7 +956,7 @@ func (m *RemoteStopTransactionReq) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.ApplicationId = string(dAtA[iNdEx:postIndex])
+			m.EntityCode = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
@@ -1230,108 +991,6 @@ func (m *RemoteStopTransactionReq) Unmarshal(dAtA []byte) error {
 			m.ChargePointIdentifier = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 3:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ConnectorId", wireType)
-			}
-			m.ConnectorId = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowOperations
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.ConnectorId |= int32(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		default:
-			iNdEx = preIndex
-			skippy, err := skipOperations(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthOperations
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *RemoteStopTransactionReqPublic) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowOperations
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: RemoteStopTransactionReqPublic: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: RemoteStopTransactionReqPublic: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ChargePointIdentifier", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowOperations
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthOperations
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthOperations
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ChargePointIdentifier = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ConnectorId", wireType)
 			}

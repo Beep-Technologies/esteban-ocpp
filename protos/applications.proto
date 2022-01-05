@@ -11,6 +11,12 @@ option (gogoproto.unmarshaler_all) = true;
 option (gogoproto.goproto_getters_all) = false;
 option (gogoproto.face_all) = true;
 
+service ApplicationService {
+    rpc CreateApplication (CreateApplicationReq) returns (CreateApplicationResp) {};
+    rpc CreateApplicationCallback (CreateApplicationCallbackReq) returns (CreateApplicationCallbackResp) {};
+    rpc GetApplicationCallbacks (GetApplicationCallbacksReq) returns (GetApplicationCallbacksResp);
+}
+
 message Application {
     string id = 1 [(gogoproto.jsontag) = "id"];
     string name = 2 [(gogoproto.jsontag) = "name"];
@@ -23,8 +29,6 @@ message ApplicationCallback {
     string callback_url = 4 [(gogoproto.jsontag) = "callback_url"];
 }
 
-
-// for exposed services
 message CreateApplicationReq {
     string name = 1;
 }
@@ -39,43 +43,15 @@ message CreateApplicationCallbackReq {
     string callback_url = 3;
 }
 
-message CreateApplicationCallbackReqPublic {
-    string callback_event = 1;
-    string callback_url = 2;
-}
-
 message CreateApplicationCallbackResp {
     ApplicationCallback application_callback = 1 [(gogoproto.jsontag) = "application_callback"];
 }
 
-message GetApplicationByIdReq {
-    string application_id = 1;
-}
-
-message GetApplicationByIdResp {
-    Application application = 1;
-}
-
-message GetApplicationCallbackReq {
-    string application_id = 1;
-    string callback_event = 2;
-}
-
-message GetApplicationCallbackResp {
-    ApplicationCallback application_callback = 1 [(gogoproto.jsontag) = "application_callback"];
-}
-
 message GetApplicationCallbacksReq {
-    string application_id = 1;
+    string entity_code = 1;
+    string callback_event = 2;
 }
 
 message GetApplicationCallbacksResp {
     repeated ApplicationCallback application_callbacks = 1 [(gogoproto.jsontag) = "application_callbacks"];
 }
-
-message DeleteApplicationCallbackReq {
-    string application_id = 1;
-    string callback_event = 2;
-}
-
-message DeleteApplicationCallbackResp {}
