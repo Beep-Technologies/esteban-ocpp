@@ -1,5 +1,18 @@
 version: "3"
 services:
+  bb3-ocpp:
+    build:
+      context: .
+      dockerfile: Dockerfile.bb3-ocpp
+    ports:
+      - 80:80
+    env_file:
+      - .env
+    depends_on:
+      - tsdb
+    networks:
+      - cgw
+
   tsdb:
     image: timescale/timescaledb:latest-pg13
     ports:
@@ -10,8 +23,9 @@ services:
       - POSTGRES_DB=beepbeep3
       - TIMESCALEDB_TELEMETRY=off
     volumes:
-      - ./.pg_data:/var/lib/postgresql/data
       - ./migrations/postgres:/docker-entrypoint-initdb.d
+    networks:
+      - cgw
 
   pgweb:
     build:
@@ -26,3 +40,9 @@ services:
       - DATABASE_URL=postgres://beep:beep@tsdb:5432/beepbeep3?sslmode=disable
     depends_on:
       - tsdb
+    networks:
+      - cgw
+
+networks:
+  cgw:
+    driver: bridge
