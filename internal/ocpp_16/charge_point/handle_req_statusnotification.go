@@ -24,9 +24,6 @@ func (cp *OCPP16ChargePoint) handleStatusNotification(msg messaging.OCPP16CallMe
 		}
 	}
 
-	// make callback
-	go cp.makeCallback("StatusNotification", p)
-
 	// if the status notification shows that the connector is available,
 	// if there is ongoing transaction on the database, set it as abnormally stopped
 	if p.Status == "Available" {
@@ -58,7 +55,7 @@ func (cp *OCPP16ChargePoint) handleStatusNotification(msg messaging.OCPP16CallMe
 		}
 	}
 
-	_, err = cp.statusNotificationService.CreateStatusNotification(
+	sn, err := cp.statusNotificationService.CreateStatusNotification(
 		cp.ctx,
 		&rpc.CreateStatusNotificationReq{
 			EntityCode:            cp.entityCode,
@@ -72,6 +69,9 @@ func (cp *OCPP16ChargePoint) handleStatusNotification(msg messaging.OCPP16CallMe
 			VendorErrorCode:       p.VendorErrorCode,
 		},
 	)
+
+	// make callback
+	go cp.makeCallback("StatusNotification", sn)
 
 	if err != nil {
 		return nil, &messaging.OCPP16CallError{
