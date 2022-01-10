@@ -102,7 +102,7 @@ func (srv Service) CreateTransaction(ctx context.Context, req *rpc.CreateTransac
 }
 
 func (srv Service) StartTransaction(ctx context.Context, req *rpc.StartTransactionReq) (*rpc.StartTransactionResp, error) {
-	_, err := srv.transaction.Update(
+	t, err := srv.transaction.Update(
 		ctx,
 		req.Id,
 		[]string{"state", "ongoing", "start_timestamp", "start_meter_value"},
@@ -117,13 +117,27 @@ func (srv Service) StartTransaction(ctx context.Context, req *rpc.StartTransacti
 		return nil, err
 	}
 
-	res := &rpc.StartTransactionResp{}
+	res := &rpc.StartTransactionResp{
+		Transaction: &rpc.Transaction{
+			Id:              t.ID,
+			ChargePointId:   t.ChargePointID,
+			ConnectorId:     t.ConnectorID,
+			IdTag:           t.IDTag,
+			State:           t.State,
+			RemoteInitiated: t.RemoteInitiated,
+			StartTimestamp:  t.StartTimestamp.UTC().Format(RFC3339Milli),
+			StopTimestamp:   t.StopTimestamp.UTC().Format(RFC3339Milli),
+			StartMeterValue: t.StartMeterValue,
+			StopMeterValue:  t.StopMeterValue,
+			StopReason:      t.StopReason,
+		},
+	}
 
 	return res, err
 }
 
 func (srv Service) AbortTransaction(ctx context.Context, req *rpc.AbortTransactionReq) (*rpc.AbortTransactionResp, error) {
-	_, err := srv.transaction.Update(
+	t, err := srv.transaction.Update(
 		ctx,
 		req.Id,
 		[]string{"state", "ongoing"},
@@ -136,13 +150,27 @@ func (srv Service) AbortTransaction(ctx context.Context, req *rpc.AbortTransacti
 		return nil, err
 	}
 
-	res := &rpc.AbortTransactionResp{}
+	res := &rpc.AbortTransactionResp{
+		Transaction: &rpc.Transaction{
+			Id:              t.ID,
+			ChargePointId:   t.ChargePointID,
+			ConnectorId:     t.ConnectorID,
+			IdTag:           t.IDTag,
+			State:           t.State,
+			RemoteInitiated: t.RemoteInitiated,
+			StartTimestamp:  t.StartTimestamp.UTC().Format(RFC3339Milli),
+			StopTimestamp:   t.StopTimestamp.UTC().Format(RFC3339Milli),
+			StartMeterValue: t.StartMeterValue,
+			StopMeterValue:  t.StopMeterValue,
+			StopReason:      t.StopReason,
+		},
+	}
 
 	return res, err
 }
 
 func (srv Service) AbnormalStopTransaction(ctx context.Context, req *rpc.AbnormalStopTransactionReq) (*rpc.AbnormalStopTransactionResp, error) {
-	_, err := srv.transaction.Update(
+	t, err := srv.transaction.Update(
 		ctx,
 		req.Id,
 		[]string{"state", "ongoing"},
@@ -155,7 +183,21 @@ func (srv Service) AbnormalStopTransaction(ctx context.Context, req *rpc.Abnorma
 		return nil, err
 	}
 
-	res := &rpc.AbnormalStopTransactionResp{}
+	res := &rpc.AbnormalStopTransactionResp{
+		Transaction: &rpc.Transaction{
+			Id:              t.ID,
+			ChargePointId:   t.ChargePointID,
+			ConnectorId:     t.ConnectorID,
+			IdTag:           t.IDTag,
+			State:           t.State,
+			RemoteInitiated: t.RemoteInitiated,
+			StartTimestamp:  t.StartTimestamp.UTC().Format(RFC3339Milli),
+			StopTimestamp:   t.StopTimestamp.UTC().Format(RFC3339Milli),
+			StartMeterValue: t.StartMeterValue,
+			StopMeterValue:  t.StopMeterValue,
+			StopReason:      t.StopReason,
+		},
+	}
 
 	return res, err
 }

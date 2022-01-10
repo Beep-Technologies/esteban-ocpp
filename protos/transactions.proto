@@ -56,6 +56,7 @@ message StartTransactionReq {
 }
 
 message StartTransactionResp {
+    Transaction transaction = 1 [(gogoproto.jsontag) = "transaction"];
 }
 
 message AbortTransactionReq {
@@ -63,6 +64,7 @@ message AbortTransactionReq {
 }
 
 message AbortTransactionResp {
+    Transaction transaction = 1 [(gogoproto.jsontag) = "transaction"];
 }
 
 message AbnormalStopTransactionReq {
@@ -70,6 +72,7 @@ message AbnormalStopTransactionReq {
 }
 
 message AbnormalStopTransactionResp {
+    Transaction transaction = 1 [(gogoproto.jsontag) = "transaction"];
 }
 
 message StopTransactionReq {
