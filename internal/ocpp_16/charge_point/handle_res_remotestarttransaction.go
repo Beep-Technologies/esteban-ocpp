@@ -36,6 +36,11 @@ func (cp *OCPP16ChargePoint) handleRemoteStartTransaction(call messaging.OCPP16C
 		return err
 	}
 
+	// if there is no ongoing transaction, throw an error
+	if !tRes.OngoingTransaction {
+		return errors.New("remote start transaction response received with no ongoing transaction")
+	}
+
 	// if rejected, set the transaction status to ABORTED on the database
 	if p.Status != "Accepted" {
 		// set the transaction status to ABORTED on the database

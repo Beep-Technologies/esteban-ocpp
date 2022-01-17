@@ -1,18 +1,5 @@
 version: "3"
 services:
-  bb3-ocpp:
-    build:
-      context: .
-      dockerfile: Dockerfile.bb3-ocpp
-    ports:
-      - 80:80
-    env_file:
-      - .env
-    depends_on:
-      - tsdb
-    networks:
-      - cgw
-
   tsdb:
     image: timescale/timescaledb:latest-pg13
     ports:
@@ -45,4 +32,5 @@ services:
 
 networks:
   cgw:
+    name: cgw
     driver: bridge
