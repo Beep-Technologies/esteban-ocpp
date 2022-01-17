@@ -127,6 +127,12 @@ func (cp *OCPP16ChargePoint) RemoteStartTransaction(connectorID int) (transactio
 		return 0, err
 	}
 
+	cp.logger.Info(
+		"remote transaction created",
+		zap.String("event", "remote_transaction_created"),
+		zap.Int32("transaction_id", transactionRes.Transaction.Id),
+	)
+
 	// add the message to the queue
 	cp.callMessageQueue.enqueue(messaging.OCPP16CallMessage{
 		MessageTypeID: messaging.CALL,
@@ -138,7 +144,7 @@ func (cp *OCPP16ChargePoint) RemoteStartTransaction(connectorID int) (transactio
 		},
 	})
 
-	return int(transactionRes.Transaction.ConnectorId), nil
+	return int(transactionRes.Transaction.Id), nil
 }
 
 func (cp *OCPP16ChargePoint) RemoteStopTransaction(connectorID int) (err error) {
