@@ -11,6 +11,7 @@ services:
       - TIMESCALEDB_TELEMETRY=off
     volumes:
       - ./migrations/postgres:/docker-entrypoint-initdb.d
+      - ./mocks/add_mock_data.sql:/docker-entrypoint-initdb.d/add_mock_data.sql
     networks:
       - cgw
 

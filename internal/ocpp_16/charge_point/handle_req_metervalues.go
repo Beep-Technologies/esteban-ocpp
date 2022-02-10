@@ -1,10 +1,36 @@
 package chargepoint
 
 import (
+	"sort"
+	"strconv"
+	"time"
+
 	"github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_16/messaging"
 	"github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_16/messaging/schemas"
 	"github.com/mitchellh/mapstructure"
 )
+
+// type ByAge []Person
+
+// func (a ByAge) Len() int           { return len(a) }
+// func (a ByAge) Less(i, j int) bool { return a[i].Age < a[j].Age }
+// func (a ByAge) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+
+type ByDate []*schemas.MeterValueItems
+
+func (a ByDate) Len() int      { return len(a) }
+func (a ByDate) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a ByDate) Less(i, j int) bool {
+	RFC3339Milli := "2006-01-02T15:04:05.000Z07:00"
+	ait, aie := time.Parse(RFC3339Milli, a[i].Timestamp)
+	ajt, aje := time.Parse(RFC3339Milli, a[i].Timestamp)
+
+	if aie != nil || aje != nil {
+		return false
+	}
+
+	return ait.Unix() < ajt.Unix()
+}
 
 func (cp *OCPP16ChargePoint) handleMeterValues(msg messaging.OCPP16CallMessage) (*messaging.OCPP16CallResult, *messaging.OCPP16CallError) {
 	p := &schemas.MeterValuesRequest{}
@@ -19,6 +45,55 @@ func (cp *OCPP16ChargePoint) handleMeterValues(msg messaging.OCPP16CallMessage) 
 			ErrorDescription: "",
 			ErrorDetails:     struct{}{},
 		}
+	}
+
+	// look through the meter values, make a callback if
+	// there is a value for energyActiveImportRegister,
+	// i.e. total energy supplied during charging session
+
+	// sort meter values by timestamp
+	// sort in reverse order i.e. latest meter values first
+	sort.Reverse(ByDate(p.MeterValue))
+
+	energyActiveImportRegister := 0
+	energyActiveImportRegisterFound := false
+
+	// get the latest value of energyActiveImportRegister
+	// look through meter values, starting with the latest values
+	for _, mv := range p.MeterValue {
+		// look through the sampled value
+		for _, sv := range mv.SampledValue {
+			// default value of mv.Measurand is "Energy.Active.Import.Register"
+			if sv.Measurand == "" ||
+				sv.Measurand == "Energy.Active.Import.Register" {
+				v, err := strconv.Atoi(sv.Value)
+				if err != nil {
+					continue
+				}
+
+				energyActiveImportRegister = v
+				energyActiveImportRegisterFound = true
+			}
+
+			if energyActiveImportRegisterFound {
+				break
+			}
+		}
+
+		if energyActiveImportRegisterFound {
+			break
+		}
+	}
+
+	// if there is a value for energyActiveImportRegister, make the callback
+	if energyActiveImportRegisterFound {
+		d := map[string]interface{}{
+			"meter_values": map[string]interface{}{
+				"energy_active_import_register": energyActiveImportRegister,
+			},
+		}
+
+		go cp.makeCallback("MeterValues", d)
 	}
 
 	return &messaging.OCPP16CallResult{

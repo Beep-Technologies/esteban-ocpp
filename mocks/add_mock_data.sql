@@ -9,20 +9,25 @@ insert into bb3.ocpp_application_callback (
 values (
         'cgw',
         'StartTransaction',
-        'http://cgw-adapter/callbacks/ocpp/StartTransaction'
+        'http://localhost:8080/connectivity/bb3-ocpp/callbacks/StartTransaction'
     ),
     (
         'cgw',
         'StopTransaction',
-        'http://cgw-adapter/callbacks/ocpp/StopTransaction'
+        'http://localhost:8080/connectivity/bb3-ocpp/callbacks/StopTransaction'
     ),
     (
         'cgw',
         'StatusNotification',
-        'http://cgw-adapter/callbacks/ocpp/StatusNotification'
+        'http://localhost:8080/connectivity/bb3-ocpp/callbacks/StatusNotification'
+    ),
+    (
+        'cgw',
+        'MeterValues',
+        'http://localhost:8080/connectivity/bb3-ocpp/callbacks/MeterValues'
     );
 insert into bb3.ocpp_application_entity (application_id, entity_code)
-values ('cgw', 'L0332137');
+values ('cgw', 'B2070807');
 insert into bb3.ocpp_charge_point (
         /* user-set */
         entity_code,
@@ -31,8 +36,8 @@ insert into bb3.ocpp_charge_point (
         connector_count
     )
 values (
-        'L0332137',
+        'B2070807',
         'ocpp1.6J',
-        'TACW745020G0274',
+        'SUTD_TEST',
         0
     );
