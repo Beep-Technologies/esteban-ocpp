@@ -23,7 +23,7 @@ func (a ByDate) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 func (a ByDate) Less(i, j int) bool {
 	RFC3339Milli := "2006-01-02T15:04:05.000Z07:00"
 	ait, aie := time.Parse(RFC3339Milli, a[i].Timestamp)
-	ajt, aje := time.Parse(RFC3339Milli, a[i].Timestamp)
+	ajt, aje := time.Parse(RFC3339Milli, a[j].Timestamp)
 
 	if aie != nil || aje != nil {
 		return false
@@ -53,7 +53,7 @@ func (cp *OCPP16ChargePoint) handleMeterValues(msg messaging.OCPP16CallMessage) 
 
 	// sort meter values by timestamp
 	// sort in reverse order i.e. latest meter values first
-	sort.Reverse(ByDate(p.MeterValue))
+	sort.Sort(sort.Reverse(ByDate(p.MeterValue)))
 
 	energyActiveImportRegister := 0
 	energyActiveImportRegisterFound := false
