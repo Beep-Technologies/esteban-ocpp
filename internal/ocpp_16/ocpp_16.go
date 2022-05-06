@@ -1,6 +1,9 @@
 package ocpp16
 
-import "github.com/gorilla/websocket"
+import (
+	"github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_16/messaging"
+	"github.com/gorilla/websocket"
+)
 
 type ChargePoint interface {
 	// start listening on the (websocket) connection for messages
@@ -10,7 +13,7 @@ type ChargePoint interface {
 	// make a request to remote stop transaction
 	RemoteStopTransaction(connectorID int) (err error)
 	// make a request to trigger a status notification from the charge point
-	TriggerStatusNotification(connectorID int) (err error)
+	TriggerStatusNotification(connectorID int, errorStatusCode messaging.OCPP16ChargePointErrorCode) (err error)
 }
 
 type CentralSystem interface {

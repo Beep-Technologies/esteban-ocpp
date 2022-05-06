@@ -84,3 +84,11 @@ const (
 	Unavailable   OCPP16Status = "Unavailable"
 	Faulted       OCPP16Status = "Faulted"
 )
+
+// TODO: Add all error codes from OCPP 1.6J document
+type OCPP16ChargePointErrorCode string
+
+const (
+	// Wireless communication device reports a weak signal.
+	WeakSignal OCPP16ChargePointErrorCode = "WeakSignal"
+)

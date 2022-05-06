@@ -24,7 +24,7 @@ require (
 	go.uber.org/zap v1.19.1
 	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3 // indirect
 	golang.org/x/sys v0.0.0-20210917161153-d61c044b1678 // indirect
-	golang.org/x/tools v0.1.6 // indirect
+	golang.org/x/tools v0.1.7 // indirect
 	google.golang.org/grpc v1.41.0
 	gorm.io/driver/postgres v1.2.3
 	gorm.io/gorm v1.22.4

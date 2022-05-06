@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"sync"
+	"time"
 
 	"go.uber.org/zap"
 
@@ -174,7 +175,32 @@ func (cp *OCPP16ChargePoint) RemoteStopTransaction(connectorID int) (err error) 
 	return nil
 }
 
-func (cp *OCPP16ChargePoint) TriggerStatusNotification(connectorID int) (err error) {
-	// STUB
+func (cp *OCPP16ChargePoint) TriggerStatusNotification(connectorID int, errorStatusCode messaging.OCPP16ChargePointErrorCode) (err error) {
+	p := &schemas.StatusNotificationRequest{
+		ConnectorId:     connectorID,
+		ErrorCode:       string(errorStatusCode),
+		Info:            "",
+		Status:          string(messaging.Unavailable),
+		Timestamp:       time.Now().Format(time.RFC3339),
+		VendorErrorCode: "",
+		VendorId:        "",
+	}
+	sn, err := cp.statusNotificationService.CreateStatusNotification(
+		cp.ctx,
+		&rpc.CreateStatusNotificationReq{
+			EntityCode:            cp.entityCode,
+			ChargePointIdentifier: cp.chargePointIdentifier,
+			ConnectorId:           int32(p.ConnectorId),
+			ErrorCode:             p.ErrorCode,
+			Info:                  p.Info,
+			Status:                p.Status,
+			Timestamp:             p.Timestamp,
+			VendorId:              p.VendorId,
+			VendorErrorCode:       p.VendorErrorCode,
+		},
+	)
+
+	// make callback
+	go cp.makeCallback("StatusNotification", sn)
 	return nil
 }

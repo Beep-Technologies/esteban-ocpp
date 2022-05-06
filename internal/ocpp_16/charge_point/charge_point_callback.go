@@ -49,6 +49,7 @@ func (cp *OCPP16ChargePoint) makeCallback(event string, data interface{}) {
 		cp.logger.Info(
 			"POST "+url,
 			zap.String("event", "application_callback"),
+			zap.String("body", string(body)),
 			zap.String("callback_event", event),
 			zap.String("callback_url", url),
 			zap.String("callback_res", resString),

@@ -246,9 +246,12 @@ func (cs *OCPP16CentralSystem) ConnectChargePoint(entityCode, identifier string,
 	// this happens if the websocket connection is closed by the charge point
 	// or if there is some error
 	<-ctx.Done()
-
+	// ConnectorId = 0, the status change applies to
+	// the Charge Point and all Connectors.
+	cp.TriggerStatusNotification(0, messaging.WeakSignal)
 	// cleanup
 	delete(cs.chargePoints, key)
+
 	conn.Close()
 	cs.logger.Info(
 		"",

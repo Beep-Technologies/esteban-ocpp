@@ -16,3 +16,6 @@ scratch
 
 # local postgres files
 .pg_data
+
+# DS Store
+*.DS_Store

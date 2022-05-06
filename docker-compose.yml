@@ -15,21 +15,21 @@ services:
     networks:
       - cgw
 
-  pgweb:
-    build:
-      context: .
-      dockerfile: Dockerfile.pgweb
-    ports: 
-      - 8062:8062
-    environment:
-      - PGWEB_PORT=8062
-      - DATABASE_HOST=tsdb
-      - DATABASE_PORT=5432
-      - DATABASE_URL=postgres://beep:beep@tsdb:5432/beepbeep3?sslmode=disable
-    depends_on:
-      - tsdb
-    networks:
-      - cgw
+  # pgweb:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.pgweb
+  #   ports: 
+  #     - 8062:8062
+  #   environment:
+  #     - PGWEB_PORT=8062
+  #     - DATABASE_HOST=tsdb
+  #     - DATABASE_PORT=5432
+  #     - DATABASE_URL=postgres://beep:beep@tsdb:5432/beepbeep3?sslmode=disable
+  #   depends_on:
+  #     - tsdb
+  #   networks:
+  #     - cgw
 
 networks:
   cgw:
