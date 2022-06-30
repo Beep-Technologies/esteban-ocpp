@@ -7,7 +7,7 @@ Esteban-OCPP considered as an open platform to implement, test and evaluate nove
 
 Esteban-OCPP was developed from scratch in Golang, and was highly inspired by [SteVe](https://github.com/RWTH-i5-IDSG/steve) built by RWTH Aachen University. 
 
-Our team created Esteban-OCPP as we needed a highly-performannt and robust OCPP implementation that is highly portable, and can run either on the cloud, or on a local device running on the edge at a charger site deployment. 
+Our team created Esteban-OCPP as we needed a highly-performant and robust OCPP implementation that is highly portable, and can run either on the cloud, or on a local device running on the edge at a charger site deployment. 
 
 Esteban-OCPP works out of the box with VoltNow & VoltPOS solutions from Beep, which enable transient customers and users to make EV Charger payments without the need for downloading any 3rd party applications.
 
