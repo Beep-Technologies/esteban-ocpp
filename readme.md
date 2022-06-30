@@ -38,15 +38,11 @@ If you are in the EU and offer vehicle charging to other people using SteVe, kee
 
 ## Enterprise Support
 
-As an Esteban Enterprise Editionn customer, you will have professional support included. Get reliable, high-touch support from senior support engineers.
+As an Esteban Enterprise Edition customer, you will have professional support included. Get reliable, high-touch support from senior support engineers.
 
 #### How to receive support
 
-Please write us an email to hello@beepbeep.tech to get help with your Esteban Enterprise Editionn customer. Include a detailed description as well as screen-shots, where necessary.
-
-#### Support ticket (only for Premier Support and Corporate Support)
-
-You can create a support ticket on our community platform. Please contact us for details. You first need to register on the OpenProject Community edition to create a support ticket.
+Please write us an email to hello@beepbeep.tech to get help with your Esteban Enterprise Edition customer. Include a detailed description as well as screen-shots, where necessary.
 
 #### Contact us
 
