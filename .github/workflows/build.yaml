@@ -5,7 +5,7 @@ name: build and push docker image
 on:
   push:
     branches:
-      - main
+      - deploy/dev
   workflow_dispatch: {}
 
 jobs:
@@ -67,13 +67,13 @@ jobs:
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
-      # - name: Send messages to telegram chat
-      #   uses: appleboy/telegram-action@master
-      #   with:
-      #     to: ${{ secrets.DEV_TELEGRAM_TO }}
-      #     token: ${{ secrets.DEV_TELEGRAM_TOKEN }}
-      #     message: |
-      #       🛠️ Build Complete:
-      #       Image: beepbeep3-ocpp:${{ env.SHORT_SHA }}
-      #       Commit Message: ${{ github.event.head_commit.message }}
-      #       Build Status: ${{ job.status }}
+      - name: Send messages to telegram chat
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.DEV_TELEGRAM_TO }}
+          token: ${{ secrets.DEV_TELEGRAM_TOKEN }}
+          message: |
+            🛠️ Build Complete:
+            Image: beepbeep3-ocpp:${{ env.SHORT_SHA }}
+            Commit Message: ${{ github.event.head_commit.message }}
+            Build Status: ${{ job.status }}
