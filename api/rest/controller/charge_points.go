@@ -6,10 +6,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/Beep-Technologies/beepbeep3-iam/pkg/constants"
 	"github.com/Beep-Technologies/beepbeep3-ocpp/api/rpc"
 	chargepoint "github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/charge_point"
 	statusnotification "github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/status_notification"
+	"github.com/Beep-Technologies/beepbeep3-ocpp/pkg/constants"
 )
 
 type ChargePointsAPI struct {

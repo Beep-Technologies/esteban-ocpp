@@ -6,7 +6,7 @@ package models
 import (
 	"strconv"
 
-	"github.com/Beep-Technologies/beepbeep3-iam/pkg/constants"
+	"github.com/Beep-Technologies/beepbeep3-ocpp/pkg/constants"
 )
 
 // OcppApplication is an object representing the database table.

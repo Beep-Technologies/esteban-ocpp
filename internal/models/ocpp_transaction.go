@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Beep-Technologies/beepbeep3-iam/pkg/constants"
+	"github.com/Beep-Technologies/beepbeep3-ocpp/pkg/constants"
 )
 
 // OcppTransaction is an object representing the database table.

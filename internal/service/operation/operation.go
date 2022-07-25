@@ -9,6 +9,7 @@ import (
 	ocpp16 "github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_16"
 	chargepoint "github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/charge_point"
 	"github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/transaction"
+	"github.com/Beep-Technologies/beepbeep3-ocpp/pkg/logger"
 )
 
 type Service struct {
@@ -40,12 +41,14 @@ func (srv Service) RemoteStartTransaction(
 	// get the charge point
 	cp, err := srv.ocpp16CentralSystem.GetChargePoint(req.EntityCode, req.ChargePointIdentifier)
 	if err != nil {
+		logger.Errorf("srv.ocpp16CentralSystem.GetChargePoint RemoteStartTransaction, err is ", err)
 		return nil, err
 	}
 
 	// call remote start transaction
 	tid, err := cp.RemoteStartTransaction(int(req.ConnectorId))
 	if err != nil {
+		logger.Errorf("cp.RemoteStartTransaction, err is ", err)
 		return nil, err
 	}
 
@@ -63,12 +66,14 @@ func (srv Service) RemoteStopTransaction(
 	// get the charge point
 	cp, err := srv.ocpp16CentralSystem.GetChargePoint(req.EntityCode, req.ChargePointIdentifier)
 	if err != nil {
+		logger.Errorf("srv.ocpp16CentralSystem.GetChargePoint RemoteStopTransaction, err is ", err)
 		return nil, err
 	}
 
 	// call remote start transaction
 	err = cp.RemoteStopTransaction(int(req.ConnectorId))
 	if err != nil {
+		logger.Errorf("cp.RemoteStopTransaction, err is ", err)
 		return nil, err
 	}
 

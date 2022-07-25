@@ -48,4 +48,4 @@ no-context = true
            
 [imports.all]
     standard = []
-    third_party = ['"github.com/Beep-Technologies/beepbeep3-iam/pkg/constants"']
+    third_party = ['"github.com/Beep-Technologies/beepbeep3-ocpp/pkg/constants"']

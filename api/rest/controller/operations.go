@@ -5,11 +5,13 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 
-	"github.com/Beep-Technologies/beepbeep3-iam/pkg/constants"
 	"github.com/Beep-Technologies/beepbeep3-ocpp/api/rpc"
 	"github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/operation"
 	statusnotification "github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/status_notification"
+	"github.com/Beep-Technologies/beepbeep3-ocpp/pkg/constants"
+	"github.com/Beep-Technologies/beepbeep3-ocpp/pkg/logger"
 )
 
 type OperationsAPI struct {
@@ -51,6 +53,11 @@ func (api *OperationsAPI) RemoteStartTransaction(c *gin.Context) {
 	res, err := api.operationService.RemoteStartTransaction(ctx, req)
 
 	if err != nil {
+		logger.Error(
+			err.Error(),
+			zap.String("event", "RemoteStartTransaction"),
+			zap.String("error", err.Error()),
+		)
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"status":  http.StatusBadRequest,
 			"message": err.Error(),
@@ -93,6 +100,11 @@ func (api *OperationsAPI) RemoteStopTransaction(c *gin.Context) {
 	res, err := api.operationService.RemoteStopTransaction(ctx, req)
 
 	if err != nil {
+		logger.Error(
+			err.Error(),
+			zap.String("event", "RemoteStopTransaction"),
+			zap.String("error", err.Error()),
+		)
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"status":  http.StatusBadRequest,
 			"message": err.Error(),

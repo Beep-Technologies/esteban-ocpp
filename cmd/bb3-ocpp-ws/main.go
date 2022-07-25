@@ -7,14 +7,6 @@ import (
 	"strconv"
 	"time"
 
-	ginzap "github.com/gin-contrib/zap"
-	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
-	"go.uber.org/zap"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
-
 	"github.com/Beep-Technologies/beepbeep3-ocpp/api/rest/controller"
 	"github.com/Beep-Technologies/beepbeep3-ocpp/api/rest/router"
 	ocpp16cs "github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_16/central_system"
@@ -24,6 +16,15 @@ import (
 	operationsrv "github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/operation"
 	statusnotificationsrv "github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/status_notification"
 	transactionsrv "github.com/Beep-Technologies/beepbeep3-ocpp/internal/service/transaction"
+
+	"github.com/Beep-Technologies/beepbeep3-ocpp/pkg/logger"
+	ginzap "github.com/gin-contrib/zap"
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	"go.uber.org/zap"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+	gormLogger "gorm.io/gorm/logger"
 )
 
 // @title BB3 OCPP API
@@ -61,7 +62,7 @@ func main() {
 			PreferSimpleProtocol: true,
 		}),
 		&gorm.Config{
-			Logger: logger.Default.LogMode(logger.Silent),
+			Logger: gormLogger.Default.LogMode(gormLogger.Silent),
 		})
 	if err != nil {
 		fmt.Println(err)
@@ -72,6 +73,7 @@ func main() {
 	sqlDB.SetMaxOpenConns(100)
 
 	var l *zap.Logger
+	logger.LogInit()
 	if os.Getenv("ENVIRONMENT") == "production" {
 		gin.SetMode(gin.ReleaseMode)
 		l, _ = zap.NewProduction()
