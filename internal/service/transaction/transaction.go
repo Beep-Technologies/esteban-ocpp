@@ -82,6 +82,15 @@ func (srv Service) CreateTransaction(ctx context.Context, req *rpc.CreateTransac
 		return nil, err
 	}
 
+	_, err = srv.chargePoint.CreateIdTag(ctx, models.OcppChargePointIDTag{
+		ChargePointID: cp.ID,
+		IDTag:         req.IdTag,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
 	res := &rpc.CreateTransactionResp{
 		Transaction: &rpc.Transaction{
 			Id:              t.ID,
