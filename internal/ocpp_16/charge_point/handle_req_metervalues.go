@@ -1,10 +1,12 @@
 package chargepoint
 
 import (
+	"fmt"
 	"sort"
 	"strconv"
 	"time"
 
+	"github.com/Beep-Technologies/beepbeep3-ocpp/api/rpc"
 	"github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_16/messaging"
 	"github.com/Beep-Technologies/beepbeep3-ocpp/internal/ocpp_16/messaging/schemas"
 	"github.com/mitchellh/mapstructure"
@@ -81,6 +83,19 @@ func (cp *OCPP16ChargePoint) handleMeterValues(msg messaging.OCPP16CallMessage) 
 
 	// if there is a value for energyActiveImportRegister, make the callback
 	if energyActiveImportRegisterFound {
+		transaction, err := cp.transactionService.GetOngoingTransaction(cp.ctx, &rpc.GetOngoingTransactionReq{
+			EntityCode:            cp.entityCode,
+			ChargePointIdentifier: cp.chargePointIdentifier,
+			ConnectorId:           int32(p.ConnectorId),
+		})
+
+		if err != nil {
+			cp.logger.Error(fmt.Sprintf("handleMeterValues for non existent transaction id %v", p.TransactionId))
+		}
+
+		// energyActiveImportRegister should be the DIFFERENCE in start_meter_value and actual energyActiveImportRegister (the current meter reading value)
+		energyActiveImportRegister = energyActiveImportRegister - int(transaction.Transaction.StartMeterValue)
+
 		d := map[string]interface{}{
 			"meter_values": map[string]interface{}{
 				"energy_active_import_register": energyActiveImportRegister,
