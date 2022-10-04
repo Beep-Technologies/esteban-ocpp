@@ -89,20 +89,20 @@ func (cp *OCPP16ChargePoint) handleMeterValues(msg messaging.OCPP16CallMessage) 
 			ConnectorId:           int32(p.ConnectorId),
 		})
 
-		if err != nil {
-			cp.logger.Error(fmt.Sprintf("handleMeterValues for non existent transaction id %v", p.TransactionId))
+		if transaction == nil || err != nil {
+			cp.logger.Warn(fmt.Sprintf("handleMeterValues for non existent transaction id %v, ignoring", p.TransactionId))
+		} else {
+			// energyActiveImportRegister should be the DIFFERENCE in start_meter_value and actual energyActiveImportRegister (the current meter reading value)
+			energyActiveImportRegister = energyActiveImportRegister - int(transaction.Transaction.StartMeterValue)
+
+			d := map[string]interface{}{
+				"meter_values": map[string]interface{}{
+					"energy_active_import_register": energyActiveImportRegister,
+				},
+			}
+
+			go cp.makeCallback("MeterValues", d)
 		}
-
-		// energyActiveImportRegister should be the DIFFERENCE in start_meter_value and actual energyActiveImportRegister (the current meter reading value)
-		energyActiveImportRegister = energyActiveImportRegister - int(transaction.Transaction.StartMeterValue)
-
-		d := map[string]interface{}{
-			"meter_values": map[string]interface{}{
-				"energy_active_import_register": energyActiveImportRegister,
-			},
-		}
-
-		go cp.makeCallback("MeterValues", d)
 	}
 
 	return &messaging.OCPP16CallResult{
