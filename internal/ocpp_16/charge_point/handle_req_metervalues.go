@@ -89,7 +89,7 @@ func (cp *OCPP16ChargePoint) handleMeterValues(msg messaging.OCPP16CallMessage) 
 			ConnectorId:           int32(p.ConnectorId),
 		})
 
-		if transaction == nil || err != nil {
+		if transaction.Transaction == nil || err != nil {
 			cp.logger.Warn(fmt.Sprintf("handleMeterValues for non existent transaction id %v, ignoring", p.TransactionId))
 		} else {
 			// energyActiveImportRegister should be the DIFFERENCE in start_meter_value and actual energyActiveImportRegister (the current meter reading value)
